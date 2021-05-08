@@ -88,21 +88,16 @@ WSGI_APPLICATION = 'urbangis.wsgi.application'
 #}
 
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'gis',
-#        'USER': 'postgres',
-#        'PASSWORD': 'admin',
-#        'HOST': '127.0.0.1',
-#        'PORT': '5432',
-#    }
-#}
-
-
-import dj_database_url
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gis',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
 
 
 # Password validation

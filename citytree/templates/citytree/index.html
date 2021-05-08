@@ -1,0 +1,808 @@
+{% extends 'citytree/base_citytree.html' %}
+{% load static %}
+
+
+{% block title %}
+City Tree Map - {{ block.super }}
+{% endblock %}
+
+<!-- меняет файл стиля для sidebar, т.к. в этом app он нужен более широкий -->
+{% block css_sidebar %}<link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">{% endblock %}
+
+{% block sidebar %}
+
+
+
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation" id="tabFilter">
+            <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Filter</a>
+        </li>
+        <li class="nav-item" role="presentation" id="tabTree">
+            <a class="nav-link" id="tree-tab" data-toggle="tab" href="#tree" role="tab" aria-controls="tree" aria-selected="false">Tree</a>
+        </li>
+        <li class="nav-item" role="presentation" id="tabInspection">
+            <a class="nav-link" id="inspection-tab" data-toggle="tab" href="#inspection" role="tab" aria-controls="tree" aria-selected="false">Inspection</a>
+        </li>
+        <li class="nav-item" role="presentation" id="tabAction">
+            <a class="nav-link" id="action-tab" data-toggle="tab" href="#action" role="tab" aria-controls="tree" aria-selected="false">Action</a>
+        </li>
+
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+
+        <div class="tab-pane fade show active m-3" id="filter" role="tabpanel" aria-labelledby="filter-tab">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_filter">
+
+
+                <div class="form-group">
+                    <label for="filter_species">Species</label>
+                    <div class="class_Filter_Species">
+                        <select name="species" id="filter_species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" data-actions-box="true" multiple>
+
+                            {% for groupQuerySet in species_by_group %}
+                                <optgroup label="{{groupQuerySet.first.groupspec}}">
+                                    {% for item in groupQuerySet %}
+                                        <option data-subtext="{{ item.speciesname }}"  value="{{ item.id }}" {% if item.typespec_id == 2 %}style="background: #eeffee"{% endif %}>{{ item.localname }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="filter_status">Status</label>
+                    <select name="species" id="filter_status" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                        {% for item in status %}
+                        <option value="{{ item.id }}">{{ item.statusname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filter_recommendations">Recommendations</label>
+                    <select name="species" id="filter_recommendations" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                        {% for item in caretype %}
+                        <option value="{{ item.id }}">{{ item.carename }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="filter_remarks">Remarks</label>
+                    <select name="species" id="filter_remarks" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                        {% for item in remark %}
+                        <option value="{{ item.id }}">{{ item.remarkname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="filter_placetype">Placetype</label>
+                        <select name="placetype" id="filter_placetype" class="form-control">
+                            <option selected></option>
+                            {% for item in placetype %}
+                            <option value="{{ item.id }}">{{ item.placename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="filter_irrigationmethod">Irrigationmethod</label>
+                        <select name="irrigationmethod" id="filter_irrigationmethod" class="form-control">
+                            <option selected></option>
+                            {% for item in irrigationmethod %}
+                            <option value="{{ item.id }}">{{ item.irrigationname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="form-row">
+                    <div class="form-group col-sm-6">
+                        <label for="filter_plantedDateFrom">Date planted from</label>
+                        <input type="date" class="form-control" name="dateFrom" id="filter_plantedDateFrom">
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="filter_plantedDateTo">To</label>
+                        <input type="date" class="form-control" name="dateTo" id="filter_plantedDateTo">
+                    </div>
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group col-sm-6">
+                        <label for="filter_addedDateFrom">Date added from</label>
+                        <input type="date" class="form-control" name="dateFrom" id="filter_addedDateFrom">
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="filter_addedDateTo">To</label>
+                        <input type="date" class="form-control" name="dateTo" id="filter_addedDateTo">
+                    </div>
+                </div>
+
+
+
+
+                <div class="form-group">
+                    <label for="filter_comment">Comment</label>
+                    <input type="text" class="form-control" name="comment" id="filter_comment">
+                </div>
+
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="filter_showOnlyMyTrees">
+                    <label class="form-check-label" for="filter_showOnlyMyTrees">Show only my trees</label>
+                </div>
+
+
+                <div class="float-lg-right">
+                    <button type="button" class="btn btn-light" id="reset_Filter">Reset</button>
+                    <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Apply</button>
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <div class="tab-pane fade ml-3 mr-1" id="tree" role="tabpanel" aria-labelledby="tree-tab">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_tree">
+                <form action="{{ obj_city.get_absolute_url }}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p> {{ formTree.errors }}</p>
+                    <p> {{ formInspection.errors }}</p>
+
+
+                    <div class="form-row mb-2">
+                        <div class="col">
+                            <label class="col-form-label col-form-label-sm">Lat/Lng</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" name="latitude" id="latitude" class="form-control form-control-sm" step="any" style="min-width: 80px; max-width: 150px;" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" name="longitude" id="longitude" class="form-control form-control-sm" step="any" style="min-width: 80px; max-width: 150px;" required>
+                        </div>
+                    </div>
+
+                    
+
+
+
+
+
+                    <div class="form-group">
+                        <label for="species">Species</label>
+                        <div class="class_Tree_Species">
+                            <select name="species" id="species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" required>
+
+                                {% for groupQuerySet in species_by_group %}
+                                    <optgroup label="{{groupQuerySet.first.groupspec}}">
+                                        {% for item in groupQuerySet %}
+                                            <option data-subtext="{{ item.speciesname }}"  value="{{ item.id }}" {% if item.typespec_id == 2 %}style="background: #eeffee"{% endif %}>{{ item.localname }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="form-group">
+                        <label for="speciescomment">Species comment (if you can't find species in the lise above)</label>
+                        <input type="text" class="form-control" name="speciescomment" id="speciescomment">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Comment about tree</label>
+                        <textarea class="form-control" name="comment" id="comment" row="4"></textarea>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="placetype">Placetype</label>
+                            <select name="placetype" id="placetype" class="form-control" required>
+                                <!-- <option selected></option> -->
+                                {% for item in placetype %}
+                                <option value="{{ item.id }}">{{ item.placename }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="irrigationmethod">Irrigationmethod</label>
+                            <select name="irrigationmethod" id="irrigationmethod" class="form-control" required>
+                                {% for item in irrigationmethod %}
+                                <option value="{{ item.id }}">{{ item.irrigationname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="dateplanted">Dateplanted</label>
+                            <input type="date" class="form-control" name="dateplanted" id="dateplanted">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="googlestreeturl">Google Street Url</label>
+                            <input type="text" class="form-control" name="googlestreeturl" id="googlestreeturl">
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div id="divExistsTree" class="mb-5 mt-3">
+
+                        <div class="form-group">
+                            <!-- <button type="button" class="btn btn-light" style="width: 100%" id="button_show_inspact">Show inspections and actions</button> -->
+                            <label for="divTreeInspActData">Tree history</label>
+                            <div id="divTreeInspActData">
+                                <table id="table_InspActData" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
+                                    <thead>
+                                    <tr>
+                                        <th data-field="datetime" data-formatter="dateFormatter" data-sortable="true">Date</th>
+                                        <th data-field="type">Type</th>
+                                        <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                                <script>
+                                    function dateFormatter(value, row) {
+                                        return value.slice(0, 10)
+                                    }
+
+                                    function operateFormatter(value, row, index) {
+                                        if (row.type=="Inspection" && (row.photo1 !=="" || row.photo2 !=="" || row.photo3 !=="")) {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>&nbsp;&nbsp;&nbsp;',
+                                                '<a class="photos" href="javascript:void(0)" title="Photos">',
+                                                '<i style="font-size:15pt" class="fa fa-camera"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        } else {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        }
+                                    }
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <button type="button" class="btn btn-light" id="id_button_NewInspection" style="width: 100%">New inspection</button>
+                            </div>
+                            <div class="form-group col-6">
+                                <button type="button" class="btn btn-light" id="id_button_NewAction" style="width: 100%">New action</button>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-check mt-3 mb-3">
+                            <!-- <button type="button" id="button_photos" class="btn btn-link" data-toggle="modal" data-target=".bd-example-modal-lg">Photos from the latest inspection</button> -->
+                            <button type="button" id="id_button_modal_slideshow" class="btn btn-link">Photos from the latest inspection</button>
+                        </div>
+
+                        <div class="accordion" id="accordionExample">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                            Data from the latest inspection
+                                        </button>
+                                    </h2>
+                                </div>
+
+                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                    <div class="card-body">
+
+                                        <p id="lates_inspection_datetime">DateTime</p>
+                                        <p id="lates_inspection_status">Status</p>
+                                        <p id="lates_inspection_sizes">Sizes</p>
+                                        <p id="lates_inspection_remarks">Remarks</p>
+                                        <p id="lates_inspection_recommendations">Recommendations</p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                    <div id="divNewTree">
+                        <div class="form-group mt-5">
+                            <label><b>Make first inspection for this tree</b></label>
+                        </div>
+
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="height">Height (m)</label>
+                                <input type="number" name="height" id="height" class="form-control form-control-sm" step="any" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="crowndiameter">Crown D. (m)</label>
+                                <input type="number" name="crowndiameter" id="crowndiameter" class="form-control form-control-sm" step="any" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="trunkgirth">Trunk Girth (cm)</label>
+                                <input type="number" name="trunkgirth" id="trunkgirth" class="form-control form-control-sm" step="any" required>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control" required>
+                                <!-- <option selected></option> -->
+                                {% for item in status %}
+                                <option value="{{ item.id }}">{{ item.statusname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label for="id_remarks">Remarks</label>
+
+                            <select class="form-control selectpicker" name="remarks" id="id_remarks" data-style="btn-outline-primary" multiple>
+                                {% for item in remark %}
+                                <option value="{{ item.id }}">{{ item.remarkname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label for="id_recommendations">Recommendations</label>
+
+                            <select class="form-control selectpicker" name="recommendations" id="id_recommendations" data-style="btn-outline-primary" multiple>
+                                <!-- <option value="" selected>---------</option>-->
+                                {% for item in caretype %}
+                                <option value="{{ item.id }}">{{ item.carename }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+
+                        <!--
+                                                <div class="form-group">
+                                                    <label for="id_photo1">Photo 1:</label>
+                                                    <input type="file" name="photo1" accept="image/*" id="id_photo1">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="id_photo1">Photo 2:</label>
+                                                    <input type="file" name="photo2" accept="image/*" id="id_photo2">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="id_photo1">Photo 3:</label>
+                                                    <input type="file" name="photo3" accept="image/*" id="id_photo3">
+                                                </div>
+                        -->
+
+
+                        <div class="form-row">
+                            <div class="form-group col-4 align-self-end">
+                                <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_first_insp_img_photo1" onclick="document.getElementById('id_first_insp_photo1').click();">
+                            </div>
+                            <div class="form-group col-4 align-self-end">
+                                <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_first_insp_img_photo2" onclick="document.getElementById('id_first_insp_photo2').click();">
+                            </div>
+                            <div class="form-group col-4 align-self-end">
+                                <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_first_insp_img_photo3" onclick="document.getElementById('id_first_insp_photo3').click();">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-4 text-center">
+                                <input type="file" name="photo1" accept="image/*" id="id_first_insp_photo1" style="display: none;">
+                                <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo1').click();" />
+                            </div>
+                            <div class="form-group col-4 text-center">
+                                <input type="file" name="photo2" accept="image/*" id="id_first_insp_photo2" style="display: none;">
+                                <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo2').click();" />
+                            </div>
+                            <div class="form-group col-4 text-center">
+                                <input type="file" name="photo3" accept="image/*" id="id_first_insp_photo3" style="display: none;">
+                                <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo3').click();" />
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                    <!-- for button "Photos from the latest inspection" to show slidshow -->
+                    <input type="hidden" id="id_tree_photo1">
+                    <input type="hidden" id="id_tree_photo2">
+                    <input type="hidden" id="id_tree_photo3">
+
+                    <input type="hidden" id="treeId" name="treeId">
+
+                    <!--
+                    <div class="float-lg-right mt-3">
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Delete</button>
+                        <button type="button" class="btn btn-secondary" id="button_CloseTabTree">Close</button>
+                        <button style="min-width: 105px;" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Save</button>
+                    </div> -->
+
+                    <div class="form-row mt-4">
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Delete</button>
+                        </div>
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabTree">Close</button>
+                        </div>
+                        <div class="form-group col-6 text-center">
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Save</button>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this tree?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-light" name="send" value="delete">Delete</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="tab-pane fade ml-3 mr-1" id="inspection" role="tabpanel" aria-labelledby="inspection-tab">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_inspection">
+                <form action="{{ obj_city.get_absolute_url }}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p> {{ formInspection.errors }}</p>
+
+
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="insp_height">Height (m)</label>
+                            <input type="number" name="height" id="insp_height" class="form-control form-control-sm" step="any" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="insp_crowndiameter">Crown D. (m)</label>
+                            <input type="number" name="crowndiameter" id="insp_crowndiameter" class="form-control form-control-sm" step="any" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="insp_trunkgirth">Trunk Girth (cm)</label>
+                            <input type="number" name="trunkgirth" id="insp_trunkgirth" class="form-control form-control-sm" step="any" required>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="insp_status">Status</label>
+                        <select name="status" id="insp_status" class="form-control" required>
+                            <!-- <option selected></option> -->
+                            {% for item in status %}
+                            <option value="{{ item.id }}">{{ item.statusname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="id_insp_remarks">Remarks</label>
+
+                        <select class="form-control selectpicker" name="remarks" id="id_insp_remarks" data-style="btn-outline-primary" multiple>
+                            {% for item in remark %}
+                            <option value="{{ item.id }}">{{ item.remarkname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="id_insp_recommendations">Recommendations</label>
+                        <select class="form-control selectpicker" name="recommendations" id="id_insp_recommendations" data-style="btn-outline-primary" multiple>
+                            {% for item in caretype %}
+                            <option value="{{ item.id }}">{{ item.carename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- <div class="form-group">
+                        <button type="button" class="btn btn-light" style="width: 100%" id="button_show_insp_photos">Show photos</button>
+                    </div> -->
+
+
+
+                    <div class="form-row mt-5">
+                        <div class="form-group col-4 align-self-end">
+                            <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo1">
+                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo1_filename').value='*will_be_deleted*'; $('#id_insp_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        </div>
+                        <div class="form-group col-4 align-self-end">
+                            <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo2">
+                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo2_filename').value='*will_be_deleted*'; $('#id_insp_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        </div>
+                        <div class="form-group col-4 align-self-end">
+                            <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo3">
+                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo3_filename').value='*will_be_deleted*'; $('#id_insp_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-4 text-center">
+                            <input type="file" name="photo1" accept="image/*" id="id_insp_photo1" style="display: none;">
+                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo1').click();" />
+                        </div>
+                        <div class="form-group col-4 text-center">
+                            <input type="file" name="photo2" accept="image/*" id="id_insp_photo2" style="display: none;">
+                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo2').click();" />
+                        </div>
+                        <div class="form-group col-4 text-center">
+                            <input type="file" name="photo3" accept="image/*" id="id_insp_photo3" style="display: none;">
+                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo3').click();" />
+                        </div>
+                    </div>
+
+
+
+                    <input type="hidden" id="id_insp_photo1_filename" name="insp_photo1_filename">
+                    <input type="hidden" id="id_insp_photo2_filename" name="insp_photo2_filename">
+                    <input type="hidden" id="id_insp_photo3_filename" name="insp_photo3_filename">
+
+                    <input type="hidden" id="inspTreeId" name="treeId">
+                    <input type="hidden" id="inspId" name="inspId">
+
+
+
+                    <!--
+                    <div class="float-lg-right">
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Delete</button>
+                        <button type="button" class="btn btn-secondary" id="button_CloseTabInsp">Close</button>
+                        <button style="min-width: 105px;" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Save</button>
+                    </div> -->
+
+                    <div class="form-row mt-4">
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Delete</button>
+                        </div>
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Close</button>
+                        </div>
+                        <div class="form-group col-6 text-center">
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Save</button>
+                        </div>
+                    </div>
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="insp_deleteModal" tabindex="-1" role="dialog" aria-labelledby="insp_deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="insp_deleteModalLabel">Delete</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this inspection?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-light" name="send" value="deleteInsp">Delete</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="tab-pane fade ml-3 mr-1" id="action" role="tabpanel" aria-labelledby="action-tab">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);">
+                <form action="{{ obj_city.get_absolute_url }}" method="post">
+                    {% csrf_token %}
+                    <p> {{ formAction.errors }}</p>
+
+
+
+                    <div class="form-row">
+                        <div class="form-group col-sm-6">
+                            <label for="id_act_date">Date</label>
+                            <input type="date" class="form-control" name="date" id="id_act_date" required>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="id_act_executor">Executor</label>
+                            <input type="text" class="form-control" name="executor" id="id_act_executor">
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="id_act_actions">Actions</label>
+                        <select class="form-control selectpicker" name="actions" id="id_act_actions" data-style="btn-outline-primary" multiple>
+                            {% for item in caretype %}
+                            <option value="{{ item.id }}">{{ item.carename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_act_comment">Comment</label>
+                        <input type="text" class="form-control" name="comment" id="id_act_comment">
+                    </div>
+
+
+                    <input type="hidden" id="actionTreeId" name="treeId">
+                    <input type="hidden" id="actionId" name="actionId">
+
+
+
+                    <div class="form-row mt-4">
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#act_deleteModal" id="act_deleteButton" disabled>Delete</button>
+                        </div>
+                        <div class="form-group col-3 text-center">
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabAct">Close</button>
+                        </div>
+                        <div class="form-group col-6 text-center">
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveAct" id="saveActButton">Save</button>
+                        </div>
+                    </div>
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="act_deleteModal" tabindex="-1" role="dialog" aria-labelledby="act_deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="act_deleteModalLabel">Delete</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this action?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-light" name="send" value="deleteAct">Delete</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+    </div>
+
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block map %}
+
+<div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
+<button id="doneMarkerMobile" class="btn btn-success">Done</button>
+<button id="cancelMarkerMobile" class="btn btn-secondary">&#x2715;</button>
+
+<script>
+
+    {% include 'citytree/includes/index.js' %}
+
+</script>
+
+
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modalSlideShow">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+
+            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="false">
+                <ol class="carousel-indicators"></ol>
+                <div class="carousel-inner"></div>
+
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base_website.html' %}
+
+
+{% block title %}
+Register - {{ block.super }}
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container h-100">
+	<div class="row h-100 justify-content-center align-items-center">
+		<div class="col-6 p-4 rounded shadow p-3 mb-5 bg-white">
+			<form method="POST" action="">
+				{% csrf_token %}
+				<div class="form-group">
+					<label for="inputUsername">Username</label>
+					<input type="text" class="form-control{% if form.username.errors %} is-invalid{% endif %}" id="inputUsername" name="username" required>
+					<div class="invalid-feedback">{% if form.username.errors %}{{form.username.errors}}{% endif %}</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail">Email address</label>
+					<input type="email" class="form-control{% if form.email.errors %} is-invalid{% endif %}" id="inputEmail" name="email" required>
+					<div class="invalid-feedback">{% if form.email.errors %}{{form.email.errors}}{% endif %}</div>
+				</div>
+				<div class="form-group">
+					<label for="inputPassword">Password</label>
+					<input type="password" class="form-control{% if form.password1.errors %} is-invalid{% endif %}"id="inputPassword" name="password1" required>
+					<div class="invalid-feedback">{% if form.password1.errors %}{{form.password1.errors}}{% endif %}</div>
+				</div>
+				<div class="form-group">
+					<label for="inputPassword2">Confirm Password</label>
+					<input type="password" class="form-control{% if form.password2.errors %} is-invalid{% endif %}" id="inputPassword2" name="password2" required>
+					<div class="invalid-feedback">{% if form.password2.errors %}{{form.password2.errors}}{% endif %}</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-block">Register</button>
+			</form>
+
+
+
+			<p class="text-center mt-5">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+
+		</div>
+	</div>
+</div>
+{% endblock %}

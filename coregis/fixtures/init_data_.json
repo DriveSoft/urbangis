@@ -1,0 +1,13 @@
+[  
+  {
+    "model": "coregis.coreCity",
+    "pk": 1,
+    "fields": {
+      "cityname": "Varna",
+	  "sysname": "varna",
+	  "latitude": 43.215430, 
+	  "longitude": 27.906427,
+	  "zoom": 13
+    }
+  }  
+]

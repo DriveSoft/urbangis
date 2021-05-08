@@ -27,7 +27,7 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.11", "192.168.1.20"]
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.11", "192.168.1.20", "urbangis1.herokuapp.com"]
 
 
 # Application definition
@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'urbangis.urls'

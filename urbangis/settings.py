@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
+from sys import platform
 from pathlib import Path
 import os
 
@@ -87,22 +88,23 @@ WSGI_APPLICATION = 'urbangis.wsgi.application'
 #    }
 #}
 
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'gis',
-#        'USER': 'postgres',
-#        'PASSWORD': 'admin',
-#        'HOST': '127.0.0.1',
-#        'PORT': '5432',
-#    }
-#}
-
-
-import dj_database_url
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+# develop
+if platform == "win32":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'gis',
+            'USER': 'postgres',
+            'PASSWORD': 'admin',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
+#production
+else:
+    import dj_database_url
+    DATABASES = {}
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 
 

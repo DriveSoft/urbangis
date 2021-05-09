@@ -6,7 +6,9 @@
     <bookmark url="file://$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" line="1291" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="" />
+    <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/urbangis/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/urbangis/settings.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/citytree/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="654">
-              <caret line="174" column="77" selection-start-line="174" selection-start-column="77" selection-end-line="174" selection-end-column="77" />
+            <state relative-caret-position="67">
+              <caret line="24" column="14" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="14" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -27,14 +29,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="511">
-              <caret line="96" column="27" lean-forward="true" selection-start-line="95" selection-start-column="27" selection-end-line="96" selection-end-column="27" />
+            <state relative-caret-position="1311">
+              <caret line="102" column="11" selection-start-line="102" selection-start-column="11" selection-end-line="102" selection-end-column="11" />
               <folding>
                 <element signature="e#308#328#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/coregis/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="38">
+              <caret line="2" column="14" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -99,7 +110,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Google Street Url</find>
       <find>Comment</find>
       <find>id_button_NewInspection</find>
       <find>button_NewInspection</find>
@@ -129,6 +139,7 @@
       <find>id_insp_img_photo1</find>
       <find>images_inspection_click</find>
       <find>ShowSlideShow</find>
+      <find>BASE_DIR</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -202,29 +213,6 @@
               <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
               <item name="[project]" type="462c0819:PsiDirectoryNode" />
               <item name="citytree" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
-              <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="citytree" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
-              <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="citytree" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="citytree" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
-              <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
-              <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="urbangis" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -558,13 +546,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/coregis/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="14" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/website/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="95">
@@ -638,25 +619,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/citytree/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="654">
-          <caret line="174" column="77" selection-start-line="174" selection-start-column="77" selection-end-line="174" selection-end-column="77" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Procfile">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="511">
-          <caret line="96" column="27" lean-forward="true" selection-start-line="95" selection-start-column="27" selection-end-line="96" selection-end-column="27" />
+        <state relative-caret-position="1311">
+          <caret line="102" column="11" selection-start-line="102" selection-start-column="11" selection-end-line="102" selection-end-column="11" />
           <folding>
             <element signature="e#308#328#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/coregis/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="14" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/citytree/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="67">
+          <caret line="24" column="14" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
           </folding>
         </state>
       </provider>

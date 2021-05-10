@@ -161,9 +161,9 @@ var treeData = {
                 "datetimeinsp": "{{tree.lastinsp_datetime}}",
                 "recommendations": [{{tree.lastinsp_recommendations_list|default_if_none:""|safe}}],
                 "remarks": [{{tree.lastinsp_remarks_list|default_if_none:""|safe}}],
-                "photo1": "/{{tree.lastinsp_photo1}}",
-                "photo2": "/{{tree.lastinsp_photo2}}",
-                "photo3": "/{{tree.lastinsp_photo3}}",
+                "photo1": "{{tree.lastinsp_photo1}}",
+                "photo2": "{{tree.lastinsp_photo2}}",
+                "photo3": "{{tree.lastinsp_photo3}}",
                 "is_deleted": {{ tree.is_deleted|yesno:"1,0" }},
             },
             "geometry": {
@@ -1039,24 +1039,24 @@ window.operateEvents = {
 
 
             if (row.photo1 !== "") {
-                $("#id_insp_img_photo1").attr("src", "{% get_media_prefix%}/"+row.photo1);
-                document.getElementById("id_insp_photo1_filename").value = "{% get_media_prefix%}/"+row.photo1;
+                $("#id_insp_img_photo1").attr("src", "{% get_media_prefix%}"+row.photo1);
+                document.getElementById("id_insp_photo1_filename").value = "{% get_media_prefix%}"+row.photo1;
             } else {
                 $("#id_insp_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
                 document.getElementById("id_insp_photo1_filename").value = "";
             }
 
             if (row.photo2 !== "") {
-                $("#id_insp_img_photo2").attr("src", "{% get_media_prefix%}/"+row.photo2);
-                document.getElementById("id_insp_photo2_filename").value = "{% get_media_prefix%}/"+row.photo2;
+                $("#id_insp_img_photo2").attr("src", "{% get_media_prefix%}"+row.photo2);
+                document.getElementById("id_insp_photo2_filename").value = "{% get_media_prefix%}"+row.photo2;
             } else {
                 $("#id_insp_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
                 document.getElementById("id_insp_photo2_filename").value = "";
             }
 
             if (row.photo3 !== "") {
-                $("#id_insp_img_photo3").attr("src", "{% get_media_prefix%}/"+row.photo3);
-                document.getElementById("id_insp_photo3_filename").value = "{% get_media_prefix%}/"+row.photo3;
+                $("#id_insp_img_photo3").attr("src", "{% get_media_prefix%}"+row.photo3);
+                document.getElementById("id_insp_photo3_filename").value = "{% get_media_prefix%}"+row.photo3;
             } else {
                 $("#id_insp_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
                 document.getElementById("id_insp_photo3_filename").value = "";

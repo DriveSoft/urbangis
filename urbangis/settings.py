@@ -27,10 +27,10 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
-if platform == "win32":
-    DEBUG = True
-else:
-    DEBUG = False
+#if platform == "win32":
+DEBUG = True
+#else:
+#    DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.11", "192.168.1.20", "urbangis1.herokuapp.com"]
 

@@ -28,11 +28,11 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
 #if platform == "win32":
-DEBUG = True
+DEBUG = False
 #else:
 #    DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.11", "192.168.1.20", "urbangis1.herokuapp.com"]
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.11', '192.168.1.20', 'urbangis1.herokuapp.com']
 
 
 # Application definition
@@ -188,8 +188,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-
-
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 import _locale
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])

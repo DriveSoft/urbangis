@@ -19,6 +19,7 @@ def home(request):
 
 
 
+
 def registerPage(request):
     if request.user.is_authenticated:
         return redirect('home')

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from .forms import *
 from .models import *
@@ -266,8 +266,19 @@ class Map(View):
 
 
 
+class getGeojson(View):
+    def get(self, request, city_name):
+        obj_city = get_object_or_404(City, sysname=city_name)
+        json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json')
 
+        if not os.path.exists(json_file):
+            citydataToGeoJson(obj_city)
 
+        with open(json_file , 'r') as myfile:
+            data=myfile.read()
+        response = HttpResponse(content=data)
+        response['Content-Type'] = 'application/json'
+        return response
 
 
 
@@ -462,8 +473,8 @@ def citydataToGeoJson(obj_city):
     # with open('./mapedit/dataptp/'+city_name+'.json', 'w', encoding='utf8') as f:
 
     #with open(os.path.join(djangoSettings.MEDIA_ROOT, 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
-    with open(os.path.join(os.path.join(djangoSettings.BASE_DIR, 'static'), 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
-
+    #with open(os.path.join(os.path.join(djangoSettings.BASE_DIR, 'static'), 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
+    with open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json'), 'w', encoding='utf8') as f:
         f.write(json.dumps(treeJsonData, ensure_ascii=False))
         # myfile = File(f)
         # myfile.write( json.dumps(ptpJsonData, ensure_ascii=False) )

@@ -8,10 +8,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/_init_data_/01auth.group.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/_init_data_/02init_data.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/_init_data_/03species.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/coregis/_init_data_/city.json" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

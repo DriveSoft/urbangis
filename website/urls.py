@@ -4,7 +4,7 @@ from . import views
 
 
 urlpatterns = [
-    #path('', views.RedirectToIndex),
+    path('', views.RedirectToIndex),
     path('website/', views.home, name="home"),
     path('website/citytree/', TemplateView.as_view(template_name='website/citytree.html'), name='website_citytree'),
     path('register/', views.registerPage, name="register"),

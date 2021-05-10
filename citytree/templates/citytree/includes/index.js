@@ -1407,7 +1407,7 @@ function AjaxLoadJson(){
     // Add AJAX request for data
     let treedata_ajax = $.ajax({
       //url:"{% static 'varna.json' %}",
-      url:"{% get_media_prefix%}citytree/geojson/{{obj_city.sysname}}.json",
+      url:"{% get_static_prefix %}citytree/geojson/{{obj_city.sysname}}.json",
 
       dataType: "json",
       success: console.log("County data successfully loaded."),

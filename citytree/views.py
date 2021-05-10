@@ -460,8 +460,9 @@ def citydataToGeoJson(obj_city):
             treeJsonData["features"].append(treeJson)
 
     # with open('./mapedit/dataptp/'+city_name+'.json', 'w', encoding='utf8') as f:
-    with open(os.path.join(djangoSettings.MEDIA_ROOT, 'citytree/geojson/') + obj_city.sysname + '.json', 'w',
-              encoding='utf8') as f:
+
+    #with open(os.path.join(djangoSettings.MEDIA_ROOT, 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
+    with open(os.path.join(os.path.join(djangoSettings.BASE_DIR, 'static'), 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
 
         f.write(json.dumps(treeJsonData, ensure_ascii=False))
         # myfile = File(f)

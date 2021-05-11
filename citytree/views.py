@@ -347,11 +347,11 @@ class ajaxGetInspAct(View):
 
             obj_tree = get_object_or_404(Tree, pk=idTree)
 
-            if request.user.has_perm('citytree.view_inspection'):
-                obj_inspections = obj_tree.inspection_set.all().order_by('-datetime')
+            #if request.user.has_perm('citytree.view_inspection'):
+            obj_inspections = obj_tree.inspection_set.all().order_by('-datetime')
 
-            if request.user.has_perm('citytree.view_careactivity'):
-                obj_actions = obj_tree.careactivity_set.all().order_by('-date')
+            #if request.user.has_perm('citytree.view_careactivity'):
+            obj_actions = obj_tree.careactivity_set.all().order_by('-date')
 
 
             #ser_instance = serializers.serialize('json', obj_inspections, fields=('tree','datetime','crowndiameter',))

@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import CreateUserForm
 from django.contrib import messages #если хотим показывать сообщения, например об успешной регистрации
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from coregis.models import coreCity
 
@@ -29,10 +30,13 @@ def registerPage(request):
         if request.method == 'POST':
             form = CreateUserForm(request.POST)
             if form.is_valid():
-                form.save()
-                user = form.cleaned_data.get('username')
-                messages.success(request, 'Account was created for ' + user)
+                obj_user = form.save()
+                default_group = Group.objects.get(name='Default')
+                obj_user.groups.add(default_group)
+                messages.success(request, 'Account was created for ' + obj_user.username)
                 return redirect('login')
+
+
 
         context = {'form': form}
         return render(request, 'website/register.html', context)

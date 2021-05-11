@@ -14,6 +14,9 @@ from django.db import transaction
 
 import random
 import json
+from datetime import *
+import gzip
+import shutil
 
 
 
@@ -268,16 +271,34 @@ class Map(View):
 
 class getGeojson(View):
     def get(self, request, city_name):
+        #print(request.headers['Accept-encoding'])
         obj_city = get_object_or_404(City, sysname=city_name)
-        json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json')
+
+        json_file = ''
+        file_mode = ''
+
+        if 'Accept-encoding' in request.headers and 'gzip' in request.headers['Accept-encoding']:
+            json_file = obj_city.sysname + '.json.gz'
+            file_mode = 'rb'
+        else:
+            json_file = obj_city.sysname + '.json'
+            file_mode = 'r'
+
+        json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', json_file)
+
 
         if not os.path.exists(json_file):
             citydataToGeoJson(obj_city)
 
-        with open(json_file , 'r') as myfile:
+        with open(json_file , file_mode) as myfile:
             data=myfile.read()
+
         response = HttpResponse(content=data)
+        if file_mode == 'rb':
+            response['Content-Encoding'] = 'gzip'
+            response['Content-Length'] = len(response.content)
         response['Content-Type'] = 'application/json'
+
         return response
 
 
@@ -302,7 +323,7 @@ class DeleteAllTrees(View):
 
 
 def create_trees(request):
-    for x in range(15000):
+    for x in range(10000):
         lat = round(random.uniform(43.17213, 43.23245), 5)
         lng = round(random.uniform(27.86957, 27.94647), 5)
         tree_obj = Tree(city_id=1, latitude=lat, longitude=lng, useradded_id=1, species_id=1, placetype_id=random.randint(1, 5))
@@ -470,23 +491,20 @@ def citydataToGeoJson(obj_city):
             # print(str(treeItem.lastinsp_recommendations_list).split(', '))
             treeJsonData["features"].append(treeJson)
 
-    # with open('./mapedit/dataptp/'+city_name+'.json', 'w', encoding='utf8') as f:
 
-    #with open(os.path.join(djangoSettings.MEDIA_ROOT, 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
-    #with open(os.path.join(os.path.join(djangoSettings.BASE_DIR, 'static'), 'citytree/geojson/') + obj_city.sysname + '.json', 'w', encoding='utf8') as f:
     with open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json'), 'w', encoding='utf8') as f:
         f.write(json.dumps(treeJsonData, ensure_ascii=False))
-        # myfile = File(f)
-        # myfile.write( json.dumps(ptpJsonData, ensure_ascii=False) )
 
-    # myfile.closed
-    # f.closed
-    # return HttpResponse("Updated")
+    with open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json'), 'rb') as f_in:
+        with gzip.open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '.json.gz'), 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+
     tree_data.update(is_geojsoned = True)
     #чтобы удаленные записи также поменить как is_geojsoned=True, чтобы они больше не приходили из базы в view Map get
     tree_data = Tree.objects.filter(city_id=obj_city.id).filter(is_deleted=True)
     tree_data.update(is_geojsoned=True)
-    #return redirect(obj_city)
+
 
 
 

@@ -57,6 +57,15 @@
     <link href="{% static 'css/citytree.css' %}" rel="stylesheet"/>
 
 
+    <!-- screw-filereader will take care of exif rotation for u -->
+    <script src="https://cdn.jsdelivr.net/npm/screw-filereader@1.4.3/index.min.js"></script>
+
+    <!-- client resize photos -->
+    <script src="{% static 'script/image-blob-reduce.js' %}"></script>
+    <script src="{% static 'script/citytree_resize_photos.js' %}"></script>
+
+
+
 </head>
 
 <body>

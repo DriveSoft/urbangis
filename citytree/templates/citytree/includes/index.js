@@ -1367,32 +1367,36 @@ document.onreadystatechange = function(){
     $("#id_insp_img_photo2").css('cursor','pointer');
     $("#id_insp_img_photo3").css('cursor','pointer');
 
-    // чтобы на вкладке Inspection в img загружался рисунок при его изменении в input type=file
-    $("#id_insp_photo1").change(function(){
-        readURL(this, '#id_insp_img_photo1');
-        document.getElementById("id_insp_photo1_filename").value = this.files[0].name;
-    });
-    $("#id_insp_photo2").change(function(){
-        readURL(this, '#id_insp_img_photo2');
-        document.getElementById("id_insp_photo2_filename").value = this.files[0].name;
-    });
-    $("#id_insp_photo3").change(function(){
-         readURL(this, '#id_insp_img_photo3');
-        document.getElementById("id_insp_photo3_filename").value = this.files[0].name;
-    });
+
 
 
     // чтобы на при добавлении нового дерева, при заполнении первой инспекции, в img загружался рисунок при его изменении в input type=file
-    $("#id_first_insp_photo1").change(function(){
-        readURL(this, '#id_first_insp_img_photo1');
-    });
-    $("#id_first_insp_photo2").change(function(){
-        readURL(this, '#id_first_insp_img_photo2');
-    });
-    $("#id_first_insp_photo3").change(function(){
-        readURL(this, '#id_first_insp_img_photo3');
-    });
+    //$("#id_first_insp_photo1").change(function(){
+    //    readURL(this, '#id_first_insp_img_photo1');
+    //});
 
+    //$("#id_first_insp_photo2").change(function(){
+    //    readURL(this, '#id_first_insp_img_photo2');
+    //});
+    //$("#id_first_insp_photo3").change(function(){
+    //    readURL(this, '#id_first_insp_img_photo3');
+    //});
+
+
+
+    // чтобы на вкладке Inspection в img загружался рисунок при его изменении в input type=file
+    //$("#id_insp_photo1").change(function(){
+        //readURL(this, '#id_insp_img_photo1');
+        //document.getElementById("id_insp_photo1_filename").value = this.files[0].name;
+    //});
+    //$("#id_insp_photo2").change(function(){
+    //    readURL(this, '#id_insp_img_photo2');
+    //    document.getElementById("id_insp_photo2_filename").value = this.files[0].name;
+    //});
+    //$("#id_insp_photo3").change(function(){
+    //     readURL(this, '#id_insp_img_photo3');
+    //    document.getElementById("id_insp_photo3_filename").value = this.files[0].name;
+    //});
 
 
 

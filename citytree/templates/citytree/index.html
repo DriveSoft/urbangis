@@ -9,10 +9,18 @@ City Tree Map - {{ block.super }}
 <!-- меняет файл стиля для sidebar, т.к. в этом app он нужен более широкий -->
 {% block css_sidebar %}<link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">{% endblock %}
 
+
+
+{% block head %}
+<!-- client resize photos -->
+<script src="{% static 'script/image-blob-reduce.js' %}"></script>
+<script src="{% static 'script/citytree_resize_photos.js' %}"></script>
+{% endblock %}
+
+
+
+
 {% block sidebar %}
-
-
-
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation" id="tabFilter">
@@ -258,14 +266,14 @@ City Tree Map - {{ block.super }}
 
                         <div class="form-group">
                             <!-- <button type="button" class="btn btn-light" style="width: 100%" id="button_show_inspact">Show inspections and actions</button> -->
-                            <label for="divTreeInspActData">Tree history</label>
-                            <div id="divTreeInspActData">
-                                <table id="table_InspActData" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
+                            <label for="divTreeInspActData_EditTree">Tree history</label>
+                            <div id="divTreeInspActData_EditTree">
+                                <table id="table_InspActData_EditTree" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
                                     <thead>
                                     <tr>
                                         <th data-field="datetime" data-formatter="dateFormatter" data-sortable="true">Date</th>
                                         <th data-field="type">Type</th>
-                                        <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
+                                        <th data-field="operate" data-formatter="operateFormatter" data-events="operateEventsTreeEdit"></th>
                                     </tr>
                                     </thead>
                                 </table>
@@ -305,36 +313,6 @@ City Tree Map - {{ block.super }}
                             </div>
                         </div>
 
-
-
-                        <div class="form-check mt-3 mb-3">
-                            <!-- <button type="button" id="button_photos" class="btn btn-link" data-toggle="modal" data-target=".bd-example-modal-lg">Photos from the latest inspection</button> -->
-                            <button type="button" id="id_button_modal_slideshow" class="btn btn-link">Photos from the latest inspection</button>
-                        </div>
-
-                        <div class="accordion" id="accordionExample">
-                            <div class="card">
-                                <div class="card-header" id="headingOne">
-                                    <h2 class="mb-0">
-                                        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                            Data from the latest inspection
-                                        </button>
-                                    </h2>
-                                </div>
-
-                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                                    <div class="card-body">
-
-                                        <p id="lates_inspection_datetime">DateTime</p>
-                                        <p id="lates_inspection_status">Status</p>
-                                        <p id="lates_inspection_sizes">Sizes</p>
-                                        <p id="lates_inspection_remarks">Remarks</p>
-                                        <p id="lates_inspection_recommendations">Recommendations</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
 
@@ -778,30 +756,161 @@ City Tree Map - {{ block.super }}
 
 
 
-<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modalSlideShow">
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="id_SlideShow_Modal" style="z-index:1100">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
 
+            <div id="id_container_Modal">
+                <div id="id_carousel_Modal" class="carousel slide" data-ride="carousel" data-interval="false">
+                    <ol class="carousel-indicators"></ol>
+                    <div class="carousel-inner"></div>
 
-            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="false">
-                <ol class="carousel-indicators"></ol>
-                <div class="carousel-inner"></div>
-
-                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                </a>
+                    <a class="carousel-control-prev" href="#id_carousel_Modal" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#id_carousel_Modal" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
             </div>
-
 
 
         </div>
     </div>
 </div>
+
+
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modalTreeInfo">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <span style="font-size: 1.5em; font-weight: bold;" class="modal-title" id="id_treepreview_title_local_name">Species name</span>
+                <span style="font-size: 1.5em" class="modal-title">&nbsp-&nbsp</span>
+                <span style="font-size: 1.5em; font-style: italic;" class="modal-title" id="id_treepreview_title_species_name">Local name</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+
+            <div class="modal-body p-1 pt-3">
+
+                <div class="container">
+                    <div class="form-row">
+                        <div class="form-group col-lg-6">
+                            <!-- <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" style="width: 100%"> -->
+
+                            <div id="id_container_TreePreview">
+                                <div id="id_carousel_TreePreview" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <ol class="carousel-indicators"></ol>
+                                    <div class="carousel-inner"></div>
+
+                                    <a class="carousel-control-prev" href="#id_carousel_TreePreview" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#id_carousel_TreePreview" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px;">Tree information</h3>
+
+
+                            <div class="container">
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-2 pl-1">Status</div>
+                                    <div class="col-10 pr-1" id="id_treepreview_status">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Height (m)</div>
+                                    <div class="col-8 pr-1" id="id_treepreview_height">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Crown D. (m)</div>
+                                    <div class="col-8 pr-1" id="id_treepreview_crown">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Trunk Girth (cm)</div>
+                                    <div class="col-8 pr-1" id="id_treepreview_trunk">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Remarks</div>
+                                    <div class="col-8 pr-1" id="id_treepreview_remarks">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Recommends.</div>
+                                    <div class="col-8 pr-1" id="id_treepreview_recommends">col</div>
+                                </div>
+                            </div>
+
+
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px; margin-top: 30px;">Tree history</h3>
+
+                            <div id="divTreeInspActData_PreviewTree">
+                                <table id="table_InspActData_PreviewTree" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
+                                    <thead>
+                                    <tr>
+                                        <th data-field="datetime" data-formatter="dateFormatterPreview" data-sortable="true">Date</th>
+                                        <th data-field="type">Type</th>
+                                        <th data-field="operate" data-formatter="operateFormatterPreview" data-events="operateEventsPreviewTree"></th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                                <script>
+                                    function dateFormatterPreview(value, row) {
+                                        return value.slice(0, 10)
+                                    }
+
+                                    function operateFormatterPreview(value, row, index) {
+                                        if (row.type=="Inspection" && (row.photo1 !=="" || row.photo2 !=="" || row.photo3 !=="")) {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>&nbsp;&nbsp;&nbsp;',
+                                                '<a class="photos" href="javascript:void(0)" title="Photos">',
+                                                '<i style="font-size:15pt" class="fa fa-camera"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        } else {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        }
+                                    }
+                                </script>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="id_editButton_TreePreview">Edit</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" style="min-width: 150px">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 
 
 

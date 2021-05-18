@@ -103,9 +103,9 @@ class Tree(models.Model):
     usermoderated = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name='usermoderated') # тот кто одобрил запись
     dateplanted = models.DateField(blank=True, null=True) # to be filled in if the planting date is known
     species = models.ForeignKey(Species, on_delete=models.PROTECT)
-    speciescomment = models.CharField(max_length=255, blank=True, null=True) # if specific name is unknown, user can fill this field, затем админ или модератор мог бы добавить  даннй вид дерево в словарь
-    comment = models.TextField(blank=True, null=True)
-    googlestreeturl = models.CharField(max_length=1024, blank=True, null=True)
+    speciescomment = models.CharField(max_length=255, blank=True, default='') # if specific name is unknown, user can fill this field, затем админ или модератор мог бы добавить  даннй вид дерево в словарь
+    comment = models.TextField(blank=True, default='')
+    googlestreeturl = models.CharField(max_length=1024, blank=True, default='')
     is_reservedplace = models.BooleanField(default=False) # если запись указывает о месте, где дерева нету но можно посадить
     placetype = models.ForeignKey(PlaceType, on_delete=models.PROTECT) # улица, пешеходна зона, открытое пространство/пакр, частная территория
     irrigationmethod = models.ForeignKey(IrrigationMethod, on_delete=models.PROTECT, default=1) # метод полива, не нужен, вручную, авто

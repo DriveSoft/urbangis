@@ -1,15 +1,9 @@
 {% load static %}
 
-var HeatMapData = {
-  max: 12,
-  data: [
-    {% if accident_data %}
-        {% for accident in accident_data %}
-            {lat: {{accident.latitude}}, lng: {{accident.longitude}}, count: 1},
-        {% endfor %}
-    {% endif %}
-  ]
-};
+var markers;
+var markersCluster;
+
+var HeatMapData = {max: 12, data: []};
 
 
 
@@ -54,7 +48,7 @@ var heatmapLayer = new HeatmapOverlay(cfg);
 //  layers: [baseLayer, heatmapLayer]
 //});
 
-heatmapLayer.setData(HeatMapData);
+
 
 
 
@@ -146,14 +140,10 @@ var accidentData = {
                 "datetime": "{{accident.datetime|date:"Y-m-d\TH:i"}}",
                 "description": "{{ accident.description|linebreaksbr }}",
                 "maneuver": {% if not accident.maneuver_id %} 0 {% else %} {{ accident.maneuver_id }} {% endif %},
-                "red_light_running": {{ accident.red_light_running|yesno:"1,0" }},
-                "priority_traffic_sign": {{ accident.priority_traffic_sign|yesno:"1,0" }},
-                "lost_control_vehicle": {{ accident.lost_control_vehicle|yesno:"1,0" }},
-                "alcohol_or_drug": {{ accident.alcohol_or_drug|yesno:"1,0" }},
-                "driver_violation": {{ accident.driver_violation|yesno:"1,0" }},
-                "motorcyclist_violation": {{ accident.motorcyclist_violation|yesno:"1,0" }},
-                "cyclist_violation": {{ accident.cyclist_violation|yesno:"1,0" }},
-                "pedestrian_violation": {{ accident.pedestrian_violation|yesno:"1,0" }},
+
+                "violations_type":[{% for rec in accident.violations_type.values_list %}"{{rec.0}}",{% endfor %}],
+                "violators":[{% for rec in accident.violators.values_list %}"{{rec.0}}",{% endfor %}],
+
                 "drivers_injured": {{ accident.drivers_injured }},
                 "motorcyclists_injured": {{ accident.motorcyclists_injured }},
                 "cyclists_injured": {{ accident.cyclists_injured }},
@@ -166,7 +156,8 @@ var accidentData = {
                 "ped_killed": {{ accident.ped_killed }},
                 "kids_killed": {{ accident.kids_killed}},
                 "pubtr_passengers_killed": {{ accident.pubtr_passengers_killed }},
-                "puplic_transport_involved": {{ accident.puplic_transport_involved|yesno:"1,0" }},
+
+                "public_transport_involved": {{ accident.public_transport_involved|yesno:"1,0" }},
             },
             "geometry": {
                 "type": "Point",
@@ -182,7 +173,11 @@ var accidentData = {
 
 
 
+
+var myRenderer = L.canvas({ padding: 0.5 });
+
 var geojsonMarkerOptions = {
+    renderer: myRenderer,
     radius: 6, //6
     fillColor: "#402000",//"#ff7800",
     color: "#000",
@@ -198,61 +193,26 @@ var datefilter_Min = '2100-01-01';
 var datefilter_Max = '1970-01-01';
 
 // create circleMarker from geoJson
-var markers = L.geoJSON(accidentData, {
-    pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
-    },
+//var markers = L.geoJSON(accidentData, {
+//    pointToLayer: function (feature, latlng) {
+//        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
+//    },
 
-    filter: function(feature, layer) {
-        if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
-        if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
-        return true;
-    }
-});//.addTo(mymap);
+//    filter: function(feature, layer) {
+//        if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
+//        if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
+//        return true;
+//    }
+//});//.addTo(mymap);
 
-document.getElementById("dateFrom").value = formatDate(datefilter_Min);
-document.getElementById("dateTo").value = formatDate(datefilter_Max);
-
-
+//document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+//document.getElementById("dateTo").value = formatDate(datefilter_Max);
 
 
 
-// create clusters from circleMarkers
-var markersCluster = L.markerClusterGroup({
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    zoomToBoundsOnClick: true,
-    maxClusterRadius: 15, // default 80
-
-    iconCreateFunction: function (cluster) {
-      // get the number of items in the cluster
-      var count = cluster.getChildCount();
-
-      // figure out how many digits long the number is
-      //var digits = (count + '').length;
-      var digits;
-      if (count == 2) { digits = '1'; }
-      if (count >= 3 && count <=5) { digits = '2'; }
-      if (count >= 6 && count <=9) { digits = '3'; }
-      if (count >= 10 && count <=14) { digits = '4'; }
-      if (count > 14) { digits = '5'; }
-
-      return L.divIcon({
-        html: count,
-        className: 'cluster digits-' + digits,
-        iconSize: null
-      });
-    },
-});
 
 
-markersCluster.addLayer(markers);
 
-{% if hide_cluster_zoomout %}
-    ZoomChangeCluster();
-{% else %}
-    mymap.addLayer(markersCluster);
-{% endif %}
 
 //mymap.fitBounds(markers.getBounds());
 
@@ -274,43 +234,11 @@ var but_newmarker = L.easyButton({
                 //$('#myTab a[href="#accident"]').tab('show') // Select tab by name
                 $('.leaflet-container').css('cursor','crosshair');
 
-
                 mymap.removeLayer(markersCluster);
                 mymap.addLayer(markers);
 
-
-                document.getElementById("accidentId").value = '';
-                document.getElementById("latitude").value = '';
-                document.getElementById("longitude").value = '';
-                document.getElementById("datetime").value = '';
-                document.getElementById("description").value = '';
-                document.getElementById("maneuver").value = 0;
-
-                document.getElementById("red_light_running").checked = false;
-                document.getElementById("priority_traffic_sign").checked = false;
-                document.getElementById("lost_control_vehicle").checked = false;
-                document.getElementById("alcohol_or_drug").checked = false;
-
-                document.getElementById("driver_violation").checked = false;
-                document.getElementById("motorcyclist_violation").checked = false;
-                document.getElementById("cyclist_violation").checked = false;
-                document.getElementById("pedestrian_violation").checked = false;
-
-                document.getElementById("drivers_injured").value = 0;
-                document.getElementById("motorcyclists_injured").value = 0;
-                document.getElementById("cyclists_injured").value = 0;
-                document.getElementById("ped_injured").value = 0;
-                document.getElementById("kids_injured").value = 0;
-                document.getElementById("pubtr_passengers_injured").value = 0;
-
-                document.getElementById("drivers_killed").value = 0;
-                document.getElementById("motorcyclists_killed").value = 0;
-                document.getElementById("cyclists_killed").value = 0;
-                document.getElementById("ped_killed").value = 0;
-                document.getElementById("kids_killed").value = 0;
-                document.getElementById("pubtr_passengers_killed").value = 0;
-                document.getElementById("puplic_transport_involved").checked = 0;
                 $('#deleteButton').prop('disabled',true);
+                $('#deleteButton').prop('title','');
 
             }
         },
@@ -345,7 +273,7 @@ var but_heatmap = L.easyButton({
     states:[
         {
             stateName: 'off',
-            icon: '<span style="">H</span>',
+            icon: '<i class="fas fa-eye fa-lg"></i>',
             onClick: function(control){
                 control.state('on');
                 but_heatmap.button.style.backgroundColor = 'red';
@@ -360,7 +288,7 @@ var but_heatmap = L.easyButton({
 
         {
             stateName: 'on',
-            icon: '<span class="star">H</span>',
+            icon: '<i class="fas fa-eye fa-lg"></i>',
             onClick: function(control){
                 control.state('off');
                 but_heatmap.button.style.backgroundColor = 'white';
@@ -459,15 +387,11 @@ function onMapClick(e) {
         document.getElementById("description").value = '';
         document.getElementById("maneuver").value = 0;
 
-        document.getElementById("red_light_running").checked = false;
-        document.getElementById("priority_traffic_sign").checked = false;
-        document.getElementById("lost_control_vehicle").checked = false;
-        document.getElementById("alcohol_or_drug").checked = false;
+        $('#accident_violations_type').selectpicker('deselectAll');
+        $('#accident_violations_type').selectpicker('val', []);
 
-        document.getElementById("driver_violation").checked = false;
-        document.getElementById("motorcyclist_violation").checked = false;
-        document.getElementById("cyclist_violation").checked = false;
-        document.getElementById("pedestrian_violation").checked = false;
+        $('#accident_violators').selectpicker('deselectAll');
+        $('#accident_violators').selectpicker('val', []);
 
         document.getElementById("drivers_injured").value = 0;
         document.getElementById("motorcyclists_injured").value = 0;
@@ -482,7 +406,7 @@ function onMapClick(e) {
         document.getElementById("ped_killed").value = 0;
         document.getElementById("kids_killed").value = 0;
         document.getElementById("pubtr_passengers_killed").value = 0;
-        document.getElementById("puplic_transport_involved").checked = 0;
+        document.getElementById("public_transport_involved").checked = 0;
 
 
         but_newmarker.state('off');
@@ -501,7 +425,6 @@ function markerOnClick(e)
   let geojson = marker.toGeoJSON();
 
 
-
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
   document.getElementById("latitude").value = geojson.properties.coordinates[1];
   document.getElementById("longitude").value = geojson.properties.coordinates[0];
@@ -510,15 +433,8 @@ function markerOnClick(e)
   document.getElementById("description").value = geojson.properties.description.replace(/<br\s*[\/]?>/gi, "\n");
   document.getElementById("maneuver").value = geojson.properties.maneuver;
 
-  document.getElementById("red_light_running").checked = geojson.properties.red_light_running;
-  document.getElementById("priority_traffic_sign").checked = geojson.properties.priority_traffic_sign;
-  document.getElementById("lost_control_vehicle").checked = geojson.properties.lost_control_vehicle;
-  document.getElementById("alcohol_or_drug").checked = geojson.properties.alcohol_or_drug;
-
-  document.getElementById("driver_violation").checked = geojson.properties.driver_violation;
-  document.getElementById("motorcyclist_violation").checked = geojson.properties.motorcyclist_violation;
-  document.getElementById("cyclist_violation").checked = geojson.properties.cyclist_violation;
-  document.getElementById("pedestrian_violation").checked = geojson.properties.pedestrian_violation;
+  $('#accident_violations_type').selectpicker('val', geojson.properties.violations_type);
+  $('#accident_violators').selectpicker('val', geojson.properties.violators);
 
   document.getElementById("drivers_injured").value = geojson.properties.drivers_injured;
   document.getElementById("motorcyclists_injured").value = geojson.properties.motorcyclists_injured;
@@ -533,7 +449,7 @@ function markerOnClick(e)
   document.getElementById("ped_killed").value = geojson.properties.ped_killed;
   document.getElementById("kids_killed").value = geojson.properties.kids_killed;
   document.getElementById("pubtr_passengers_killed").value = geojson.properties.pubtr_passengers_killed;
-  document.getElementById("puplic_transport_involved").checked = geojson.properties.puplic_transport_involved;
+  document.getElementById("public_transport_involved").checked = geojson.properties.public_transport_involved;
 
   document.getElementById("accidentId").value = geojson.properties.id;
 
@@ -544,10 +460,48 @@ function markerOnClick(e)
   //$("#wrapper").toggleClass("toggled");
   //$("#wrapper").addClass( "toggled" );
   //$("#wrapper").removeClass( "toggled" );
+
   $("#saveButton").html('Update');
+
+  {% if perms.roadaccident.change_accident and perms.roadaccident.can_change_not_own_accident_record %}
+    $('#saveButton').prop('disabled',false);
+    $('#saveButton').prop('title','');
+  {% elif perms.roadaccident.change_accident and not perms.roadaccident.can_change_not_own_accident_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#saveButton').prop('disabled',false);
+        $('#saveButton').prop('title','');
+    } else {
+        $('#saveButton').prop('disabled',true);
+        $('#saveButton').prop('title','You cannot change information about the accident that was created by another user.');
+    }
+  {% else %}
+    $('#saveButton').prop('disabled',true);
+    $('#saveButton').prop('title','You do not have enough privileges to change the accident information.');
+  {% endif %}
+
+
+  {% if perms.roadaccident.delete_accident and perms.roadaccident.can_delete_not_own_accident_record %}
+    $('#deleteButton').prop('disabled',false);
+    $('#deleteButton').prop('title','');
+  {% elif perms.roadaccident.delete_accident and not perms.roadaccident.can_delete_not_own_accident_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#deleteButton').prop('disabled',false);
+        $('#deleteButton').prop('title','');
+    } else {
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','You cannot delete the accident that was created by another user.');
+    }
+  {% else %}
+    $('#deleteButton').prop('disabled',true);
+    $('#deleteButton').prop('title','You don\'t have enough privileges to remove the accident.');
+  {% endif %}
+
+
+
+
   $('#tabAccident').show();
   $('#myTab a[href="#accident"]').tab('show') // Select tab by name
-  $('#deleteButton').prop('disabled',false);
+
 
   OpenSidebar();
 }
@@ -589,12 +543,11 @@ button_closeTabAccident.onclick = function() {
 
 button_filter.onclick = function() {
 
-    {% if hide_cluster_zoomout %}
-        mymap.removeLayer(markersCluster);
-        mymap.removeLayer(markers);
-    {% else %}
-        mymap.removeLayer(markersCluster);
-    {% endif %}
+
+    LoadAccidentsToMap(false, true);
+
+/*
+
 
     // update dataset for heatmap
     HeatMapData.data.length = 0; // clear data array
@@ -618,15 +571,17 @@ button_filter.onclick = function() {
                 let maneuver_value = document.getElementById("maneuver_Filter").value;
                 let description_value = document.getElementById("description_Filter").value;
 
-                let red_light_running_value = document.getElementById("red_light_running_Filter").checked;
-                let priority_traffic_sign_value = document.getElementById("priority_traffic_sign_Filter").checked;
-                let lost_control_vehicle_value = document.getElementById("lost_control_vehicle_Filter").checked;
-                let alcohol_or_drug_value = document.getElementById("alcohol_or_drug_Filter").checked;
+                let violations_type_values = $('#filter_violations_type').val();
+                //let red_light_running_value = document.getElementById("red_light_running_Filter").checked;
+                //let priority_traffic_sign_value = document.getElementById("priority_traffic_sign_Filter").checked;
+                //let lost_control_vehicle_value = document.getElementById("lost_control_vehicle_Filter").checked;
+                //let alcohol_or_drug_value = document.getElementById("alcohol_or_drug_Filter").checked;
 
-                let driver_violation_value = document.getElementById("driver_violation_Filter").checked;
-                let motorcyclist_violation_value = document.getElementById("motorcyclist_violation_Filter").checked;
-                let cyclist_violation_value = document.getElementById("cyclist_violation_Filter").checked;
-                let pedestrian_violation_value = document.getElementById("pedestrian_violation_Filter").checked;
+                let violators_values = $('#filter_violators').val();
+                                //let driver_violation_value = document.getElementById("driver_violation_Filter").checked;
+                //let motorcyclist_violation_value = document.getElementById("motorcyclist_violation_Filter").checked;
+                //let cyclist_violation_value = document.getElementById("cyclist_violation_Filter").checked;
+                //let pedestrian_violation_value = document.getElementById("pedestrian_violation_Filter").checked;
 
                 let drivers_injured_value = document.getElementById("drivers_injured_Filter").checked;
                 let motorcyclists_injured_value = document.getElementById("motorcyclists_injured_Filter").checked;
@@ -642,21 +597,23 @@ button_filter.onclick = function() {
                 let kids_killed_value = document.getElementById("kids_killed_Filter").checked;
                 let pubtr_passengers_killed_value = document.getElementById("pubtr_passengers_killed_Filter").checked;
 
-                let puplic_transport_involved_value = document.getElementById("puplic_transport_involved_Filter").checked;
+                let public_transport_involved_value = document.getElementById("public_transport_involved_Filter").checked;
 
 
                 let maneuver_Filter = true;
                 let description_Filter = true;
 
-                let red_light_running_Filter = true;
-                let priority_traffic_sign_Filter = true;
-                let lost_control_vehicle_Filter = true;
-                let alcohol_or_drug_Filter = true;
+                let violations_type_Filter = true;
+                //let red_light_running_Filter = true;
+                //let priority_traffic_sign_Filter = true;
+                //let lost_control_vehicle_Filter = true;
+                //let alcohol_or_drug_Filter = true;
 
-                let driver_violation_Filter = true;
-                let motorcyclist_violation_Filter = true;
-                let cyclist_violation_Filter = true;
-                let pedestrian_violation_Filter = true;
+                let violators_Filter = true;
+                //let driver_violation_Filter = true;
+                //let motorcyclist_violation_Filter = true;
+                //let cyclist_violation_Filter = true;
+                //let pedestrian_violation_Filter = true;
 
                 let drivers_injured_Filter = true;
                 let motorcyclists_injured_Filter = true;
@@ -670,7 +627,7 @@ button_filter.onclick = function() {
                 let ped_killed_Filter = true;
                 let kids_killed_Filter = true;
                 let pubtr_passengers_killed_Filter = true;
-                let puplic_transport_involved_Filter = true;
+                let public_transport_involved_Filter = true;
 
 
                 if (maneuver_value) {
@@ -681,15 +638,17 @@ button_filter.onclick = function() {
                     if (feature.properties.description.toLowerCase().indexOf(description_value.toLowerCase()) == -1) { description_Filter = false; }
                 }
 
-                if (red_light_running_value) { red_light_running_Filter = red_light_running_value == feature.properties.red_light_running; }
-                if (priority_traffic_sign_value) { priority_traffic_sign_Filter = priority_traffic_sign_value == feature.properties.priority_traffic_sign; }
-                if (lost_control_vehicle_value) { lost_control_vehicle_Filter = lost_control_vehicle_value == feature.properties.lost_control_vehicle; }
-                if (alcohol_or_drug_value) { alcohol_or_drug_Filter = alcohol_or_drug_value == feature.properties.alcohol_or_drug; }
+                if (violations_type_values.length>0) {
+                    // проверяем,пересекаются ли два массива
+                    let intersection = violations_type_values.filter(x => feature.properties.violations_type.includes(x));
+                    violations_type_Filter = intersection.length > 0;
+                }
 
-                if (driver_violation_value) { driver_violation_Filter = driver_violation_value == feature.properties.driver_violation; }
-                if (motorcyclist_violation_value) { motorcyclist_violation_Filter = motorcyclist_violation_value == feature.properties.motorcyclist_violation; }
-                if (cyclist_violation_value) { cyclist_violation_Filter = cyclist_violation_value == feature.properties.cyclist_violation; }
-                if (pedestrian_violation_value) { pedestrian_violation_Filter = pedestrian_violation_value == feature.properties.pedestrian_violation; }
+                if (violators_values.length>0) {
+                    // проверяем,пересекаются ли два массива
+                    let intersection = violators_values.filter(x => feature.properties.violators.includes(x));
+                    violators_Filter = intersection.length > 0;
+                }
 
                 if (drivers_injured_value) { drivers_injured_Filter = feature.properties.drivers_injured > 0; }
                 if (motorcyclists_injured_value) { motorcyclists_injured_Filter = feature.properties.motorcyclists_injured > 0; }
@@ -703,18 +662,22 @@ button_filter.onclick = function() {
                 if (ped_killed_value) { ped_killed_Filter = feature.properties.ped_killed > 0; }
                 if (kids_killed_value) { kids_killed_Filter = feature.properties.kids_killed > 0; }
                 if (pubtr_passengers_killed_value) { pubtr_passengers_killed_Filter = feature.properties.pubtr_passengers_killed > 0; }
-                if (puplic_transport_involved_value) { puplic_transport_involved_Filter = feature.properties.puplic_transport_involved > 0; }
+                if (public_transport_involved_value) { public_transport_involved_Filter = feature.properties.public_transport_involved > 0; }
 
                 let result = maneuver_Filter &&
                        description_Filter &&
-                       red_light_running_Filter &&
-                       priority_traffic_sign_Filter &&
-                       lost_control_vehicle_Filter &&
-                       alcohol_or_drug_Filter &&
-                       driver_violation_Filter &&
-                       motorcyclist_violation_Filter &&
-                       cyclist_violation_Filter &&
-                       pedestrian_violation_Filter &&
+
+                       violations_type_Filter &&
+                       //red_light_running_Filter &&
+                       //priority_traffic_sign_Filter &&
+                       //lost_control_vehicle_Filter &&
+                       //alcohol_or_drug_Filter &&
+
+                       violators_Filter &&
+                       //driver_violation_Filter &&
+                       //motorcyclist_violation_Filter &&
+                       //cyclist_violation_Filter &&
+                       //pedestrian_violation_Filter &&
 
                        drivers_injured_Filter &&
                        motorcyclists_injured_Filter &&
@@ -728,7 +691,7 @@ button_filter.onclick = function() {
                        ped_killed_Filter &&
                        kids_killed_Filter &&
                        pubtr_passengers_killed_Filter &&
-                       puplic_transport_involved_Filter;
+                       public_transport_involved_Filter;
 
                 // update dataset for heatmap
                 if (result) {
@@ -761,7 +724,7 @@ button_filter.onclick = function() {
         {% else %}
             mymap.addLayer(markersCluster);
         {% endif %}
-    }
+    }*/
 }
 
 
@@ -773,6 +736,38 @@ button_filter.onclick = function() {
 
 button_reset.onclick = function() {
 
+
+    document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+    document.getElementById("dateTo").value = formatDate(datefilter_Max);
+
+    document.getElementById("maneuver_Filter").value = 0;
+    document.getElementById("description_Filter").value = '';
+
+    $('#filter_violations_type').selectpicker('deselectAll');
+    $('#filter_violations_type').selectpicker('val', []);
+
+    $('#filter_violators').selectpicker('deselectAll');
+    $('#filter_violators').selectpicker('val', []);
+
+    document.getElementById("drivers_injured_Filter").checked = false;
+    document.getElementById("motorcyclists_injured_Filter").checked = false;
+    document.getElementById("cyclists_injured_Filter").checked = false;
+    document.getElementById("ped_injured_Filter").checked = false;
+    document.getElementById("kids_injured_Filter").checked = false;
+    document.getElementById("pubtr_passengers_injured_Filter").checked = false;
+
+    document.getElementById("drivers_killed_Filter").checked = false;
+    document.getElementById("motorcyclists_killed_Filter").checked = false;
+    document.getElementById("cyclists_killed_Filter").checked = false;
+    document.getElementById("ped_killed_Filter").checked = false;
+    document.getElementById("kids_killed_Filter").checked = false;
+    document.getElementById("pubtr_passengers_killed_Filter").checked = false;
+    document.getElementById("public_transport_involved_Filter").checked = false;
+    document.getElementById("filter_showOnlyMyAccidents").checked = false;
+
+
+    LoadAccidentsToMap(false, false);
+    /*
     mymap.removeLayer(markersCluster);
     mymap.removeLayer(markers);
 
@@ -798,15 +793,11 @@ button_reset.onclick = function() {
     document.getElementById("maneuver_Filter").value = 0;
     document.getElementById("description_Filter").value = '';
 
-    document.getElementById("red_light_running_Filter").checked = false;
-    document.getElementById("priority_traffic_sign_Filter").checked = false;
-    document.getElementById("lost_control_vehicle_Filter").checked = false;
-    document.getElementById("alcohol_or_drug_Filter").checked = false;
+    $('#filter_violations_type').selectpicker('deselectAll');
+    $('#filter_violations_type').selectpicker('val', []);
 
-    document.getElementById("driver_violation_Filter").checked = false;
-    document.getElementById("motorcyclist_violation_Filter").checked = false;
-    document.getElementById("cyclist_violation_Filter").checked = false;
-    document.getElementById("pedestrian_violation_Filter").checked = false;
+    $('#filter_violators').selectpicker('deselectAll');
+    $('#filter_violators').selectpicker('val', []);
 
     document.getElementById("drivers_injured_Filter").checked = false;
     document.getElementById("motorcyclists_injured_Filter").checked = false;
@@ -821,7 +812,8 @@ button_reset.onclick = function() {
     document.getElementById("ped_killed_Filter").checked = false;
     document.getElementById("kids_killed_Filter").checked = false;
     document.getElementById("pubtr_passengers_killed_Filter").checked = false;
-    document.getElementById("puplic_transport_involved_Filter").checked = false;
+    document.getElementById("public_transport_involved_Filter").checked = false;
+    */
 }
 
 
@@ -836,12 +828,12 @@ mymap.on('click', onMapClick);
 {% if hide_cluster_zoomout %}
 function ZoomChangeCluster() {
     if (mymap.getZoom() < 15){
-            mymap.removeLayer(markersCluster);
-            mymap.addLayer(markers);
+        mymap.removeLayer(markersCluster);
+        mymap.addLayer(markers);
     }
     else {
-            mymap.removeLayer(markers);
-            mymap.addLayer(markersCluster);
+        mymap.removeLayer(markers);
+        mymap.addLayer(markersCluster);
     }
 }
 {% endif %}
@@ -874,7 +866,340 @@ function sleep(ms) {
 
 document.onreadystatechange = function(){
    if(document.readyState === 'complete'){
+
+        PermissionsApply();
         $('#tabAccident').hide();
+
+
+        $.getJSON("{% url 'roadaccident_geojson_get' city_name=obj_city.sysname %}", function(json) {
+            accidentData = json; // this will show the info it in firebug console
+            LoadAccidentsToMap(true, false);
+
+            //HeatMapData = {
+            //  max: 12,
+            //  data: [
+
+            //    {% if accident_data %}
+            //        {% for accident in accident_data %}
+            //            {lat: {{accident.latitude}}, lng: {{accident.longitude}}, count: 1},
+            //        {% endfor %}
+            //    {% endif %}
+            //  ]
+            //};
+
+            /*
+            console.log('ok')
+
+
+
+            console.log(accidentData.features.length)
+
+            for(var i = 0; i < accidentData.features.length; i++) {
+                var obj = accidentData.features[i];
+
+                console.log(obj.properties.coordinates[0]);
+            }
+
+
+
+            // create circleMarker from geoJson
+            markers = L.geoJSON(accidentData, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
+                },
+
+                filter: function(feature, layer) {
+                    if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
+                    if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
+
+                    heatItem = {}
+                    heatItem.lat = feature.properties.coordinates[1];
+                    heatItem.lng = feature.properties.coordinates[0];
+                    HeatMapData.data.push(heatItem);
+
+                    return true;
+                }
+            });//.addTo(mymap);
+
+            heatmapLayer.setData(HeatMapData);
+
+            document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+            document.getElementById("dateTo").value = formatDate(datefilter_Max);
+
+
+            // create clusters from circleMarkers
+            markersCluster = L.markerClusterGroup({
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: true,
+                maxClusterRadius: 15, // default 80
+
+                iconCreateFunction: function (cluster) {
+                  // get the number of items in the cluster
+                  var count = cluster.getChildCount();
+
+                  // figure out how many digits long the number is
+                  //var digits = (count + '').length;
+                  var digits;
+                  if (count == 2) { digits = '1'; }
+                  if (count >= 3 && count <=5) { digits = '2'; }
+                  if (count >= 6 && count <=9) { digits = '3'; }
+                  if (count >= 10 && count <=14) { digits = '4'; }
+                  if (count > 14) { digits = '5'; }
+
+                  return L.divIcon({
+                    html: count,
+                    className: 'cluster digits-' + digits,
+                    iconSize: null
+                  });
+                },
+            });
+
+
+            markersCluster.addLayer(markers);
+
+
+            {% if hide_cluster_zoomout %}
+                ZoomChangeCluster();
+            {% else %}
+                mymap.addLayer(markersCluster);
+            {% endif %}
+
+
+
+            */
+        });
 
    }
 }
+
+
+function LoadAccidentsToMap(firsttime, filterEnabled) {
+    if (!firsttime) {
+        //mymap.removeLayer(markers);
+        {% if hide_cluster_zoomout %}
+            mymap.removeLayer(markersCluster);
+            mymap.removeLayer(markers);
+        {% else %}
+            mymap.removeLayer(markersCluster);
+        {% endif %}
+    }
+    // update dataset for heatmap
+    HeatMapData.data.length = 0; // clear data array
+    let heatItem = {};
+
+    markers = L.geoJSON(accidentData, {
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
+        },
+
+        filter: function(feature, layer) {
+
+            if (firsttime) {
+                if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
+                if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
+            }
+
+            if (filterEnabled) {
+
+                let dateFrom_value = document.getElementById("dateFrom").value;
+                let dateTo_value = document.getElementById("dateTo").value;
+
+                // filter markers by range date
+                if (feature.properties.datetime.split('T')[0] >= dateFrom_value && feature.properties.datetime.split('T')[0] <=dateTo_value) {
+
+                    let maneuver_value = document.getElementById("maneuver_Filter").value;
+                    let description_value = document.getElementById("description_Filter").value;
+
+                    let violations_type_values = $('#filter_violations_type').val();
+                    let violators_values = $('#filter_violators').val();
+
+                    let drivers_injured_value = document.getElementById("drivers_injured_Filter").checked;
+                    let motorcyclists_injured_value = document.getElementById("motorcyclists_injured_Filter").checked;
+                    let cyclists_injured_value = document.getElementById("cyclists_injured_Filter").checked;
+                    let ped_injured_value = document.getElementById("ped_injured_Filter").checked;
+                    let kids_injured_value = document.getElementById("kids_injured_Filter").checked;
+                    let pubtr_passengers_injured_value = document.getElementById("pubtr_passengers_injured_Filter").checked;
+
+                    let drivers_killed_value = document.getElementById("drivers_killed_Filter").checked;
+                    let motorcyclists_killed_value = document.getElementById("motorcyclists_killed_Filter").checked;
+                    let cyclists_killed_value = document.getElementById("cyclists_killed_Filter").checked;
+                    let ped_killed_value = document.getElementById("ped_killed_Filter").checked;
+                    let kids_killed_value = document.getElementById("kids_killed_Filter").checked;
+                    let pubtr_passengers_killed_value = document.getElementById("pubtr_passengers_killed_Filter").checked;
+
+                    let public_transport_involved_value = document.getElementById("public_transport_involved_Filter").checked;
+
+                    let showOnlyMyAccidents_value = document.getElementById("filter_showOnlyMyAccidents").checked;
+
+
+                    let maneuver_Filter = true;
+                    let description_Filter = true;
+                    let violations_type_Filter = true;
+                    let violators_Filter = true;
+
+                    let drivers_injured_Filter = true;
+                    let motorcyclists_injured_Filter = true;
+                    let cyclists_injured_Filter = true;
+                    let ped_injured_Filter = true;
+                    let kids_injured_Filter = true;
+                    let pubtr_passengers_injured_Filter = true;
+                    let drivers_killed_Filter = true;
+                    let motorcyclists_killed_Filter = true;
+                    let cyclists_killed_Filter = true;
+                    let ped_killed_Filter = true;
+                    let kids_killed_Filter = true;
+                    let pubtr_passengers_killed_Filter = true;
+
+                    let public_transport_involved_Filter = true;
+
+                    let showOnlyMyAccidents_Filter = true;
+
+
+                    if (maneuver_value) {
+                        maneuver_Filter = maneuver_value == feature.properties.maneuver;
+                    }
+
+                    if (description_value) {
+                        if (feature.properties.description.toLowerCase().indexOf(description_value.toLowerCase()) == -1) { description_Filter = false; }
+                    }
+
+                    if (violations_type_values.length>0) {
+                        // проверяем,пересекаются ли два массива
+                        let intersection = violations_type_values.filter(x => feature.properties.violations_type.includes(x));
+                        violations_type_Filter = intersection.length > 0;
+                    }
+
+                    if (violators_values.length>0) {
+                        // проверяем,пересекаются ли два массива
+                        let intersection = violators_values.filter(x => feature.properties.violators.includes(x));
+                        violators_Filter = intersection.length > 0;
+                    }
+
+                    if (drivers_injured_value) { drivers_injured_Filter = feature.properties.drivers_injured > 0; }
+                    if (motorcyclists_injured_value) { motorcyclists_injured_Filter = feature.properties.motorcyclists_injured > 0; }
+                    if (cyclists_injured_value) { cyclists_injured_Filter = feature.properties.cyclists_injured > 0; }
+                    if (ped_injured_value) { ped_injured_Filter = feature.properties.ped_injured > 0; }
+                    if (kids_injured_value) { kids_injured_Filter = feature.properties.kids_injured > 0; }
+                    if (pubtr_passengers_injured_value) { pubtr_passengers_injured_Filter = feature.properties.pubtr_passengers_injured > 0; }
+                    if (drivers_killed_value) { drivers_killed_Filter = feature.properties.drivers_killed > 0; }
+                    if (motorcyclists_killed_value) { motorcyclists_killed_Filter = feature.properties.motorcyclists_killed > 0; }
+                    if (cyclists_killed_value) { cyclists_killed_Filter = feature.properties.cyclists_killed > 0; }
+                    if (ped_killed_value) { ped_killed_Filter = feature.properties.ped_killed > 0; }
+                    if (kids_killed_value) { kids_killed_Filter = feature.properties.kids_killed > 0; }
+                    if (pubtr_passengers_killed_value) { pubtr_passengers_killed_Filter = feature.properties.pubtr_passengers_killed > 0; }
+
+                    if (public_transport_involved_value) {
+                        public_transport_involved_Filter = feature.properties.public_transport_involved;
+                    }
+
+                    if (showOnlyMyAccidents_value) {
+                        showOnlyMyAccidents_Filter = feature.properties.user_id == {{user.id}};
+                    }
+
+
+                    let result = maneuver_Filter &&
+                           description_Filter &&
+
+                           violations_type_Filter &&
+
+                           violators_Filter &&
+
+                           drivers_injured_Filter &&
+                           motorcyclists_injured_Filter &&
+                           cyclists_injured_Filter &&
+                           ped_injured_Filter &&
+                           kids_injured_Filter &&
+                           pubtr_passengers_injured_Filter &&
+                           drivers_killed_Filter &&
+                           motorcyclists_killed_Filter &&
+                           cyclists_killed_Filter &&
+                           ped_killed_Filter &&
+                           kids_killed_Filter &&
+                           pubtr_passengers_killed_Filter &&
+                           public_transport_involved_Filter;
+
+                    // update dataset for heatmap
+                    if (result) {
+                        heatItem = {}
+                        heatItem.lat = feature.properties.coordinates[1];
+                        heatItem.lng = feature.properties.coordinates[0];
+                        HeatMapData.data.push(heatItem);
+                     }
+
+                    return result;
+
+
+                } else {
+                    return false;
+                }
+
+
+
+
+            } else {
+                heatItem = {}
+                heatItem.lat = feature.properties.coordinates[1];
+                heatItem.lng = feature.properties.coordinates[0];
+                HeatMapData.data.push(heatItem);
+
+                return true; // если filterEnabled = False
+            }
+
+
+        }
+    });//.addTo(mymap);
+
+
+
+    if (firsttime) {
+        document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+        document.getElementById("dateTo").value = formatDate(datefilter_Max);
+    }
+
+    heatmapLayer.setData(HeatMapData);
+    mymap.addLayer(markers);
+
+
+
+
+    // create clusters from circleMarkers
+    markersCluster = L.markerClusterGroup({
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 15, // default 80
+
+        iconCreateFunction: function (cluster) {
+          // get the number of items in the cluster
+          var count = cluster.getChildCount();
+
+          // figure out how many digits long the number is
+          //var digits = (count + '').length;
+          var digits;
+          if (count == 2) { digits = '1'; }
+          if (count >= 3 && count <=5) { digits = '2'; }
+          if (count >= 6 && count <=9) { digits = '3'; }
+          if (count >= 10 && count <=14) { digits = '4'; }
+          if (count > 14) { digits = '5'; }
+
+          return L.divIcon({
+            html: count,
+            className: 'cluster digits-' + digits,
+            iconSize: null
+          });
+        },
+    });
+
+    markersCluster.addLayer(markers);
+    {% if hide_cluster_zoomout %}
+        ZoomChangeCluster();
+    {% else %}
+        mymap.addLayer(markersCluster);
+    {% endif %}
+}
+
+function PermissionsApply(){
+    {% if not perms.roadaccident.add_accident %} but_newmarker.disable(); {% endif %}
+}
+

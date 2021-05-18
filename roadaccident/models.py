@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import reverse
+from django.contrib.auth.models import User
 
 from coregis.models import coreCity
 
@@ -18,24 +19,46 @@ class City(coreCity):
 
 
 class Maneuver(models.Model):
-    maneuvername = models.CharField(max_length=50)
-    # right, left, ahead, backward
+    maneuvername = models.CharField(max_length=50) # right, left, ahead, backward
+
     def __str__(self):
         return self.maneuvername
+
+
+class TypeViolation(models.Model):
+    violationname = models.CharField(max_length=50) #Red light running, Priority traffic sign, Lost control vehicle, Alcohol or drug
+
+    def __str__(self):
+        return self.violationname
+
+
+class Violator(models.Model):
+    violatorname = models.CharField(max_length=50) #Driver, Motorcyclist, Cyclist, Pedestrian
+
+    def __str__(self):
+        return self.violatorname
 
 
 
 
 class Accident(models.Model):
+
+    class Meta:
+        permissions = [
+            ("can_change_not_own_accident_record", "Can change the records that do not belong to current user"),
+            ("can_delete_not_own_accident_record", "Can delete the records that do not belong to current user"),
+        ]
+
     city = models.ForeignKey(City, on_delete=models.PROTECT)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     datetime = models.DateTimeField()
-    description = models.TextField(blank=True)
 
-    red_light_running = models.BooleanField(default=False)
-    priority_traffic_sign = models.BooleanField(default=False)
-    lost_control_vehicle = models.BooleanField(default=False)
+    maneuver = models.ForeignKey(Maneuver, null=True, blank=True, on_delete=models.PROTECT)
+    description = models.TextField(blank=True, default='')
+
+    violations_type = models.ManyToManyField('TypeViolation', blank=True, related_name='accidents')
+    violators = models.ManyToManyField('Violator', blank=True, related_name='accidents')
 
     drivers_injured = models.PositiveSmallIntegerField(default=0)
     motorcyclists_injured = models.PositiveSmallIntegerField(default=0)
@@ -51,15 +74,11 @@ class Accident(models.Model):
     kids_killed = models.PositiveSmallIntegerField(default=0)
     pubtr_passengers_killed = models.PositiveSmallIntegerField(default=0)
 
-    maneuver = models.ForeignKey(Maneuver, null=True, blank=True, on_delete=models.PROTECT)
+    public_transport_involved = models.BooleanField(default=False)
 
-    driver_violation = models.BooleanField(default=False)
-    motorcyclist_violation = models.BooleanField(default=False)
-    cyclist_violation = models.BooleanField(default=False)
-    pedestrian_violation = models.BooleanField(default=False)
+    useradded = models.ForeignKey(User, on_delete=models.PROTECT, related_name='accidents')  # тот кто добавил запись
+    is_deleted = models.BooleanField(default=False)
 
-    puplic_transport_involved = models.BooleanField(default=False)
-    alcohol_or_drug = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.latitude)

@@ -9,8 +9,6 @@ var button_closeTabTree = document.getElementById('button_CloseTabTree');
 var button_closeTabInsp = document.getElementById('button_CloseTabInsp');
 var button_closeTabAct = document.getElementById('button_CloseTabAct');
 
-var button_modal_show_slideshow = document.getElementById('id_button_modal_slideshow');
-
 var button_NewInspection = document.getElementById('id_button_NewInspection');
 var button_NewAction = document.getElementById('id_button_NewAction');
 
@@ -198,38 +196,6 @@ var geojsonMarkerOptions = {
 // loads geoJSON and finds max and min dates in geoJson to use it on filter form
 var datefilter_Min = '2100-01-01';
 var datefilter_Max = '1970-01-01';
-/*
-// create circleMarker from geoJson responseJSON
-  var markers = L.geoJSON(treeData, {
-    pointToLayer: function (feature, latlng) {
-        //geojsonMarkerOptions.radius = ZoomToRadius(mymap.getZoom(), feature.properties.trunkgirth);
-        geojsonMarkerOptions.radius = feature.properties.crowndiameter;
-
-
-
-        return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
-        //return L.circleMarker(latlng, {renderer: myRenderer, radius: geojsonMarkerOptions.radius, weight: 0}).on('click', markerOnClick);//.addTo(mymap);
-    },
-
-    //filter: function(feature, layer) {
-    //    if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
-    //    if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
-    //    return true;
-    //}
-});//.addTo(mymap);
-
-//document.getElementById("dateFrom").value = formatDate(datefilter_Min);
-//document.getElementById("dateTo").value = formatDate(datefilter_Max);
-
-
-
-mymap.addLayer(markers);
-*/
-
-
-
-
-
 
 
 
@@ -403,16 +369,6 @@ function onMapClick(e) {
 
 
         // delete previous marker if exists
-        //mymap.removeLayer(markerCircle)
-
-        //markerCircle = new L.circleMarker(e.latlng, {
-        //    color: 'black',
-        //    fillColor: 'black',
-        //    fillOpacity: 1,
-        //    radius: 5
-        //}).addTo(mymap);
-
-        // delete previous marker if exists
         mymap.removeLayer(newMarker)
 
         newMarker = new L.marker(e.latlng, {icon: redIcon, draggable: true}).addTo(mymap);
@@ -506,17 +462,73 @@ function buttonCancelMarkerMobileOnClick(e) {
 
 function markerOnClick(e)
 {
+  let marker = e.target;
+  let geojson = marker.toGeoJSON();
+
   // delete previous marker if exists
   mymap.removeLayer(newMarker);
+
+
+    $.ajax({
+        url: "{% url 'get_tree' %}",
+        //data: {'idtree': document.getElementById("treeId").value},
+        data: {'idtree': geojson.properties.id},
+        dataType: 'json',
+        success: function (jsonResult) {
+            let obj_tree = jQuery.parseJSON(jsonResult);
+
+
+            $("#id_treepreview_title_local_name").text(obj_tree.fields.localname);
+            $("#id_treepreview_title_species_name").text(obj_tree.fields.species);
+            $("#id_treepreview_status").text(obj_tree.fields.lastinsp_status);
+
+            $("#id_treepreview_height").text(obj_tree.fields.lastinsp_height);
+            $("#id_treepreview_crown").text(obj_tree.fields.lastinsp_crowndiameter);
+            $("#id_treepreview_trunk").text(obj_tree.fields.lastinsp_trunkgirth);
+            $("#id_treepreview_remarks").text(obj_tree.fields.lastinsp_remarks);
+            $("#id_treepreview_recommends").text(obj_tree.fields.lastinsp_recommendations);
+
+            console.log(obj_tree.fields.species);
+            //console.log(obj.fields.localname);
+
+        }
+      });
+
+
+  $('#modalTreeInfo').modal('show');
+
+
+  document.getElementById("treeId").value = geojson.properties.id;
+  Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
+
+
+  let photo1 = "";
+  let photo2 = "";
+  let photo3 = "";
+
+  if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
+  if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
+  if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+  ShowSlideShow(photo1, photo2, photo3, "TreePreview")
+
+
+
+  let editButton_TreePreview = document.getElementById('id_editButton_TreePreview');
+  editButton_TreePreview.onclick = function() {
+    $('#modalTreeInfo').modal('hide');
+    EditTree (geojson);
+  }
+
+
+}
+
+
+function EditTree (geojson) {
 
   let $table_InspActData = $('#table_InspActData');
   $table_InspActData.bootstrapTable('destroy');
   $('#button_show_inspact').show();
   $('#divTreeInspActData').hide();
-
-
-  let marker = e.target;
-  let geojson = marker.toGeoJSON();
 
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
@@ -533,11 +545,6 @@ function markerOnClick(e)
   document.getElementById("googlestreeturl").value = geojson.properties.googlestreeturl;
   document.getElementById("treeId").value = geojson.properties.id;
 
-  $("#lates_inspection_datetime").html(geojson.properties.datetimeinsp);
-  $("#lates_inspection_status").html("Status: " + geojson.properties.status);
-  $("#lates_inspection_sizes").html("Dimensions:<br> Height: " + geojson.properties.height + "m, Crown D.: " + geojson.properties.crowndiameter + "m, Trunk girth.: " + geojson.properties.trunkgirth +"cm");
-  $("#lates_inspection_remarks").html("Remarks:" + geojson.properties.remarks_text);
-  $("#lates_inspection_recommendations").html("Recommendations:" + geojson.properties.recommendations_text);
 
   //document.getElementById('wrapper').classList.remove("toggled");
   $('#divNewTree').hide();
@@ -590,68 +597,58 @@ function markerOnClick(e)
 
 
 
-
   document.getElementById("id_tree_photo1").value = geojson.properties.photo1;
   document.getElementById("id_tree_photo2").value = geojson.properties.photo2;
   document.getElementById("id_tree_photo3").value = geojson.properties.photo3;
 
 
-  if(geojson.properties.photo1 !== "" || geojson.properties.photo2 !== "" || geojson.properties.photo3 !== "") {
-    $('#id_button_modal_slideshow').show();
-  } else {
-    $('#id_button_modal_slideshow').hide();
-  }
-
-  // заполняем слайдер фотками и если фотки есть, то ShowSlideShow вернет true, тем самым определит видимость кнопки для вызора слайдера
-  //if (LoadPhotosToSlideShow(geojson.properties.photo1, geojson.properties.photo2, geojson.properties.photo3)) {
-  //      $('#button_photos').show();
-  //} else {
-  //  $('#button_photos').hide();
-  //}
-
-
-  Show_Inspections_Actions_Table();
+  Show_Inspections_Actions_Table('EditTree', geojson.properties.id);
   OpenSidebar();
 }
 
 
 
 
-function ShowSlideShow(photo1, photo2, photo3) {
+function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
     // clear then populate slider
-    $('.carousel-inner').html('');
-    $('.carousel-indicators').html('');
+    $('#id_container_'+id_carousel_suffix+' .carousel-inner').html('');
+    $('#id_container_'+id_carousel_suffix+' .carousel-indicators').html('');
 
     let i = 0;
     let result = false;
 
     if (photo1 != "") {
-        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo1 +'"></div>').appendTo('.carousel-inner');
-        $('<li data-target="#carouselExampleIndicators" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
+        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo1 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
+        $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
     }
     i = i + 1;
 
     if (photo2 != "") {
-        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo2 +'"></div>').appendTo('.carousel-inner');
-        $('<li data-target="#carouselExampleIndicators" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
+        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo2 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
+        $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
     }
     i = i + 1;
 
     if (photo3 != "") {
-        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo3 +'"></div>').appendTo('.carousel-inner');
-        $('<li data-target="#carouselExampleIndicators" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
+        $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo3 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
+        $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
     }
 
 
     if (result) {
-        $('.carousel-item').first().addClass('active');
-        $('.carousel-indicators > li').first().addClass('active');
-        $('#carouselExampleIndicators').carousel();
+        $('#id_container_'+id_carousel_suffix+' .carousel-item').first().addClass('active');
+        $('#id_container_'+id_carousel_suffix+' .carousel-indicators > li').first().addClass('active');
+        $('#id_carousel_'+id_carousel_suffix).carousel();
 
-        $('#modalSlideShow').modal('show');
+        //$('#modalSlideShow').modal('show');
+        if (id_carousel_suffix.includes('Modal')) // если в параметре есть слово Modal, значит нужно еще и вызвать модальное окно
+        {
+            $('#id_SlideShow_'+id_carousel_suffix).modal('show');
+        }
+
     }
 
     return result;
@@ -875,46 +872,6 @@ button_reset.onclick = function() {
 
     LoadTreesToMap(false, false); // не первоначальная загрузка, фильтр отключен
 
-    /*
-    mymap.removeLayer(markers);
-
-    markers = L.geoJSON(ajax_geojson, {
-        pointToLayer: function (feature, latlng) {
-            geojsonMarkerOptions.radius = feature.properties.crowndiameter;
-            return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
-        },
-
-        filter: function(feature, layer) {
-
-            if (feature.properties.ajax == 1 && idsFromDB.includes(feature.properties.id)) {
-                return false
-            } else {
-                return true;
-            }
-                //return true;
-
-            }
-    });//.addTo(mymap);
-
-
-    mymap.addLayer(markers);
-
-    $('#filter_species').selectpicker('deselectAll');
-    $('#filter_status').selectpicker('deselectAll');
-    $('#filter_recommendations').selectpicker('deselectAll');
-    $('#filter_remarks').selectpicker('deselectAll');
-
-
-    document.getElementById("filter_placetype").value = 0;
-    document.getElementById("filter_irrigationmethod").value = 0;
-
-    document.getElementById("filter_plantedDateFrom").value = '';
-    document.getElementById("filter_plantedDateTo").value = '';
-    document.getElementById("filter_addedDateFrom").value = '';
-    document.getElementById("filter_addedDateTo").value = '';
-    document.getElementById("filter_comment").value = '';
-    */
-
 }
 
 
@@ -961,23 +918,27 @@ function onMapZoom(e) {
 
 
 
-function Show_Inspections_Actions_Table()
+function Show_Inspections_Actions_Table(id_suffix, idTree)
 {
-    let $table_InspActData = $('#table_InspActData')
-    //$table_InspActData.bootstrapTable('destroy')
+    let $table_InspActData = $('#table_InspActData_'+id_suffix)
+    let $table_InspActDataPreview = $('#table_InspActData_'+id_suffix)
+    $table_InspActData.bootstrapTable('destroy')
 
     $.ajax({
         url: "{% url 'get_inspact' %}",
-        data: {'idtree': document.getElementById("treeId").value},
+        //data: {'idtree': document.getElementById("treeId").value},
+        data: {'idtree': idTree},
         dataType: 'json',
         success: function (jsonResult) {
             //$('#button_show_inspact').hide();
-            $('#divTreeInspActData').show();
+            $('#divTreeInspActData_'+id_suffix).show();
+            //$('#divTreeInspActDataPreview').show();
             //console.log(jsonResult);
 
             $(function() {
                 let data = jsonResult
                 $table_InspActData.bootstrapTable({data: data})
+                //$table_InspActDataPreview.bootstrapTable({data: data})
             })
 
         }
@@ -1009,8 +970,37 @@ function button_show_inspact_OnClick() {
 }
 
 // обработчик нажатия кнопок в bootstrap table
-window.operateEvents = {
+window.operateEventsTreeEdit = {
     'click .edit': function (e, value, row, index) {
+        Edit_Inspection_or_Action_show(row);
+    },
+
+
+    'click .photos': function (e, value, row, index) {
+        Slideshow_Inspection_show(row);
+    }
+
+}
+
+
+
+window.operateEventsPreviewTree = {
+    'click .edit': function (e, value, row, index) {
+        $('#modalTreeInfo').modal('hide');
+        Edit_Inspection_or_Action_show(row);
+        OpenSidebar();
+    },
+
+
+    'click .photos': function (e, value, row, index) {
+        Slideshow_Inspection_show(row);
+    }
+
+}
+
+
+
+function Edit_Inspection_or_Action_show(row) {
         if (row.type=='Inspection') {
             document.getElementById("inspId").value = row.id;
             document.getElementById("inspTreeId").value = row.tree;
@@ -1021,21 +1011,6 @@ window.operateEvents = {
             $('#id_insp_remarks').selectpicker('val', row.remarks);
             document.getElementById("insp_status").value = row.status;
             $('#id_insp_recommendations').selectpicker('val', row.recommendations);
-
-
-
-            //let qPhotos = 0;
-            //if (row.photo1 !== "") {qPhotos = qPhotos + 1; }
-            //if (row.photo2 !== "") {qPhotos = qPhotos + 1; }
-            //if (row.photo3 !== "") {qPhotos = qPhotos + 1; }
-
-            //if (qPhotos == 0) {
-            //    $("#button_show_insp_photos").html("No photos available");
-            //} else if (qPhotos == 1) {
-            //    $("#button_show_insp_photos").html("Available "+ qPhotos +" photo");
-            //} else if (qPhotos > 1) {
-            //    $("#button_show_insp_photos").html("Available "+ qPhotos +" photos");
-            //}
 
 
             if (row.photo1 !== "") {
@@ -1154,22 +1129,22 @@ window.operateEvents = {
             $('#myTab a[href="#action"]').tab('show'); // Select tab by name
             //$('#act_deleteButton').prop('disabled',false);
         }
-        //alert('You click like action, row: ' + JSON.stringify(row))
-
-    },
-
-
-    'click .photos': function (e, value, row, index) {
-        let photo1 = "";
-        let photo2 = "";
-        let photo3 = "";
-        if (row.photo1 !== "") { photo1 = "{% get_media_prefix %}" + row.photo1 }
-        if (row.photo2 !== "") { photo2 = "{% get_media_prefix %}" + row.photo2 }
-        if (row.photo3 !== "") { photo3 = "{% get_media_prefix %}" + row.photo3 }
-        ShowSlideShow(photo1, photo2, photo3)
-    }
-
 }
+
+
+
+function Slideshow_Inspection_show(row) {
+    let photo1 = "";
+    let photo2 = "";
+    let photo3 = "";
+    if (row.photo1 !== "") { photo1 = "{% get_media_prefix %}" + row.photo1 }
+    if (row.photo2 !== "") { photo2 = "{% get_media_prefix %}" + row.photo2 }
+    if (row.photo3 !== "") { photo3 = "{% get_media_prefix %}" + row.photo3 }
+    ShowSlideShow(photo1, photo2, photo3, "Modal")
+}
+
+
+
 
 
 button_NewInspection.onclick = function() {
@@ -1215,12 +1190,6 @@ button_NewAction.onclick = function() {
 
 
 
-button_modal_show_slideshow.onclick = function() {
-    let photo1 = document.getElementById("id_tree_photo1").value;
-    let photo2 = document.getElementById("id_tree_photo2").value;
-    let photo3 = document.getElementById("id_tree_photo3").value;
-    ShowSlideShow(photo1, photo2, photo3)
-}
 
 
 
@@ -1290,7 +1259,7 @@ function images_inspection_click(){
         let photo2 = document.getElementById("id_insp_photo2_filename").value;
         let photo3 = document.getElementById("id_insp_photo3_filename").value;
         console.log(photo1);
-        ShowSlideShow(photo1, photo2, photo3)
+        ShowSlideShow(photo1, photo2, photo3, "Modal")
 }
 
 // для предпросмотра картинки при выборе фотки для загрузки

@@ -21,6 +21,7 @@ import shutil
 
 
 
+
 class Map(View):
     def get(self, request, city_name):
         obj_city = get_object_or_404(City, sysname__iexact=city_name)
@@ -72,7 +73,7 @@ class Map(View):
                 if treeId:  # если в accidentId есть id значит редактируем
 
                     if not request.user.has_perm('citytree.change_tree'):
-                        raise PermissionDenied
+                        raise PermissionDenied ('You do not have sufficient permissions to change this data.')
 
                     obj_newtree = get_object_or_404(Tree, pk=treeId)
                     #проверяем, если редактируется не своя запись, имеет ли право ее редактировать
@@ -96,7 +97,7 @@ class Map(View):
 
                 else: # create a new tree
                     if not request.user.has_perm('citytree.add_tree'):
-                        raise PermissionDenied
+                        raise PermissionDenied ('You do not have enough permissions to create an entry.')
                     obj_newtree = None
 
                     #print(dir(request.FILES))
@@ -128,12 +129,12 @@ class Map(View):
 
             elif request.POST.get('send') == 'delete':
                 if not request.user.has_perm('citytree.delete_tree'):
-                    raise PermissionDenied
+                    raise PermissionDenied('You do not have enough permissions to delete the entry.')
 
                 obj_tree = get_object_or_404(Tree, pk=treeId)
                 # проверяем, если удаляется не своя запись, имеет ли право ее удалить
                 if obj_tree.useradded != request.user and not request.user.has_perm('citytree.can_delete_not_own_tree_record'):# and not request.user.is_staff and not request.user.is_superuser:
-                    raise PermissionDenied
+                    raise PermissionDenied('You do not have enough permissions to delete the entry that was created by another user.')
                 #obj_tree.delete()
                 obj_tree.is_deleted = True
                 obj_tree.is_geojsoned = False
@@ -146,13 +147,13 @@ class Map(View):
                 if inspId:  # если есть id значит редактируем
 
                     if not request.user.has_perm('citytree.change_inspection'):
-                        raise PermissionDenied
+                        raise PermissionDenied('You do not have sufficient permissions to change this data.')
 
                     obj_insp = get_object_or_404(Inspection, pk=inspId)
 
                     # проверяем, если редактируется не своя запись, имеет ли право ее редактировать
                     if obj_insp.user != request.user and not request.user.has_perm('citytree.can_change_not_own_insp_record'):# and not request.user.is_staff and not request.user.is_superuser:
-                        raise PermissionDenied
+                        raise PermissionDenied('You do not have enough permissions to change the entry that was created by another user.')
 
                     bound_form_insp = IncpectionFormNew(request.POST, request.FILES, instance=obj_insp)
 
@@ -315,7 +316,7 @@ class ExportGeoJson(View):
 class DeleteAllTrees(View):
     def get(self, request, city_name):
         obj_city = get_object_or_404(City, sysname=city_name)
-        trees = Tree.objects.filter(city=obj_city).delete()
+        trees = Tree.objects.filter(city=obj_city).delete()[:1000]
         return redirect(obj_city)
 
 
@@ -336,11 +337,43 @@ def create_trees(request):
 
 
 
-class ajaxGetInspAct(View):
+class ajaxGetTree(View):
     def get(self, request):
 
         if request.is_ajax:
             idTree = request.GET.get('idtree', None)
+            obj_tree = get_object_or_404(Tree, pk=idTree)
+            json_send = serialize('json', [obj_tree,])
+
+            # делаем так, чтобы избавиться от массива, т.к. объект все равно один
+            struct = json.loads(json_send)
+            idFK_species = struct[0]["fields"]["species"]
+            idFK_status = struct[0]["fields"]["lastinsp_status"]
+
+            # т.к. серилизация возвращает лишь внешние ключи, то заполняет значения вручную
+            obj_species = Species.objects.get(pk=idFK_species)
+            obj_status = Status.objects.get(pk=idFK_status)
+            sRemarks = ', '.join(obj_tree.lastinsp_remarks.values_list('remarkname', flat=True))
+            sRecommendations = ', '.join(obj_tree.lastinsp_recommendations.values_list('carename', flat=True))
+
+            struct[0]["fields"]["species"] = obj_species.speciesname
+            struct[0]["fields"]["localname"] = obj_species.localname
+            struct[0]["fields"]["lastinsp_status"] = obj_status.statusname
+            struct[0]["fields"]["lastinsp_remarks"] = sRemarks
+            struct[0]["fields"]["lastinsp_recommendations"] = sRecommendations
+
+            json_send = json.dumps(struct[0])
+            return JsonResponse(json_send, safe=False, status=200)
+
+
+
+class ajaxGetInspAct(View):
+    def get(self, request):
+
+        if request.is_ajax:
+
+            idTree = request.GET.get('idtree', None)
+
             obj_inspections = None
             obj_actions = None
 

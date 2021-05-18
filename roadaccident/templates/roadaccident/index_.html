@@ -1,0 +1,1043 @@
+{% extends 'roadaccident/base_ra.html' %}
+
+{% block title %}
+    Road Accident map - {{ block.super }}
+{% endblock %}
+
+
+{% block sidebar %}
+      <div class="sidebar-heading"> {{ obj_city.cityname }} </div>
+      <div class="list-group list-group-flush">
+
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Filter</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="accident-tab" data-toggle="tab" href="#accident" role="tab" aria-controls="accident" aria-selected="false">Accident</a>
+      </li>
+
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+
+      <div class="tab-pane fade show active m-3" id="filter" role="tabpanel" aria-labelledby="filter-tab">
+
+          <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="dateFrom">From</label>
+                  <input type="date" class="form-control" name="dateFrom" id="dateFrom" required>
+              </div>
+              <div class="form-group col-md-6">
+                  <label for="dateTo">To</label>
+                  <input type="date" class="form-control" name="dateTo" id="dateTo" required>
+              </div>
+          </div>
+
+
+          <div class="form-group" style="margin-top: -10px">
+            <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range -->
+              <input type="range" class="form-control-range" id="formControlRange" min="2000" max="2021" value="2021">
+          </div>
+
+
+          <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="maneuver_Filter">Maneuver of vehicle</label>
+                  <select name="maneuver_Filter" id="maneuver_Filter" class="form-control">
+                      <option selected></option>
+                        {% for item in maneuvers %}
+                            <option value="{{ item.id }}">{{ item.maneuvername }}</option>
+                        {% endfor %}
+                  </select>
+              </div>
+              <div class="form-group col-md-6">
+                  <label for="description_Filter">Description</label>
+                  <input type="text" class="form-control" name="description_Filter" id="description_Filter" required>
+              </div>
+          </div>
+
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Type of violation</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="red_light_running_Filter" id="red_light_running_Filter">
+                          <label class="form-check-label" for="red_light_running_Filter">Red light running</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="priority_traffic_sign" id="priority_traffic_sign_Filter">
+                          <label class="form-check-label" for="priority_traffic_sign_Filter">Priority traffic sign</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="lost_control_vehicle_Filter" id="lost_control_vehicle_Filter">
+                          <label class="form-check-label" for="lost_control_vehicle_Filter">Lost control vehicle</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="alcohol_or_drug_Filter" id="alcohol_or_drug_Filter">
+                          <label class="form-check-label" for="alcohol_or_drug_Filter">Alcohol or drug</label>
+                      </div>
+
+                  </div>
+              </div>
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Violators</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="driver_violation_Filter" id="driver_violation_Filter">
+                          <label class="form-check-label" for="driver_violation_Filter">Driver</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="motorcyclist_violation_Filter" id="motorcyclist_violation_Filter">
+                          <label class="form-check-label" for="motorcyclist_violation_Filter">Motorcyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="cyclist_violation_Filter" id="cyclist_violation_Filter">
+                          <label class="form-check-label" for="cyclist_violation_Filter">Cyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="pedestrian_violation_Filter">
+                          <label class="form-check-label" for="pedestrian_violation_Filter">Pedestrian</label>
+                      </div>
+
+                  </div>
+              </div>
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Injured</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="driver_violation_Filter" id="drivers_injured_Filter">
+                          <label class="form-check-label" for="drivers_injured_Filter">Driver</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="motorcyclist_violation_Filter" id="motorcyclists_injured_Filter">
+                          <label class="form-check-label" for="motorcyclists_injured_Filter">Motorcyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="cyclist_violation_Filter" id="cyclists_injured_Filter">
+                          <label class="form-check-label" for="cyclists_injured_Filter">Cyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="ped_injured_Filter">
+                          <label class="form-check-label" for="ped_injured_Filter">Pedestrian</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="kids_injured_Filter">
+                          <label class="form-check-label" for="kids_injured_Filter">Kid</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="pubtr_passengers_injured_Filter">
+                          <label class="form-check-label" for="pubtr_passengers_injured_Filter">Pub. tr. passenger</label>
+                      </div>
+
+                  </div>
+              </div>
+
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Killed</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="driver_violation_Filter" id="drivers_killed_Filter">
+                          <label class="form-check-label" for="drivers_killed_Filter">Driver</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="motorcyclist_violation_Filter" id="motorcyclists_killed_Filter">
+                          <label class="form-check-label" for="motorcyclists_killed_Filter">Motorcyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="cyclist_violation_Filter" id="cyclists_killed_Filter">
+                          <label class="form-check-label" for="cyclists_killed_Filter">Cyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="ped_killed_Filter">
+                          <label class="form-check-label" for="ped_killed_Filter">Pedestrian</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="kids_killed_Filter">
+                          <label class="form-check-label" for="kids_killed_Filter">Kid</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="pubtr_passengers_killed_Filter">
+                          <label class="form-check-label" for="pubtr_passengers_killed_Filter">Pub. tr. passenger</label>
+                      </div>
+
+                  </div>
+              </div>
+
+
+              <div class="form-check mt-3 mb-3">
+                  <input class="form-check-input" type="checkbox" name="puplic_transport_involved_Filter" id="puplic_transport_involved_Filter">
+                  <label class="form-check-label" for="puplic_transport_involved_Filter">Puplic transport involved</label>
+              </div>
+
+              <div class="float-lg-right">
+                  <button type="button" class="btn btn-light" id="reset_Filter">Reset</button>
+                  <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Apply</button>
+              </div>
+
+
+      </div>
+
+
+
+      <div class="tab-pane fade m-3" id="accident" role="tabpanel" aria-labelledby="accident-tab">
+          <form action="{{ obj_city.get_absolute_url }}" method="post" >
+              {% csrf_token %}
+
+              <p> {{ form.errors }}</p>
+
+              <div class="form-row">
+                  <div class="form-group col-md-2">
+                      <label class="col-form-label col-form-label-sm">Coord.:</label>
+                  </div>
+
+                  <div class="form-group col-md-5">
+                      <input type="number" name="latitude" id="latitude" class="form-control form-control-sm" step="any" required>
+                  </div>
+
+                  <div class="form-group col-md-5">
+                      <input type="number" name="longitude" id="longitude" class="form-control form-control-sm" step="any" required>
+                  </div>
+              </div>
+
+
+
+
+              <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea class="form-control" name="description" id="description" row="4"></textarea>
+              </div>
+
+              <div class="form-row">
+                  <div class="form-group col-md-7">
+                      <label for="datetime">Date and time</label>
+                      <input type="datetime-local" class="form-control" name="datetime" id="datetime" required>
+                  </div>
+                  <div class="form-group col-md-5">
+                      <label for="maneuver">Maneuver of vehicle</label>
+                      <select name="maneuver" id="maneuver" class="form-control">
+                          <option selected></option>
+                            {% for item in maneuvers %}
+                                <option value="{{ item.id }}">{{ item.maneuvername }}</option>
+                            {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+
+
+
+
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Type of violation</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="red_light_running" id="red_light_running">
+                          <label class="form-check-label" for="red_light_running">Red light running</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="priority_traffic_sign" id="priority_traffic_sign">
+                          <label class="form-check-label" for="priority_traffic_sign">Priority traffic sign</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="lost_control_vehicle" id="lost_control_vehicle">
+                          <label class="form-check-label" for="lost_control_vehicle">Lost control vehicle</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="alcohol_or_drug" id="alcohol_or_drug">
+                          <label class="form-check-label" for="alcohol_or_drug">Alcohol or drug</label>
+                      </div>
+
+                  </div>
+              </div>
+
+              <div class="card w-100 mb-3">
+                  <div class="card-body">
+                      <h6 class="card-title">Violators</h6>
+
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="driver_violation" id="driver_violation">
+                          <label class="form-check-label" for="driver_violation">Driver</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="motorcyclist_violation" id="motorcyclist_violation">
+                          <label class="form-check-label" for="motorcyclist_violation">Motorcyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="cyclist_violation" id="cyclist_violation">
+                          <label class="form-check-label" for="cyclist_violation">Cyclist</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name="pedestrian_violation" id="pedestrian_violation">
+                          <label class="form-check-label" for="pedestrian_violation">Pedestrian</label>
+                      </div>
+
+                  </div>
+              </div>
+
+
+
+
+              <div class="form-row">
+                  <div class="col-2">
+                      <label class="col-form-label col-form-label-sm"></label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Driver</label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Motorcyclist</label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Cyclists</label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Pedestrian</label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Kid</label>
+                  </div>
+                  <div class="col">
+                      <label class="col-form-label col-form-label-sm">Pub. tr. passenger</label>
+                  </div>
+              </div>
+
+              <div class="form-row">
+                  <div class="col-2">
+                      <label class="col-form-label col-form-label-sm">Injured:</label>
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="drivers_injured" id="drivers_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="motorcyclists_injured" id="motorcyclists_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="cyclists_injured" id="cyclists_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="ped_injured" id="ped_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="kids_injured" id="kids_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="pubtr_passengers_injured" id="pubtr_passengers_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+              </div>
+
+              <div class="form-row ">
+                  <div class="col-2">
+                      <label class="col-form-label col-form-label-sm">Killed:</label>
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="drivers_killed" id="drivers_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="motorcyclists_killed" id="motorcyclists_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="cyclists_killed" id="cyclists_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="ped_killed" id="ped_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="kids_killed" id="kids_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+                  <div class="col">
+                      <input type="number" class="form-control form-control-sm" name="pubtr_passengers_killed" id="pubtr_passengers_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}">
+                  </div>
+              </div>
+
+
+              <div class="form-check mt-3 mb-3">
+                  <input class="form-check-input" type="checkbox" name="puplic_transport_involved" id="puplic_transport_involved">
+                  <label class="form-check-label" for="puplic_transport_involved">
+                      Puplic transport involved
+                  </label>
+              </div>
+
+              <input type="hidden" id="accidentId" name="accidentId">
+
+              <div class="float-lg-right">
+                  <!-- Button trigger modal -->
+                  <button type="button" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Delete</button>
+                  <button style="min-width: 150px;" type="submit" class="btn btn-primary" name="send" value="save">Save</button>
+              </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure you want to delete this accident?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="submit" class="btn btn-light" name="send" value="delete">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+          </form>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+
+
+      </div>
+{% endblock %}
+
+
+{% block header %}
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Something else here</a>
+              </div>
+            </li>
+          </ul>
+{% endblock %}
+
+
+{% block map %}
+
+<div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
+<script>
+
+
+    var mymap = L.map('mapid',{ zoomControl: false }).setView(
+        [
+            {% if lat %}
+                {{ lat }}
+            {% else %}
+                {{ obj_city.latitude }}
+            {% endif %}
+            ,
+            {% if lng %}
+                {{ lng }}
+            {% else %}
+                {{ obj_city.longitude }}
+            {% endif %}
+
+        ], {% if lat %} 17 {% else %} {{ obj_city.zoom }} {% endif %});
+
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 20,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
+        }).addTo(mymap);
+
+
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(mymap);
+
+
+
+
+
+
+
+/*
+var markerGroup = L.layerGroup([
+      L.marker([37.8, -91]), L.marker([38.8, -86]), L.marker([47.8, -106]),
+      L.marker([31.8, -90]), L.marker([39.8, -96]), L.marker([33.8, -100]) ]);
+
+var toggle = L.easyButton({
+
+  position: 'topright',
+
+  states: [{
+    stateName: 'add-markers',
+    icon: 'fa-map-marker',
+    title: 'add random markers',
+    onClick: function(control) {
+      scatteredMarkerMap.addLayer(markerGroup);
+      control.state('remove-markers');
+    }
+  }, {
+    icon: 'fa-undo',
+    stateName: 'remove-markers',
+    onClick: function(control) {
+      scatteredMarkerMap.removeLayer(markerGroup);
+      control.state('add-markers');
+
+    },
+    title: 'remove markers'
+  }]
+});
+
+toggle.addTo(mymap);
+*/
+
+
+
+
+
+
+
+var but_newmarker = L.easyButton({
+    position: 'topright',
+    states:[
+        {
+            stateName: 'off',
+            icon: '<span style="">&#10012;</span>',
+            onClick: function(control){
+                control.state('on');
+                but_newmarker.button.style.backgroundColor = 'red';
+                document.getElementById('wrapper').classList.remove("toggled");
+                $('#myTab a[href="#accident"]').tab('show') // Select tab by name
+                $('.leaflet-container').css('cursor','crosshair');
+
+                document.getElementById("accidentId").value = '';
+                document.getElementById("latitude").value = '';
+                document.getElementById("longitude").value = '';
+                document.getElementById("datetime").value = '';
+                document.getElementById("description").value = '';
+                document.getElementById("maneuver").value = 0;
+
+                document.getElementById("red_light_running").checked = false;
+                document.getElementById("priority_traffic_sign").checked = false;
+                document.getElementById("lost_control_vehicle").checked = false;
+                document.getElementById("alcohol_or_drug").checked = false;
+
+                document.getElementById("driver_violation").checked = false;
+                document.getElementById("motorcyclist_violation").checked = false;
+                document.getElementById("cyclist_violation").checked = false;
+                document.getElementById("pedestrian_violation").checked = false;
+
+                document.getElementById("drivers_injured").value = 0;
+                document.getElementById("motorcyclists_injured").value = 0;
+                document.getElementById("cyclists_injured").value = 0;
+                document.getElementById("ped_injured").value = 0;
+                document.getElementById("kids_injured").value = 0;
+                document.getElementById("pubtr_passengers_injured").value = 0;
+
+                document.getElementById("drivers_killed").value = 0;
+                document.getElementById("motorcyclists_killed").value = 0;
+                document.getElementById("cyclists_killed").value = 0;
+                document.getElementById("ped_killed").value = 0;
+                document.getElementById("kids_killed").value = 0;
+                document.getElementById("pubtr_passengers_killed").value = 0;
+                document.getElementById("puplic_transport_involved").checked = 0;
+                $('#deleteButton').prop('disabled',true);
+
+            }
+        },
+
+        {
+            stateName: 'on',
+            icon: '<span class="star">&#10012;</span>',
+            onClick: function(control){
+                control.state('off');
+                but_newmarker.button.style.backgroundColor = 'white';
+                $('.leaflet-container').css('cursor','');
+            }
+        }]
+});
+but_newmarker.addTo(mymap);
+
+
+
+
+
+
+
+
+
+
+    /*
+	var marker = L.marker([51.5, -0.09]).addTo(mymap);
+
+
+	var circle = L.circle([51.508, -0.11], {
+		color: 'red',
+		fillColor: '#f03',
+		fillOpacity: 0.5,
+		radius: 500
+	}).addTo(mymap);
+
+	var polygon = L.polygon([
+		[51.509, -0.08],
+		[51.503, -0.06],
+		[51.51, -0.047]
+	]).addTo(mymap);
+
+
+	marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+	circle.bindPopup("I am a circle.");
+	polygon.bindPopup("I am a polygon.");
+
+	var popup = L.popup()
+		.setLatLng([51.5, -0.09])
+		.setContent("I am a standalone popup.")
+		.openOn(mymap);
+
+    */
+
+
+
+
+
+
+
+
+
+
+    var markerCircle = new L.circleMarker();
+	function onMapClick(e) {
+
+
+        if (but_newmarker.state() == 'on')
+        {
+            // удаляем предыдущий маркер, который поставили, если есть
+            mymap.removeLayer(markerCircle)
+
+            markerCircle = new L.circleMarker(e.latlng, {
+                color: 'black',
+                fillColor: 'black',
+                fillOpacity: 1,
+                radius: 5
+            }).addTo(mymap);
+
+            document.getElementById("accidentId").value = '';
+            document.getElementById("latitude").value = e.latlng.lat.toFixed(6);
+            document.getElementById("longitude").value = e.latlng.lng.toFixed(6);
+            document.getElementById("datetime").value = '';
+            document.getElementById("description").value = '';
+            document.getElementById("maneuver").value = 0;
+
+            document.getElementById("red_light_running").checked = false;
+            document.getElementById("priority_traffic_sign").checked = false;
+            document.getElementById("lost_control_vehicle").checked = false;
+            document.getElementById("alcohol_or_drug").checked = false;
+
+            document.getElementById("driver_violation").checked = false;
+            document.getElementById("motorcyclist_violation").checked = false;
+            document.getElementById("cyclist_violation").checked = false;
+            document.getElementById("pedestrian_violation").checked = false;
+
+            document.getElementById("drivers_injured").value = 0;
+            document.getElementById("motorcyclists_injured").value = 0;
+            document.getElementById("cyclists_injured").value = 0;
+            document.getElementById("ped_injured").value = 0;
+            document.getElementById("kids_injured").value = 0;
+            document.getElementById("pubtr_passengers_injured").value = 0;
+
+            document.getElementById("drivers_killed").value = 0;
+            document.getElementById("motorcyclists_killed").value = 0;
+            document.getElementById("cyclists_killed").value = 0;
+            document.getElementById("ped_killed").value = 0;
+            document.getElementById("kids_killed").value = 0;
+            document.getElementById("pubtr_passengers_killed").value = 0;
+            document.getElementById("puplic_transport_involved").checked = 0;
+
+
+            but_newmarker.state('off');
+            but_newmarker.button.style.backgroundColor = 'white';
+            $('.leaflet-container').css('cursor','');
+
+        }
+
+	}
+
+
+
+
+
+
+var accidentData = {
+  "type": "FeatureCollection",
+  "features": [
+
+{% if accident_data %}
+    {% for accident in accident_data %}
+        {
+            "type": "Feature",
+            "properties": {
+                "id": {{accident.id}},
+                "city": {{ accident.city_id }},
+                "datetime": "{{accident.datetime|date:"Y-m-d\TH:i"}}",
+                "description": "{{ accident.description|linebreaksbr }}",
+                "maneuver": {% if not accident.maneuver_id %} 0 {% else %} {{ accident.maneuver_id }} {% endif %},
+                "red_light_running": {{ accident.red_light_running|yesno:"1,0" }},
+                "priority_traffic_sign": {{ accident.priority_traffic_sign|yesno:"1,0" }},
+                "lost_control_vehicle": {{ accident.lost_control_vehicle|yesno:"1,0" }},
+                "alcohol_or_drug": {{ accident.alcohol_or_drug|yesno:"1,0" }},
+                "driver_violation": {{ accident.driver_violation|yesno:"1,0" }},
+                "motorcyclist_violation": {{ accident.motorcyclist_violation|yesno:"1,0" }},
+                "cyclist_violation": {{ accident.cyclist_violation|yesno:"1,0" }},
+                "pedestrian_violation": {{ accident.pedestrian_violation|yesno:"1,0" }},
+                "drivers_injured": {{ accident.drivers_injured }},
+                "motorcyclists_injured": {{ accident.motorcyclists_injured }},
+                "cyclists_injured": {{ accident.cyclists_injured }},
+                "ped_injured": {{ accident.ped_injured }},
+                "kids_injured": {{ accident.kids_injured }},
+                "pubtr_passengers_injured": {{ accident.pubtr_passengers_injured }},
+                "drivers_killed": {{ accident.drivers_killed }},
+                "motorcyclists_killed": {{ accident.motorcyclists_killed }},
+                "cyclists_killed": {{ accident.cyclists_killed }},
+                "ped_killed": {{ accident.ped_killed }},
+                "kids_killed": {{ accident.kids_killed}},
+                "pubtr_passengers_killed": {{ accident.pubtr_passengers_killed }},
+                "puplic_transport_involved": {{ accident.puplic_transport_involved|yesno:"1,0" }},
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [{{accident.longitude}}, {{accident.latitude}}]
+            }
+        },
+    {% endfor %}
+{% endif %}
+
+]};
+
+
+
+
+
+var geojsonMarkerOptions = {
+    radius: 8,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.3
+};
+
+
+
+// loads geoJSON and finds max and min dates in dataset to use it on filter form
+var datefilter_Min = '2100-01-01';
+var datefilter_Max = '1970-01-01';
+
+var myLayer = L.geoJSON(accidentData, {
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick).addTo(mymap);
+    },
+
+    filter: function(feature, layer) {
+        if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
+        if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
+        return true;
+    }
+}).addTo(mymap);
+
+
+function formatDate(date) {
+    let d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+document.getElementById("dateTo").value = formatDate(datefilter_Max);
+
+
+
+function markerOnClick(e)
+{
+  var marker = e.target;
+  var geojson = marker.toGeoJSON();
+
+
+  document.getElementById("latitude").value = geojson.geometry.coordinates[1];
+  document.getElementById("longitude").value = geojson.geometry.coordinates[0];
+  document.getElementById("datetime").value = geojson.properties.datetime;
+  document.getElementById("description").value = geojson.properties.description.replace(/<br\s*[\/]?>/gi, "\n");
+  document.getElementById("maneuver").value = geojson.properties.maneuver;
+
+  document.getElementById("red_light_running").checked = geojson.properties.red_light_running;
+  document.getElementById("priority_traffic_sign").checked = geojson.properties.priority_traffic_sign;
+  document.getElementById("lost_control_vehicle").checked = geojson.properties.lost_control_vehicle;
+  document.getElementById("alcohol_or_drug").checked = geojson.properties.alcohol_or_drug;
+
+  document.getElementById("driver_violation").checked = geojson.properties.driver_violation;
+  document.getElementById("motorcyclist_violation").checked = geojson.properties.motorcyclist_violation;
+  document.getElementById("cyclist_violation").checked = geojson.properties.cyclist_violation;
+  document.getElementById("pedestrian_violation").checked = geojson.properties.pedestrian_violation;
+
+  document.getElementById("drivers_injured").value = geojson.properties.drivers_injured;
+  document.getElementById("motorcyclists_injured").value = geojson.properties.motorcyclists_injured;
+  document.getElementById("cyclists_injured").value = geojson.properties.cyclists_injured;
+  document.getElementById("ped_injured").value = geojson.properties.ped_injured;
+  document.getElementById("kids_injured").value = geojson.properties.kids_injured;
+  document.getElementById("pubtr_passengers_injured").value = geojson.properties.pubtr_passengers_injured;
+
+  document.getElementById("drivers_killed").value = geojson.properties.drivers_killed;
+  document.getElementById("motorcyclists_killed").value = geojson.properties.motorcyclists_killed;
+  document.getElementById("cyclists_killed").value = geojson.properties.cyclists_killed;
+  document.getElementById("ped_killed").value = geojson.properties.ped_killed;
+  document.getElementById("kids_killed").value = geojson.properties.kids_killed;
+  document.getElementById("pubtr_passengers_killed").value = geojson.properties.pubtr_passengers_killed;
+  document.getElementById("puplic_transport_involved").checked = geojson.properties.puplic_transport_involved;
+
+  document.getElementById("accidentId").value = geojson.properties.id;
+
+
+  document.getElementById('wrapper').classList.remove("toggled");
+  $('#myTab a[href="#accident"]').tab('show') // Select tab by name
+  $('#deleteButton').prop('disabled',false);
+}
+
+
+	mymap.on('click', onMapClick);
+
+
+
+
+
+
+
+
+    var button_filter = document.getElementById('apply_Filter');
+    var button_reset = document.getElementById('reset_Filter');
+
+    button_filter.onclick = function() {
+        mymap.removeLayer(myLayer);
+
+        myLayer = L.geoJSON(accidentData, {
+
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick).addTo(mymap);
+            },
+
+            filter: function(feature, layer) {
+
+                let dateFrom_value = document.getElementById("dateFrom").value;
+                let dateTo_value = document.getElementById("dateTo").value;
+
+                // filter markers by range date
+                if (feature.properties.datetime.split('T')[0] >= dateFrom_value && feature.properties.datetime.split('T')[0] <=dateTo_value) {
+
+                    let maneuver_value = document.getElementById("maneuver_Filter").value;
+                    let description_value = document.getElementById("description_Filter").value;
+
+                    let red_light_running_value = document.getElementById("red_light_running_Filter").checked;
+                    let priority_traffic_sign_value = document.getElementById("priority_traffic_sign_Filter").checked;
+                    let lost_control_vehicle_value = document.getElementById("lost_control_vehicle_Filter").checked;
+                    let alcohol_or_drug_value = document.getElementById("alcohol_or_drug_Filter").checked;
+
+                    let driver_violation_value = document.getElementById("driver_violation_Filter").checked;
+                    let motorcyclist_violation_value = document.getElementById("motorcyclist_violation_Filter").checked;
+                    let cyclist_violation_value = document.getElementById("cyclist_violation_Filter").checked;
+                    let pedestrian_violation_value = document.getElementById("pedestrian_violation_Filter").checked;
+
+                    let drivers_injured_value = document.getElementById("drivers_injured_Filter").checked;
+                    let motorcyclists_injured_value = document.getElementById("motorcyclists_injured_Filter").checked;
+                    let cyclists_injured_value = document.getElementById("cyclists_injured_Filter").checked;
+                    let ped_injured_value = document.getElementById("ped_injured_Filter").checked;
+                    let kids_injured_value = document.getElementById("kids_injured_Filter").checked;
+                    let pubtr_passengers_injured_value = document.getElementById("pubtr_passengers_injured_Filter").checked;
+
+                    let drivers_killed_value = document.getElementById("drivers_killed_Filter").checked;
+                    let motorcyclists_killed_value = document.getElementById("motorcyclists_killed_Filter").checked;
+                    let cyclists_killed_value = document.getElementById("cyclists_killed_Filter").checked;
+                    let ped_killed_value = document.getElementById("ped_killed_Filter").checked;
+                    let kids_killed_value = document.getElementById("kids_killed_Filter").checked;
+                    let pubtr_passengers_killed_value = document.getElementById("pubtr_passengers_killed_Filter").checked;
+
+                    let puplic_transport_involved_value = document.getElementById("puplic_transport_involved_Filter").checked;
+
+
+                    let maneuver_Filter = true;
+                    let description_Filter = true;
+
+                    let red_light_running_Filter = true;
+                    let priority_traffic_sign_Filter = true;
+                    let lost_control_vehicle_Filter = true;
+                    let alcohol_or_drug_Filter = true;
+
+                    let driver_violation_Filter = true;
+                    let motorcyclist_violation_Filter = true;
+                    let cyclist_violation_Filter = true;
+                    let pedestrian_violation_Filter = true;
+
+                    let drivers_injured_Filter = true;
+                    let motorcyclists_injured_Filter = true;
+                    let cyclists_injured_Filter = true;
+                    let ped_injured_Filter = true;
+                    let kids_injured_Filter = true;
+                    let pubtr_passengers_injured_Filter = true;
+                    let drivers_killed_Filter = true;
+                    let motorcyclists_killed_Filter = true;
+                    let cyclists_killed_Filter = true;
+                    let ped_killed_Filter = true;
+                    let kids_killed_Filter = true;
+                    let pubtr_passengers_killed_Filter = true;
+                    let puplic_transport_involved_Filter = true;
+
+
+
+
+                    if (maneuver_value) {
+                        maneuver_Filter = maneuver_value == feature.properties.maneuver;
+                    }
+
+                    if (description_value) {
+                        if (feature.properties.description.indexOf(description_value) == -1) { description_Filter = false; }
+                    }
+
+                    if (red_light_running_value) { red_light_running_Filter = red_light_running_value == feature.properties.red_light_running; }
+                    if (priority_traffic_sign_value) { priority_traffic_sign_Filter = priority_traffic_sign_value == feature.properties.priority_traffic_sign; }
+                    if (lost_control_vehicle_value) { lost_control_vehicle_Filter = lost_control_vehicle_value == feature.properties.lost_control_vehicle; }
+                    if (alcohol_or_drug_value) { alcohol_or_drug_Filter = alcohol_or_drug_value == feature.properties.alcohol_or_drug; }
+
+                    if (driver_violation_value) { driver_violation_Filter = driver_violation_value == feature.properties.driver_violation; }
+                    if (motorcyclist_violation_value) { motorcyclist_violation_Filter = motorcyclist_violation_value == feature.properties.motorcyclist_violation; }
+                    if (cyclist_violation_value) { cyclist_violation_Filter = cyclist_violation_value == feature.properties.cyclist_violation; }
+                    if (pedestrian_violation_value) { pedestrian_violation_Filter = pedestrian_violation_value == feature.properties.pedestrian_violation; }
+
+                    if (drivers_injured_value) { drivers_injured_Filter = feature.properties.drivers_injured > 0; }
+                    if (motorcyclists_injured_value) { motorcyclists_injured_Filter = feature.properties.motorcyclists_injured > 0; }
+                    if (cyclists_injured_value) { cyclists_injured_Filter = feature.properties.cyclists_injured > 0; }
+                    if (ped_injured_value) { ped_injured_Filter = feature.properties.ped_injured > 0; }
+                    if (kids_injured_value) { kids_injured_Filter = feature.properties.kids_injured > 0; }
+                    if (pubtr_passengers_injured_value) { pubtr_passengers_injured_Filter = feature.properties.pubtr_passengers_injured > 0; }
+                    if (drivers_killed_value) { drivers_killed_Filter = feature.properties.drivers_killed > 0; }
+                    if (motorcyclists_killed_value) { motorcyclists_killed_Filter = feature.properties.motorcyclists_killed > 0; }
+                    if (cyclists_killed_value) { cyclists_killed_Filter = feature.properties.cyclists_killed > 0; }
+                    if (ped_killed_value) { ped_killed_Filter = feature.properties.ped_killed > 0; }
+                    if (kids_killed_value) { kids_killed_Filter = feature.properties.kids_killed > 0; }
+                    if (pubtr_passengers_killed_value) { pubtr_passengers_killed_Filter = feature.properties.pubtr_passengers_killed > 0; }
+                    if (puplic_transport_involved_value) { puplic_transport_involved_Filter = feature.properties.puplic_transport_involved > 0; }
+
+
+                    return maneuver_Filter &&
+                           description_Filter &&
+                           red_light_running_Filter &&
+                           priority_traffic_sign_Filter &&
+                           lost_control_vehicle_Filter &&
+                           alcohol_or_drug_Filter &&
+                           driver_violation_Filter &&
+                           motorcyclist_violation_Filter &&
+                           cyclist_violation_Filter &&
+                           pedestrian_violation_Filter &&
+
+                           drivers_injured_Filter &&
+                           motorcyclists_injured_Filter &&
+                           cyclists_injured_Filter &&
+                           ped_injured_Filter &&
+                           kids_injured_Filter &&
+                           pubtr_passengers_injured_Filter &&
+                           drivers_killed_Filter &&
+                           motorcyclists_killed_Filter &&
+                           cyclists_killed_Filter &&
+                           ped_killed_Filter &&
+                           kids_killed_Filter &&
+                           pubtr_passengers_killed_Filter &&
+                           puplic_transport_involved_Filter;
+
+
+                } else {
+                    return false;
+                }
+
+
+            }
+        }).addTo(mymap);
+    }
+
+    button_reset.onclick = function() {
+        //console.log(document.getElementById("maneuver_Filter").value);
+
+        mymap.removeLayer(myLayer);
+
+        myLayer = L.geoJSON(accidentData, {
+            pointToLayer: function (feature, latlng) {
+             return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick).addTo(mymap);
+            }
+        }).addTo(mymap);
+
+
+        document.getElementById("dateFrom").value = formatDate(datefilter_Min);
+        document.getElementById("dateTo").value = formatDate(datefilter_Max);
+
+        document.getElementById("maneuver_Filter").value = 0;
+        document.getElementById("description_Filter").value = '';
+
+        document.getElementById("red_light_running_Filter").checked = false;
+        document.getElementById("priority_traffic_sign_Filter").checked = false;
+        document.getElementById("lost_control_vehicle_Filter").checked = false;
+        document.getElementById("alcohol_or_drug_Filter").checked = false;
+
+        document.getElementById("driver_violation_Filter").checked = false;
+        document.getElementById("motorcyclist_violation_Filter").checked = false;
+        document.getElementById("cyclist_violation_Filter").checked = false;
+        document.getElementById("pedestrian_violation_Filter").checked = false;
+
+        document.getElementById("drivers_injured_Filter").checked = false;
+        document.getElementById("motorcyclists_injured_Filter").checked = false;
+        document.getElementById("cyclists_injured_Filter").checked = false;
+        document.getElementById("ped_injured_Filter").checked = false;
+        document.getElementById("kids_injured_Filter").checked = false;
+        document.getElementById("pubtr_passengers_injured_Filter").checked = false;
+
+        document.getElementById("drivers_killed_Filter").checked = false;
+        document.getElementById("motorcyclists_killed_Filter").checked = false;
+        document.getElementById("cyclists_killed_Filter").checked = false;
+        document.getElementById("ped_killed_Filter").checked = false;
+        document.getElementById("kids_killed_Filter").checked = false;
+        document.getElementById("pubtr_passengers_killed_Filter").checked = false;
+        document.getElementById("puplic_transport_involved_Filter").checked = false;
+    }
+
+
+
+
+</script>
+
+
+{% endblock %}

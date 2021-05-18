@@ -12,6 +12,8 @@ def serialize_bootstraptable(queryset, fields):
         json_final['rows'].append(item)
     return json_final
 
+
+
 def serialize_bootstraptable2(queryset, queryset2, fields1, fields2):
     qCount1 = 0
     qCount2 = 0
@@ -47,5 +49,5 @@ def serialize_bootstraptable2(queryset, queryset2, fields1, fields2):
             item["datetime"] = item.pop("date")
             json_final['rows'].append(item)
 
-
+    #print(json_final)
     return json_final

@@ -28,7 +28,7 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
 #if platform == "win32":
-DEBUG = False
+DEBUG = True
 #else:
 #    DEBUG = False
 
@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    #'django.middleware.locale.LocaleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -135,7 +136,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+#LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 

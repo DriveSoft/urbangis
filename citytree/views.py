@@ -3,6 +3,7 @@ from django.views.generic import View
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse
+from django.utils.translation import gettext as _
 from django.core import serializers
 from .forms import *
 from .models import *

@@ -24,16 +24,16 @@ City Tree Map - {{ block.super }}
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation" id="tabFilter">
-            <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Filter</a>
+            <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Търсенето</a>
         </li>
         <li class="nav-item" role="presentation" id="tabTree">
-            <a class="nav-link" id="tree-tab" data-toggle="tab" href="#tree" role="tab" aria-controls="tree" aria-selected="false">Tree</a>
+            <a class="nav-link" id="tree-tab" data-toggle="tab" href="#tree" role="tab" aria-controls="tree" aria-selected="false">Дърво</a>
         </li>
         <li class="nav-item" role="presentation" id="tabInspection">
-            <a class="nav-link" id="inspection-tab" data-toggle="tab" href="#inspection" role="tab" aria-controls="tree" aria-selected="false">Inspection</a>
+            <a class="nav-link" id="inspection-tab" data-toggle="tab" href="#inspection" role="tab" aria-controls="tree" aria-selected="false">Преглед</a>
         </li>
         <li class="nav-item" role="presentation" id="tabAction">
-            <a class="nav-link" id="action-tab" data-toggle="tab" href="#action" role="tab" aria-controls="tree" aria-selected="false">Action</a>
+            <a class="nav-link" id="action-tab" data-toggle="tab" href="#action" role="tab" aria-controls="tree" aria-selected="false">Дейност</a>
         </li>
 
     </ul>
@@ -45,7 +45,7 @@ City Tree Map - {{ block.super }}
 
 
                 <div class="form-group">
-                    <label for="filter_species">Species</label>
+                    <label for="filter_species">Вид</label>
                     <div class="class_Filter_Species">
                         <select name="species" id="filter_species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" data-actions-box="true" multiple>
 
@@ -63,7 +63,7 @@ City Tree Map - {{ block.super }}
 
 
                 <div class="form-group">
-                    <label for="filter_status">Status</label>
+                    <label for="filter_status">Оценка</label>
                     <select name="species" id="filter_status" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
                         {% for item in status %}
                         <option value="{{ item.id }}">{{ item.statusname }}</option>
@@ -72,7 +72,7 @@ City Tree Map - {{ block.super }}
                 </div>
 
                 <div class="form-group">
-                    <label for="filter_recommendations">Recommendations</label>
+                    <label for="filter_recommendations">Препоръки</label>
                     <select name="species" id="filter_recommendations" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
                         {% for item in caretype %}
                         <option value="{{ item.id }}">{{ item.carename }}</option>
@@ -83,7 +83,7 @@ City Tree Map - {{ block.super }}
 
 
                 <div class="form-group">
-                    <label for="filter_remarks">Remarks</label>
+                    <label for="filter_remarks">Бележки</label>
                     <select name="species" id="filter_remarks" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
                         {% for item in remark %}
                         <option value="{{ item.id }}">{{ item.remarkname }}</option>
@@ -96,7 +96,7 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="filter_placetype">Placetype</label>
+                        <label for="filter_placetype">Разположение</label>
                         <select name="placetype" id="filter_placetype" class="form-control">
                             <option selected></option>
                             {% for item in placetype %}
@@ -105,7 +105,7 @@ City Tree Map - {{ block.super }}
                         </select>
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="filter_irrigationmethod">Irrigationmethod</label>
+                        <label for="filter_irrigationmethod">Метод на поливане</label>
                         <select name="irrigationmethod" id="filter_irrigationmethod" class="form-control">
                             <option selected></option>
                             {% for item in irrigationmethod %}
@@ -119,11 +119,11 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-row">
                     <div class="form-group col-sm-6">
-                        <label for="filter_plantedDateFrom">Date planted from</label>
+                        <label for="filter_plantedDateFrom">Засадено от</label>
                         <input type="date" class="form-control" name="dateFrom" id="filter_plantedDateFrom">
                     </div>
                     <div class="form-group col-sm-6">
-                        <label for="filter_plantedDateTo">To</label>
+                        <label for="filter_plantedDateTo">До</label>
                         <input type="date" class="form-control" name="dateTo" id="filter_plantedDateTo">
                     </div>
                 </div>
@@ -131,11 +131,11 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-row">
                     <div class="form-group col-sm-6">
-                        <label for="filter_addedDateFrom">Date added from</label>
+                        <label for="filter_addedDateFrom">Добавено от</label>
                         <input type="date" class="form-control" name="dateFrom" id="filter_addedDateFrom">
                     </div>
                     <div class="form-group col-sm-6">
-                        <label for="filter_addedDateTo">To</label>
+                        <label for="filter_addedDateTo">До</label>
                         <input type="date" class="form-control" name="dateTo" id="filter_addedDateTo">
                     </div>
                 </div>
@@ -144,20 +144,20 @@ City Tree Map - {{ block.super }}
 
 
                 <div class="form-group">
-                    <label for="filter_comment">Comment</label>
+                    <label for="filter_comment">Коментар</label>
                     <input type="text" class="form-control" name="comment" id="filter_comment">
                 </div>
 
 
                 <div class="form-check mb-4">
                     <input type="checkbox" class="form-check-input" id="filter_showOnlyMyTrees">
-                    <label class="form-check-label" for="filter_showOnlyMyTrees">Show only my trees</label>
+                    <label class="form-check-label" for="filter_showOnlyMyTrees">Покажи само моите дървета</label>
                 </div>
 
 
                 <div class="float-lg-right">
-                    <button type="button" class="btn btn-light" id="reset_Filter">Reset</button>
-                    <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Apply</button>
+                    <button type="button" class="btn btn-light" id="reset_Filter">Изчисти филтър</button>
+                    <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Търси</button>
                 </div>
 
             </div>
@@ -196,7 +196,7 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="species">Species</label>
+                        <label for="species">Вид</label>
                         <div class="class_Tree_Species">
                             <select name="species" id="species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" required>
 
@@ -216,19 +216,19 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="speciescomment">Species comment (if you can't find species in the lise above)</label>
+                        <label for="speciescomment">Коментар относно вид (ако не можете да намерите вида в списъка по-горе)</label>
                         <input type="text" class="form-control" name="speciescomment" id="speciescomment">
                     </div>
 
                     <div class="form-group">
-                        <label for="comment">Comment about tree</label>
+                        <label for="comment">Коментар за дървето</label>
                         <textarea class="form-control" name="comment" id="comment" row="4"></textarea>
                     </div>
 
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="placetype">Placetype</label>
+                            <label for="placetype">Разположение</label>
                             <select name="placetype" id="placetype" class="form-control" required>
                                 <!-- <option selected></option> -->
                                 {% for item in placetype %}
@@ -237,7 +237,7 @@ City Tree Map - {{ block.super }}
                             </select>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="irrigationmethod">Irrigationmethod</label>
+                            <label for="irrigationmethod">Метод на поливане</label>
                             <select name="irrigationmethod" id="irrigationmethod" class="form-control" required>
                                 {% for item in irrigationmethod %}
                                 <option value="{{ item.id }}">{{ item.irrigationname }}</option>
@@ -249,11 +249,11 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="dateplanted">Dateplanted</label>
+                            <label for="dateplanted">Засадено</label>
                             <input type="date" class="form-control" name="dateplanted" id="dateplanted">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="googlestreeturl">Google Street Url</label>
+                            <label for="googlestreeturl">Линк към Google Street View</label>
                             <input type="text" class="form-control" name="googlestreeturl" id="googlestreeturl">
                         </div>
                     </div>
@@ -266,13 +266,13 @@ City Tree Map - {{ block.super }}
 
                         <div class="form-group">
                             <!-- <button type="button" class="btn btn-light" style="width: 100%" id="button_show_inspact">Show inspections and actions</button> -->
-                            <label for="divTreeInspActData_EditTree">Tree history</label>
+                            <label for="divTreeInspActData_EditTree">Прегледи и дейности</label>
                             <div id="divTreeInspActData_EditTree">
                                 <table id="table_InspActData_EditTree" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
                                     <thead>
                                     <tr>
-                                        <th data-field="datetime" data-formatter="dateFormatter" data-sortable="true">Date</th>
-                                        <th data-field="type">Type</th>
+                                        <th data-field="datetime" data-formatter="dateFormatter" data-sortable="true">Дата</th>
+                                        <th data-field="type" data-formatter="operateTranslater">Тип</th>
                                         <th data-field="operate" data-formatter="operateFormatter" data-events="operateEventsTreeEdit"></th>
                                     </tr>
                                     </thead>
@@ -282,7 +282,13 @@ City Tree Map - {{ block.super }}
                                         return value.slice(0, 10)
                                     }
 
+                                    function operateTranslater(value, row) {
+                                        if (value === "Inspection") { return "Преглед" }
+                                        if (value === "Action") { return "Дейност" }
+                                    }
+
                                     function operateFormatter(value, row, index) {
+
                                         if (row.type=="Inspection" && (row.photo1 !=="" || row.photo2 !=="" || row.photo3 !=="")) {
                                             return [
                                                 '<a class="edit" href="javascript:void(0)" title="Edit">',
@@ -306,10 +312,10 @@ City Tree Map - {{ block.super }}
 
                         <div class="form-row">
                             <div class="form-group col-6">
-                                <button type="button" class="btn btn-light" id="id_button_NewInspection" style="width: 100%">New inspection</button>
+                                <button type="button" class="btn btn-light" id="id_button_NewInspection" style="width: 100%">Нов преглед</button>
                             </div>
                             <div class="form-group col-6">
-                                <button type="button" class="btn btn-light" id="id_button_NewAction" style="width: 100%">New action</button>
+                                <button type="button" class="btn btn-light" id="id_button_NewAction" style="width: 100%">Нова дейност</button>
                             </div>
                         </div>
 
@@ -323,21 +329,21 @@ City Tree Map - {{ block.super }}
 
                     <div id="divNewTree">
                         <div class="form-group mt-5">
-                            <label><b>Make first inspection for this tree</b></label>
+                            <label><b>Направете първ преглед за това дърво</b></label>
                         </div>
 
 
                         <div class="form-row">
                             <div class="form-group col-md-4">
-                                <label for="height">Height (m)</label>
+                                <label for="height">Височина (м)</label>
                                 <input type="number" name="height" id="height" class="form-control form-control-sm" step="any" required>
                             </div>
                             <div class="form-group col-md-4">
-                                <label for="crowndiameter">Crown D. (m)</label>
+                                <label for="crowndiameter">Диаметър на короната (м)</label>
                                 <input type="number" name="crowndiameter" id="crowndiameter" class="form-control form-control-sm" step="any" required>
                             </div>
                             <div class="form-group col-md-4">
-                                <label for="trunkgirth">Trunk Girth (cm)</label>
+                                <label for="trunkgirth">Обхват на стъбло (см)</label>
                                 <input type="number" name="trunkgirth" id="trunkgirth" class="form-control form-control-sm" step="any" required>
                             </div>
                         </div>
@@ -345,7 +351,7 @@ City Tree Map - {{ block.super }}
 
 
                         <div class="form-group">
-                            <label for="status">Status</label>
+                            <label for="status">Оценка</label>
                             <select name="status" id="status" class="form-control" required>
                                 <!-- <option selected></option> -->
                                 {% for item in status %}
@@ -357,7 +363,7 @@ City Tree Map - {{ block.super }}
 
 
                         <div class="form-group">
-                            <label for="id_remarks">Remarks</label>
+                            <label for="id_remarks">Бележки</label>
 
                             <select class="form-control selectpicker" name="remarks" id="id_remarks" data-style="btn-outline-primary" multiple>
                                 {% for item in remark %}
@@ -369,7 +375,7 @@ City Tree Map - {{ block.super }}
 
 
                         <div class="form-group">
-                            <label for="id_recommendations">Recommendations</label>
+                            <label for="id_recommendations">Препоръки</label>
 
                             <select class="form-control selectpicker" name="recommendations" id="id_recommendations" data-style="btn-outline-primary" multiple>
                                 <!-- <option value="" selected>---------</option>-->
@@ -465,17 +471,17 @@ City Tree Map - {{ block.super }}
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel">Изтриване</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete this tree?
+                                    Наистина ли искате да изтриете това дърво?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="delete">Delete</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
                         </div>
@@ -501,15 +507,15 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label for="insp_height">Height (m)</label>
+                            <label for="insp_height">Височина (м)</label>
                             <input type="number" name="height" id="insp_height" class="form-control form-control-sm" step="any" required>
                         </div>
                         <div class="form-group col-md-4">
-                            <label for="insp_crowndiameter">Crown D. (m)</label>
+                            <label for="insp_crowndiameter">Диаметър на короната (м)</label>
                             <input type="number" name="crowndiameter" id="insp_crowndiameter" class="form-control form-control-sm" step="any" required>
                         </div>
                         <div class="form-group col-md-4">
-                            <label for="insp_trunkgirth">Trunk Girth (cm)</label>
+                            <label for="insp_trunkgirth">Обхват на стъбло (см)</label>
                             <input type="number" name="trunkgirth" id="insp_trunkgirth" class="form-control form-control-sm" step="any" required>
                         </div>
                     </div>
@@ -517,7 +523,7 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="insp_status">Status</label>
+                        <label for="insp_status">Оценка</label>
                         <select name="status" id="insp_status" class="form-control" required>
                             <!-- <option selected></option> -->
                             {% for item in status %}
@@ -529,7 +535,7 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="id_insp_remarks">Remarks</label>
+                        <label for="id_insp_remarks">Бележки</label>
 
                         <select class="form-control selectpicker" name="remarks" id="id_insp_remarks" data-style="btn-outline-primary" multiple>
                             {% for item in remark %}
@@ -541,7 +547,7 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="id_insp_recommendations">Recommendations</label>
+                        <label for="id_insp_recommendations">Препоръки</label>
                         <select class="form-control selectpicker" name="recommendations" id="id_insp_recommendations" data-style="btn-outline-primary" multiple>
                             {% for item in caretype %}
                             <option value="{{ item.id }}">{{ item.carename }}</option>
@@ -605,13 +611,13 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row mt-4">
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Delete</button>
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Изтриване</button>
                         </div>
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Close</button>
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Затвори</button>
                         </div>
                         <div class="form-group col-6 text-center">
-                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Save</button>
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Запази</button>
                         </div>
                     </div>
 
@@ -621,17 +627,17 @@ City Tree Map - {{ block.super }}
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="insp_deleteModalLabel">Delete</h5>
+                                    <h5 class="modal-title" id="insp_deleteModalLabel">Изтриване</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete this inspection?
+                                    Наистина ли искате да изтриете този преглед?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="deleteInsp">Delete</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-light" name="send" value="deleteInsp">Изтрий</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
                         </div>
@@ -656,11 +662,11 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row">
                         <div class="form-group col-sm-6">
-                            <label for="id_act_date">Date</label>
+                            <label for="id_act_date">Дата</label>
                             <input type="date" class="form-control" name="date" id="id_act_date" required>
                         </div>
                         <div class="form-group col-sm-6">
-                            <label for="id_act_executor">Executor</label>
+                            <label for="id_act_executor">Изполнител</label>
                             <input type="text" class="form-control" name="executor" id="id_act_executor">
                         </div>
                     </div>
@@ -668,7 +674,7 @@ City Tree Map - {{ block.super }}
 
 
                     <div class="form-group">
-                        <label for="id_act_actions">Actions</label>
+                        <label for="id_act_actions">Извършени дейности</label>
                         <select class="form-control selectpicker" name="actions" id="id_act_actions" data-style="btn-outline-primary" multiple>
                             {% for item in caretype %}
                             <option value="{{ item.id }}">{{ item.carename }}</option>
@@ -677,7 +683,7 @@ City Tree Map - {{ block.super }}
                     </div>
 
                     <div class="form-group">
-                        <label for="id_act_comment">Comment</label>
+                        <label for="id_act_comment">Коментар</label>
                         <input type="text" class="form-control" name="comment" id="id_act_comment">
                     </div>
 
@@ -689,13 +695,13 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row mt-4">
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#act_deleteModal" id="act_deleteButton" disabled>Delete</button>
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#act_deleteModal" id="act_deleteButton" disabled>Изтриване</button>
                         </div>
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabAct">Close</button>
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabAct">Затвори</button>
                         </div>
                         <div class="form-group col-6 text-center">
-                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveAct" id="saveActButton">Save</button>
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveAct" id="saveActButton">Запази</button>
                         </div>
                     </div>
 
@@ -705,17 +711,17 @@ City Tree Map - {{ block.super }}
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="act_deleteModalLabel">Delete</h5>
+                                    <h5 class="modal-title" id="act_deleteModalLabel">Изтриване</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete this action?
+                                    Наистина ли искате да изтриете тази дейност?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="deleteAct">Delete</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-light" name="send" value="deleteAct">Изтрий</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
                         </div>
@@ -745,7 +751,7 @@ City Tree Map - {{ block.super }}
 {% block map %}
 
 <div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
-<button id="doneMarkerMobile" class="btn btn-success">Done</button>
+<button id="doneMarkerMobile" class="btn btn-success">Готово</button>
 <button id="cancelMarkerMobile" class="btn btn-secondary">&#x2715;</button>
 
 <script>
@@ -767,11 +773,11 @@ City Tree Map - {{ block.super }}
 
                     <a class="carousel-control-prev" href="#id_carousel_Modal" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
+                        <span class="sr-only">Предишната</span>
                     </a>
                     <a class="carousel-control-next" href="#id_carousel_Modal" role="button" data-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
+                        <span class="sr-only">Следваща</span>
                     </a>
                 </div>
             </div>
@@ -810,11 +816,11 @@ City Tree Map - {{ block.super }}
 
                                     <a class="carousel-control-prev" href="#id_carousel_TreePreview" role="button" data-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
+                                        <span class="sr-only">Предишната</span>
                                     </a>
                                     <a class="carousel-control-next" href="#id_carousel_TreePreview" role="button" data-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
+                                        <span class="sr-only">Следваща</span>
                                     </a>
                                 </div>
                             </div>
@@ -823,45 +829,45 @@ City Tree Map - {{ block.super }}
                         </div>
 
                         <div class="form-group col-lg-6">
-                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px;">Tree information</h3>
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px;">Информация за дърво</h3>
 
 
                             <div class="container">
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-2 pl-1">Status</div>
+                                    <div class="col-2 pl-1">Оценка</div>
                                     <div class="col-10 pr-1" id="id_treepreview_status">col</div>
                                 </div>
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-4 pl-1">Height (m)</div>
+                                    <div class="col-4 pl-1">Височина (м)</div>
                                     <div class="col-8 pr-1" id="id_treepreview_height">col</div>
                                 </div>
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-4 pl-1">Crown D. (m)</div>
+                                    <div class="col-4 pl-1">Диаметър на короната (м)</div>
                                     <div class="col-8 pr-1" id="id_treepreview_crown">col</div>
                                 </div>
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-4 pl-1">Trunk Girth (cm)</div>
+                                    <div class="col-4 pl-1">Обхват на стъбло (см)</div>
                                     <div class="col-8 pr-1" id="id_treepreview_trunk">col</div>
                                 </div>
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-4 pl-1">Remarks</div>
+                                    <div class="col-4 pl-1">Бележки</div>
                                     <div class="col-8 pr-1" id="id_treepreview_remarks">col</div>
                                 </div>
                                 <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
-                                    <div class="col-4 pl-1">Recommends.</div>
+                                    <div class="col-4 pl-1">Препоръки</div>
                                     <div class="col-8 pr-1" id="id_treepreview_recommends">col</div>
                                 </div>
                             </div>
 
 
-                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px; margin-top: 30px;">Tree history</h3>
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px; margin-top: 30px;">Прегледи и дейности</h3>
 
                             <div id="divTreeInspActData_PreviewTree">
                                 <table id="table_InspActData_PreviewTree" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
                                     <thead>
                                     <tr>
-                                        <th data-field="datetime" data-formatter="dateFormatterPreview" data-sortable="true">Date</th>
-                                        <th data-field="type">Type</th>
+                                        <th data-field="datetime" data-formatter="dateFormatterPreview" data-sortable="true">Дата</th>
+                                        <th data-field="type" data-formatter="operateTranslater">Тип</th>
                                         <th data-field="operate" data-formatter="operateFormatterPreview" data-events="operateEventsPreviewTree"></th>
                                     </tr>
                                     </thead>
@@ -869,6 +875,11 @@ City Tree Map - {{ block.super }}
                                 <script>
                                     function dateFormatterPreview(value, row) {
                                         return value.slice(0, 10)
+                                    }
+
+                                    function operateTranslater(value, row) {
+                                        if (value === "Inspection") { return "Преглед" }
+                                        if (value === "Action") { return "Дейност" }
                                     }
 
                                     function operateFormatterPreview(value, row, index) {
@@ -902,8 +913,8 @@ City Tree Map - {{ block.super }}
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="id_editButton_TreePreview">Edit</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" style="min-width: 150px">Close</button>
+                <button type="button" class="btn btn-secondary" id="id_editButton_TreePreview">Редактиране</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" style="min-width: 150px">Затвори</button>
             </div>
 
         </div>

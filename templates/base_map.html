@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en" style="overflow-y: hidden;">
 
@@ -103,24 +104,24 @@
 
                         <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                             <li class="nav-item active">
-                                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                                <a class="nav-link" href="/">Начало<span class="sr-only">(current)</span></a>
                             </li>
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMap" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Map
+                                    Карти
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMap">
 
-                                    <a class="dropdown-item{% if '/roadaccident/' in request.path %} active{% endif %}" href="/roadaccident/{{obj_city.sysname}}/">Road accidents</a>
-                                    <a class="dropdown-item{% if '/citytree/' in request.path %} active{% endif %}" href="/citytree/{{obj_city.sysname}}/">Trees</a>
+                                    <a class="dropdown-item{% if '/roadaccident/' in request.path %} active{% endif %}" href="/roadaccident/{{obj_city.sysname}}/">Пътно транспортни произшествия</a>
+                                    <a class="dropdown-item{% if '/citytree/' in request.path %} active{% endif %}" href="/citytree/{{obj_city.sysname}}/">Градска растителност</a>
 
                                 </div>
                             </li>
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCity" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    City
+                                    Град
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownCity">
                                     {% for city in obj_all_cities %}
@@ -139,12 +140,12 @@
                               </span>
 
                             <form class="form-inline ml-2">
-                                <a class="btn btn-outline-secondary" href="{% url 'logout'%}?next={{request.path}}" role="button">Изход</a>
+                                <a class="btn btn-outline-secondary" href="{% url 'logout'%}?next={{request.path}}" role="button">Излез</a>
                             </form>
 
                             {% else %}
                             <form class="form-inline">
-                                <a class="btn btn-outline-secondary" href="{% url 'login'%}?next={{request.path}}" role="button">Вход</a>
+                                <a class="btn btn-outline-secondary" href="{% url 'login'%}?next={{request.path}}" role="button">Влез</a>
                             </form>
                             {% endif %}
                         </ul>

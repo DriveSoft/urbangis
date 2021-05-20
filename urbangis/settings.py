@@ -29,7 +29,7 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
 #if platform == "win32":
-DEBUG = True
+DEBUG = False
 #else:
 #    DEBUG = False
 

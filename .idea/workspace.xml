@@ -2,7 +2,7 @@
 <project version="4">
   <component name="BookmarkManager">
     <bookmark url="file://$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" line="614" mnemonic="3" />
-    <bookmark url="file://$PROJECT_DIR$/urbangis/settings.py" line="159" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/urbangis/settings.py" line="155" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="">
@@ -42,8 +42,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="399">
-              <caret line="116" selection-start-line="116" selection-end-line="116" />
+            <state relative-caret-position="1114">
+              <caret line="107" column="9" lean-forward="true" selection-start-line="107" selection-start-column="9" selection-end-line="107" selection-end-column="9" />
               <folding>
                 <element signature="e#308#328#0" expanded="true" />
               </folding>
@@ -667,8 +667,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="116" selection-start-line="116" selection-end-line="116" />
+        <state relative-caret-position="1114">
+          <caret line="107" column="9" lean-forward="true" selection-start-line="107" selection-start-column="9" selection-end-line="107" selection-end-column="9" />
           <folding>
             <element signature="e#308#328#0" expanded="true" />
           </folding>

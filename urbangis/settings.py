@@ -114,11 +114,6 @@ else:
     db_info = os.environ['HEROKU_POSTGRESQL_GREEN_URL']
     DATABASES['default'] = dj_database_url.config(default=db_info, conn_max_age=600, ssl_require=True)
 
-#import dj_database_url
-#db_url = 'postgres://astqzevmehqpyw:23f9711288d50a32c407bae95bae298bff907fe150f317605342d98df714ea8e@ec2-52-209-134-160.eu-west-1.compute.amazonaws.com:5432/d4auhpr1e9qes'
-#print( dj_database_url.config(default=db_url, conn_max_age=600, ssl_require=True) )
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

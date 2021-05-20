@@ -48,7 +48,7 @@ City Tree Map - {{ block.super }}
                     <label for="filter_species">Вид</label>
                     <div class="class_Filter_Species">
                         <select name="species" id="filter_species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" data-actions-box="true" title="Нищо не е избрано" multiple>
-
+                            <option data-subtext="" value="1">Неизвестно</option>
                             {% for groupQuerySet in species_by_group %}
                                 <optgroup label="{{groupQuerySet.first.groupspec}}">
                                     {% for item in groupQuerySet %}
@@ -199,7 +199,7 @@ City Tree Map - {{ block.super }}
                         <label for="species">Вид</label>
                         <div class="class_Tree_Species">
                             <select name="species" id="species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" title="Нищо не е избрано" required>
-
+                                <option data-subtext="" value="1">Не знам или няма в списъка</option>
                                 {% for groupQuerySet in species_by_group %}
                                     <optgroup label="{{groupQuerySet.first.groupspec}}">
                                         {% for item in groupQuerySet %}

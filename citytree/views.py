@@ -34,7 +34,7 @@ class Map(View):
             citydataToGeoJson(obj_city)
 
         obj_all_cities = City.objects.all().order_by('-population')
-        species = Species.objects.order_by('speciesname')
+        #species = Species.objects.order_by('speciesname')
         placetype = PlaceType.objects.all()
         irrigationmethod = IrrigationMethod.objects.all()
         caretype = CareType.objects.all()
@@ -45,7 +45,7 @@ class Map(View):
         species_by_group = []
         obj_groupspec = GroupSpec.objects.all().order_by('pos')
         for itemGroup in obj_groupspec:
-            obj_specgroup = Species.objects.filter(groupspec = itemGroup).order_by('localname')
+            obj_specgroup = Species.objects.filter(groupspec = itemGroup).exclude(id=1).order_by('localname')
             if obj_specgroup.count() > 0:
                 species_by_group.append(obj_specgroup)
 
@@ -55,7 +55,7 @@ class Map(View):
 
 
         context = {'formTree': formTree, 'formInspection': formInspection, 'formAction': formAction, 'obj_all_cities': obj_all_cities,
-                   'placetype': placetype, 'species': species, 'obj_city': obj_city, 'irrigationmethod': irrigationmethod,
+                   'placetype': placetype, 'obj_city': obj_city, 'irrigationmethod': irrigationmethod,
                    'caretype': caretype, 'status': status, 'remark': remark, 'species_by_group': species_by_group,
                    'tree_data': tree_data, 'lat': request.GET.get('lat'), 'lng': request.GET.get('lng')}
 

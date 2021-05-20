@@ -33,6 +33,8 @@ DEBUG = False
 #else:
 #    DEBUG = False
 
+
+
 ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.11', '192.168.1.20', 'urbangis1.herokuapp.com', 'smartcitykey.com']
 
 
@@ -113,6 +115,8 @@ else:
     DATABASES = {}
     db_info = os.environ['HEROKU_POSTGRESQL_GREEN_URL']
     DATABASES['default'] = dj_database_url.config(default=db_info, conn_max_age=600, ssl_require=True)
+
+    SECURE_SSL_REDIRECT = True
 
 
 # Password validation

@@ -110,8 +110,12 @@ if platform == "win32":
 #production
 else:
     import dj_database_url
+
+
+    DATABASE_URL = os.environ['HEROKU_POSTGRESQL_GREEN_URL']
+
     DATABASES = {}
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES['default'] = dj_database_url.config(DATABASE_URL, conn_max_age=600, ssl_require=True)
 
 
 

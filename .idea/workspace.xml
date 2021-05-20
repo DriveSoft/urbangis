@@ -5,21 +5,7 @@
     <bookmark url="file://$PROJECT_DIR$/urbangis/settings.py" line="155" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/templates/citytree/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/templates/citytree/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/roadaccident/templates/roadaccident/includes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/roadaccident/templates/roadaccident/includes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/roadaccident/templates/roadaccident/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/roadaccident/templates/roadaccident/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/roadaccident/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/roadaccident/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base_map.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_map.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/urbangis/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/urbangis/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/urbangis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/urbangis/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/templates/website/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/website/templates/website/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/website/urls.py" afterDir="false" />
-    </list>
+    <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,8 +40,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-855">
-              <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+            <state relative-caret-position="559">
+              <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
               <folding>
                 <element signature="e#308#328#0" expanded="true" />
               </folding>
@@ -132,7 +118,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>html</find>
       <find>startNewMarkerMobile</find>
       <find>OpenSidebar</find>
       <find>id_button_modal_slideshow</find>
@@ -162,6 +147,7 @@
       <find>mapid</find>
       <find>meni</find>
       <find>static</find>
+      <find>DATABASE_URL</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -662,8 +648,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-855">
-          <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+        <state relative-caret-position="559">
+          <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
           <folding>
             <element signature="e#308#328#0" expanded="true" />
           </folding>

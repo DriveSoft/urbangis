@@ -47,7 +47,7 @@ City Tree Map - {{ block.super }}
                 <div class="form-group">
                     <label for="filter_species">Вид</label>
                     <div class="class_Filter_Species">
-                        <select name="species" id="filter_species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" data-actions-box="true" multiple>
+                        <select name="species" id="filter_species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" data-actions-box="true" title="Нищо не е избрано" multiple>
 
                             {% for groupQuerySet in species_by_group %}
                                 <optgroup label="{{groupQuerySet.first.groupspec}}">
@@ -64,7 +64,7 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-group">
                     <label for="filter_status">Оценка</label>
-                    <select name="species" id="filter_status" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                    <select name="species" id="filter_status" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                         {% for item in status %}
                         <option value="{{ item.id }}">{{ item.statusname }}</option>
                         {% endfor %}
@@ -73,7 +73,7 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-group">
                     <label for="filter_recommendations">Препоръки</label>
-                    <select name="species" id="filter_recommendations" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                    <select name="species" id="filter_recommendations" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                         {% for item in caretype %}
                         <option value="{{ item.id }}">{{ item.carename }}</option>
                         {% endfor %}
@@ -84,7 +84,7 @@ City Tree Map - {{ block.super }}
 
                 <div class="form-group">
                     <label for="filter_remarks">Бележки</label>
-                    <select name="species" id="filter_remarks" class="form-control selectpicker" data-style="btn-outline-primary" multiple>
+                    <select name="species" id="filter_remarks" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                         {% for item in remark %}
                         <option value="{{ item.id }}">{{ item.remarkname }}</option>
                         {% endfor %}
@@ -156,7 +156,7 @@ City Tree Map - {{ block.super }}
 
 
                 <div class="float-lg-right">
-                    <button type="button" class="btn btn-light" id="reset_Filter">Изчисти филтър</button>
+                    <button type="button" class="btn btn-light" id="reset_Filter">Изчисти</button>
                     <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Търси</button>
                 </div>
 
@@ -198,7 +198,7 @@ City Tree Map - {{ block.super }}
                     <div class="form-group">
                         <label for="species">Вид</label>
                         <div class="class_Tree_Species">
-                            <select name="species" id="species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" required>
+                            <select name="species" id="species" class="form-control selectpicker" data-live-search="true" data-style="btn-outline-primary" title="Нищо не е избрано" required>
 
                                 {% for groupQuerySet in species_by_group %}
                                     <optgroup label="{{groupQuerySet.first.groupspec}}">
@@ -365,7 +365,7 @@ City Tree Map - {{ block.super }}
                         <div class="form-group">
                             <label for="id_remarks">Бележки</label>
 
-                            <select class="form-control selectpicker" name="remarks" id="id_remarks" data-style="btn-outline-primary" multiple>
+                            <select class="form-control selectpicker" name="remarks" id="id_remarks" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                                 {% for item in remark %}
                                 <option value="{{ item.id }}">{{ item.remarkname }}</option>
                                 {% endfor %}
@@ -377,7 +377,7 @@ City Tree Map - {{ block.super }}
                         <div class="form-group">
                             <label for="id_recommendations">Препоръки</label>
 
-                            <select class="form-control selectpicker" name="recommendations" id="id_recommendations" data-style="btn-outline-primary" multiple>
+                            <select class="form-control selectpicker" name="recommendations" id="id_recommendations" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                                 <!-- <option value="" selected>---------</option>-->
                                 {% for item in caretype %}
                                 <option value="{{ item.id }}">{{ item.carename }}</option>
@@ -452,13 +452,13 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row mt-4">
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Delete</button>
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Изтри</button>
                         </div>
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabTree">Close</button>
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabTree">Изход</button>
                         </div>
                         <div class="form-group col-6 text-center">
-                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Save</button>
+                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Запази</button>
                         </div>
                     </div>
 
@@ -537,7 +537,7 @@ City Tree Map - {{ block.super }}
                     <div class="form-group">
                         <label for="id_insp_remarks">Бележки</label>
 
-                        <select class="form-control selectpicker" name="remarks" id="id_insp_remarks" data-style="btn-outline-primary" multiple>
+                        <select class="form-control selectpicker" name="remarks" id="id_insp_remarks" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                             {% for item in remark %}
                             <option value="{{ item.id }}">{{ item.remarkname }}</option>
                             {% endfor %}
@@ -548,7 +548,7 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-group">
                         <label for="id_insp_recommendations">Препоръки</label>
-                        <select class="form-control selectpicker" name="recommendations" id="id_insp_recommendations" data-style="btn-outline-primary" multiple>
+                        <select class="form-control selectpicker" name="recommendations" id="id_insp_recommendations" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                             {% for item in caretype %}
                             <option value="{{ item.id }}">{{ item.carename }}</option>
                             {% endfor %}
@@ -611,10 +611,10 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row mt-4">
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Изтриване</button>
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#insp_deleteModal" id="insp_deleteButton" disabled>Изтри</button>
                         </div>
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Затвори</button>
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Изход</button>
                         </div>
                         <div class="form-group col-6 text-center">
                             <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Запази</button>
@@ -675,7 +675,7 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-group">
                         <label for="id_act_actions">Извършени дейности</label>
-                        <select class="form-control selectpicker" name="actions" id="id_act_actions" data-style="btn-outline-primary" multiple>
+                        <select class="form-control selectpicker" name="actions" id="id_act_actions" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                             {% for item in caretype %}
                             <option value="{{ item.id }}">{{ item.carename }}</option>
                             {% endfor %}
@@ -695,10 +695,10 @@ City Tree Map - {{ block.super }}
 
                     <div class="form-row mt-4">
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#act_deleteModal" id="act_deleteButton" disabled>Изтриване</button>
+                            <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#act_deleteModal" id="act_deleteButton" disabled>Изтри</button>
                         </div>
                         <div class="form-group col-3 text-center">
-                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabAct">Затвори</button>
+                            <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabAct">Изход</button>
                         </div>
                         <div class="form-group col-6 text-center">
                             <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveAct" id="saveActButton">Запази</button>

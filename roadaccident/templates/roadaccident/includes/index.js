@@ -98,9 +98,6 @@ var tilesDark = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
 
 
 
-
-
-
 L.control.zoom({
     position: 'topright'
 }).addTo(mymap);
@@ -461,7 +458,7 @@ function markerOnClick(e)
   //$("#wrapper").addClass( "toggled" );
   //$("#wrapper").removeClass( "toggled" );
 
-  $("#saveButton").html('Update');
+  $("#saveButton").html('Актуализиране');
 
   {% if perms.roadaccident.change_accident and perms.roadaccident.can_change_not_own_accident_record %}
     $('#saveButton').prop('disabled',false);
@@ -1155,6 +1152,17 @@ function LoadAccidentsToMap(firsttime, filterEnabled) {
     if (firsttime) {
         document.getElementById("dateFrom").value = formatDate(datefilter_Min);
         document.getElementById("dateTo").value = formatDate(datefilter_Max);
+
+
+        let dMin = new Date(datefilter_Min);
+        let yearMin = dMin.getFullYear();
+        $("#id_dateRange").prop("min", yearMin);
+
+        let dMax = new Date(datefilter_Max);
+        let yearMax = dMax.getFullYear();
+        $("#id_dateRange").prop("max", yearMax);
+        $("#id_dateRange").prop("value", yearMax);
+
     }
 
     heatmapLayer.setData(HeatMapData);
@@ -1202,4 +1210,22 @@ function LoadAccidentsToMap(firsttime, filterEnabled) {
 function PermissionsApply(){
     {% if not perms.roadaccident.add_accident %} but_newmarker.disable(); {% endif %}
 }
+
+
+
+
+function inputHandlerSlider() {
+  let dateTo = this.value+'-12-31';
+
+  if ( dateTo.substring(0,4) == datefilter_Max.substring(0,4) ) {
+    document.getElementById("dateTo").value = formatDate(datefilter_Max);
+  } else {
+    document.getElementById("dateTo").value = dateTo;
+  }
+
+}
+
+const sliderRangeDate = document.getElementById("id_dateRange");
+sliderRangeDate.addEventListener("input", inputHandlerSlider);
+
 

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 from sys import platform
 from pathlib import Path
+from django.urls import reverse_lazy
 import os
 
 
@@ -32,7 +33,7 @@ DEBUG = True
 #else:
 #    DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.11', '192.168.1.20', 'urbangis1.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.11', '192.168.1.20', 'urbangis1.herokuapp.com', 'smartcitykey.com']
 
 
 # Application definition
@@ -150,8 +151,10 @@ USE_TZ = True
 
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
 
 
+LOGIN_URL = reverse_lazy('login')
 
 
 #USE_S3 = os.getenv('USE_S3') == 'TRUE'

@@ -325,7 +325,7 @@ class DeleteAllTrees(View):
 
 
 def create_trees(request):
-    for x in range(10000):
+    for x in range(1000):
         lat = round(random.uniform(43.17213, 43.23245), 5)
         lng = round(random.uniform(27.86957, 27.94647), 5)
         tree_obj = Tree(city_id=1, latitude=lat, longitude=lng, useradded_id=1, species_id=1, placetype_id=random.randint(1, 5))

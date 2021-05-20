@@ -221,6 +221,7 @@ def Signal_after_save_Inspection(sender, **kwargs):
         obj_tree.lastinsp_photo1 = latestInsp.photo1
         obj_tree.lastinsp_photo2 = latestInsp.photo2
         obj_tree.lastinsp_photo3 = latestInsp.photo3
+        obj_tree.is_geojsoned = False
         obj_tree.save()
 
 

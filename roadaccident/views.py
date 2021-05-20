@@ -319,7 +319,7 @@ class create_accidents(View):
             lng = round(random.uniform(27.86957, 27.94647), 5)
             dt = dt + timedelta(days=1)
 
-            obj = Accident(city_id=1, latitude=lat, longitude=lng, datetime=dt)
+            obj = Accident(city_id=1, latitude=lat, longitude=lng, datetime=dt, useradded_id=1)
             obj.save()
 
             print(x)

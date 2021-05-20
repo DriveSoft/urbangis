@@ -488,7 +488,7 @@ function markerOnClick(e)
             $("#id_treepreview_remarks").text(obj_tree.fields.lastinsp_remarks);
             $("#id_treepreview_recommends").text(obj_tree.fields.lastinsp_recommendations);
 
-            console.log(obj_tree.fields.species);
+            //console.log(obj_tree.fields.species);
             //console.log(obj.fields.localname);
 
         }
@@ -509,6 +509,9 @@ function markerOnClick(e)
   if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
   if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
   if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+
+  if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
+
   ShowSlideShow(photo1, photo2, photo3, "TreePreview")
 
 
@@ -550,7 +553,7 @@ function EditTree (geojson) {
   $('#divNewTree').hide();
   $('#divExistsTree').show();
 
-  $("#saveButton").html('Update');
+  $("#saveButton").html('Актуализиране');
 
   {% if perms.citytree.change_tree and perms.citytree.can_change_not_own_tree_record %}
     $('#saveButton').prop('disabled',false);
@@ -888,12 +891,23 @@ button_closeTabTree.onclick = function() {
 }
 
 button_closeTabInsp.onclick = function() {
-    $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
+    if($('#myTab a[href="#tree"]').is(":visible")) {
+        $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
+    } else {
+        $('#myTab a[href="#filter"]').tab('show');
+    }
+
+
     $('#tabInspection').hide();
 }
 
 button_closeTabAct.onclick = function() {
-    $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
+    if($('#myTab a[href="#tree"]').is(":visible")) {
+        $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
+    } else {
+        $('#myTab a[href="#filter"]').tab('show');
+    }
+
     $('#tabAction').hide();
 }
 

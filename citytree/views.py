@@ -317,7 +317,8 @@ class ExportGeoJson(View):
 class DeleteAllTrees(View):
     def get(self, request, city_name):
         obj_city = get_object_or_404(City, sysname=city_name)
-        trees = Tree.objects.filter(city=obj_city).delete()[:1000]
+        #trees = Tree.objects.filter(city=obj_city)[:1000].delete()
+        Tree.objects.filter(pk__in=Tree.objects.filter(city=obj_city).values_list('pk')[:500]).delete()
         return redirect(obj_city)
 
 
@@ -407,6 +408,18 @@ class ajaxGetInspAct(View):
 
             #    insp_obj = Inspection(tree_id=tree_obj.id, user_id=1, crowndiameter=10, trunkgirth=random.randint(30, 350), height=10, status_id=1)
             #    insp_obj.save()
+
+
+
+class ajaxSetMapName(View):
+    def get(self, request):
+
+        if request.is_ajax:
+            mapname = request.GET.get('mapname', 'Default')
+            request.session['mapname'] = mapname
+            return HttpResponse(status=200)
+
+
 
 
 

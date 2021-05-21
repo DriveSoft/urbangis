@@ -10,6 +10,7 @@ urlpatterns = [
     path('<str:city_name>/geojson/', getGeojson.as_view(), name='citytree_geojson_get'),
     path('get/ajax/inspact/', ajaxGetInspAct.as_view(), name = "get_inspact"),
     path('get/ajax/tree/', ajaxGetTree.as_view(), name = "get_tree"),
+    path('get/ajax/setmapname/', ajaxSetMapName.as_view(), name = "set_mapname"),
 
 ]
 

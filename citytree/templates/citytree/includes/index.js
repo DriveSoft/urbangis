@@ -20,6 +20,7 @@ var idsFromDB = []; // храним id маркеров деревьев, кот
 
 
 
+
 var HeatMapData = {
   max: 10,
   data: [
@@ -88,23 +89,59 @@ var mymap = L.map('mapid', { zoomControl: false }).setView(
 
 
 
-var tiles = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+var tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 21,
     id: 'mapbox/streets-v11',
     tileSize: 512,
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-}).addTo(mymap);
+})//.addTo(mymap);
 
 var tilesDark = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 21,
-    id: 'mapbox/dark-v10',
+    id: 'mapbox/dark-v10', //
     tileSize: 512,
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
 });//.addTo(mymap);
+
+
+var tilesSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri',
+	maxZoom: 19
+});//.addTo(mymap);
+
+
+var tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 21,
+    id: 'mapbox/satellite-v9',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
+});//.addTo(mymap);
+
+
+
+{% if request.session.mapname %}
+
+    {% if request.session.mapname == "Default" %}
+        tilesDefault.addTo(mymap);
+    {% elif request.session.mapname == "Dark" %}
+        tilesDark.addTo(mymap);
+    {% elif request.session.mapname == "Sat" %}
+        tilesSat.addTo(mymap);
+    {% elif request.session.mapname == "Sat2" %}
+        tilesSat2.addTo(mymap);
+    {% else %}
+        tilesDefault.addTo(mymap);
+    {% endif %}
+
+{% else %}
+    tilesDefault.addTo(mymap);
+{% endif %}
 
 
 
@@ -117,15 +154,25 @@ L.control.zoom({
 //mymap.addLayer(heatmapLayer);
 
 var baseMaps = {
-    "Default": tiles,
-    "Dark": tilesDark
+    "Default": tilesDefault,
+    "Dark": tilesDark,
+    "Sat": tilesSat,
+    "Sat2": tilesSat2
 };
 
 var overlayMaps = {
-    "Heatmap": heatmapLayer
+    //"Heatmap": heatmapLayer
 };
 
 L.control.layers(baseMaps, overlayMaps, {position: 'bottomleft'}).addTo(mymap);
+
+// save map tiles
+mymap.on('baselayerchange', function(e) {
+    $.ajax({
+        url: "{% url 'set_mapname' %}",
+        data: {'mapname': e.name}
+    });
+});
 
 
 
@@ -264,7 +311,16 @@ var but_heatmap = L.easyButton({
                 but_heatmap.button.style.backgroundColor = 'red';
 
                 mymap.removeLayer(markers);
-                if (!mymap.hasLayer(tilesDark)) { tilesDark.addTo(mymap) } else { tilesDark.bringToFront(); }
+                mymap.removeLayer(tilesDefault);
+
+                //if (!mymap.hasLayer(tilesDark)) {
+                //    tilesDark.addTo(mymap);
+                //} else {
+                //    tilesDark.bringToFront();
+                //}
+
+                tilesDark.addTo(mymap);
+                tilesDark.bringToFront();
                 mymap.addLayer(heatmapLayer);
 
             }
@@ -278,12 +334,13 @@ var but_heatmap = L.easyButton({
                 but_heatmap.button.style.backgroundColor = 'white';
 
                 mymap.removeLayer(heatmapLayer);
-                tiles.bringToFront();
+                mymap.removeLayer(tilesDark);
 
 
-                 mymap.addLayer(markers);
+                tilesDefault.addTo(mymap);
+                //tilesDefault.bringToFront();
 
-
+                mymap.addLayer(markers);
             }
         }]
 });

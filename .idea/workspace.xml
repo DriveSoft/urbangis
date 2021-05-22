@@ -7,8 +7,7 @@
   <component name="ChangeListManager">
     <list default="true" id="bd263406-f7da-4c55-81cc-d36b43010ab7" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/citytree/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citytree/templates/citytree/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/citytree/templates/citytree/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base_map.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_map.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/urbangis/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/urbangis/settings.py" afterDir="false" />
     </list>
@@ -29,11 +28,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="151">
-              <caret line="31" column="12" selection-start-line="31" selection-start-column="12" selection-end-line="31" selection-end-column="12" />
+            <state relative-caret-position="227">
+              <caret line="35" selection-start-line="35" selection-end-line="35" />
               <folding>
                 <element signature="e#308#328#0" expanded="true" />
               </folding>
@@ -44,8 +43,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/citytree/templates/citytree/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="530">
-              <caret line="460" column="133" selection-start-line="460" selection-start-column="123" selection-end-line="460" selection-end-column="133" />
+            <state relative-caret-position="3496">
+              <caret line="184" column="48" selection-start-line="184" selection-start-column="35" selection-end-line="184" selection-end-column="48" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/roadaccident/templates/roadaccident/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="321">
+              <caret line="368" column="48" selection-start-line="368" selection-start-column="35" selection-end-line="368" selection-end-column="48" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/citytree/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="447">
+              <caret line="165" column="45" selection-start-line="165" selection-start-column="20" selection-end-line="165" selection-end-column="45" />
+              <folding>
+                <element signature="e#0#28#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -53,7 +73,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/citytree/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
+            <state relative-caret-position="4582">
               <caret line="324" selection-start-line="324" selection-end-line="324" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
@@ -62,10 +82,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/templates/base_map.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-209">
+            <state relative-caret-position="551">
               <caret line="40" selection-start-line="40" selection-end-line="40" />
               <folding>
                 <element signature="n#style#0;n#html#0;n#!!top" expanded="true" />
@@ -112,10 +132,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ata-formatter</find>
-      <find>button_CloseTabInsp</find>
-      <find>select</find>
-      <find>selectpicker</find>
       <find>изчи</find>
       <find>selectpick</find>
       <find>delete</find>
@@ -140,8 +156,12 @@
       <find>ajax</find>
       <find>addTo(</find>
       <find>prevLayer</find>
-      <find>save</find>
       <find>disable</find>
+      <find>save</find>
+      <find>height</find>
+      <find>Височина</find>
+      <find>step=&quot;</find>
+      <find>type=&quot;number&quot;</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -187,13 +207,13 @@
         <option value="$PROJECT_DIR$/website/urls.py" />
         <option value="$PROJECT_DIR$/urbangis/urls.py" />
         <option value="$PROJECT_DIR$/website/templates/website/login.html" />
-        <option value="$PROJECT_DIR$/citytree/templates/citytree/index.html" />
         <option value="$PROJECT_DIR$/citytree/urls.py" />
         <option value="$PROJECT_DIR$/citytree/views.py" />
-        <option value="$PROJECT_DIR$/urbangis/settings.py" />
         <option value="$PROJECT_DIR$/static/script/citytree_resize_photos.js" />
-        <option value="$PROJECT_DIR$/templates/base_map.html" />
         <option value="$PROJECT_DIR$/citytree/templates/citytree/includes/index.js" />
+        <option value="$PROJECT_DIR$/urbangis/settings.py" />
+        <option value="$PROJECT_DIR$/citytree/templates/citytree/index.html" />
+        <option value="$PROJECT_DIR$/templates/base_map.html" />
       </list>
     </option>
   </component>
@@ -244,13 +264,20 @@
             <path>
               <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
               <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
+              <item name="roadaccident" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
               <item name="[project]" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-              <item name="script" type="462c0819:PsiDirectoryNode" />
+              <item name="roadaccident" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
+              <item name="[project]" type="462c0819:PsiDirectoryNode" />
+              <item name="roadaccident" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="roadaccident" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="[project]" type="b2602c69:ProjectViewProjectNode" />
@@ -548,13 +575,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/roadaccident/templates/roadaccident/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="697">
-          <caret line="475" column="14" selection-start-line="475" selection-start-column="9" selection-end-line="475" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/django/contrib/admin/sites.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-231">
@@ -573,16 +593,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
           <caret line="6" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/citytree/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4028">
-          <caret line="220" column="52" selection-start-line="220" selection-start-column="52" selection-end-line="220" selection-end-column="52" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
           </folding>
@@ -636,16 +646,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/citytree/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="324" selection-start-line="324" selection-end-line="324" />
-          <folding>
-            <element signature="e#0#45#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/script/citytree_resize_photos.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2145">
@@ -656,25 +656,6 @@
     <entry file="file://$PROJECT_DIR$/static/script/image-blob-reduce.js">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/citytree/templates/citytree/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="530">
-          <caret line="460" column="133" selection-start-line="460" selection-start-column="123" selection-end-line="460" selection-end-column="133" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base_map.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-209">
-          <caret line="40" selection-start-line="40" selection-end-line="40" />
-          <folding>
-            <element signature="n#style#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#div#1;n#div#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/citytree/templates/citytree/includes/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="547">
@@ -684,10 +665,56 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/urbangis/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="31" column="12" selection-start-line="31" selection-start-column="12" selection-end-line="31" selection-end-column="12" />
+        <state relative-caret-position="227">
+          <caret line="35" selection-start-line="35" selection-end-line="35" />
           <folding>
             <element signature="e#308#328#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/citytree/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4582">
+          <caret line="324" selection-start-line="324" selection-end-line="324" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/citytree/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="447">
+          <caret line="165" column="45" selection-start-line="165" selection-start-column="20" selection-end-line="165" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/roadaccident/templates/roadaccident/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="321">
+          <caret line="368" column="48" selection-start-line="368" selection-start-column="35" selection-end-line="368" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/citytree/templates/citytree/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3496">
+          <caret line="184" column="48" selection-start-line="184" selection-start-column="35" selection-end-line="184" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/base_map.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="551">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+          <folding>
+            <element signature="n#style#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#1;n#div#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>

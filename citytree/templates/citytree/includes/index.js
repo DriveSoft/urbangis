@@ -124,6 +124,11 @@ var tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
 });//.addTo(mymap);
 
 
+var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHhyKil9rD9dFK8536u8hTj1', {
+    maxZoom: 22
+});//.addTo(mymap);
+
+
 
 {% if request.session.mapname %}
 
@@ -131,9 +136,11 @@ var tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
         tilesDefault.addTo(mymap);
     {% elif request.session.mapname == "Dark" %}
         tilesDark.addTo(mymap);
-    {% elif request.session.mapname == "Sat" %}
-        tilesSat.addTo(mymap);
+    {% elif request.session.mapname == "Sat1" %}
+        tilesSatBing.addTo(mymap);
     {% elif request.session.mapname == "Sat2" %}
+        tilesSat1.addTo(mymap);
+    {% elif request.session.mapname == "Sat3" %}
         tilesSat2.addTo(mymap);
     {% else %}
         tilesDefault.addTo(mymap);
@@ -156,8 +163,9 @@ L.control.zoom({
 var baseMaps = {
     "Default": tilesDefault,
     "Dark": tilesDark,
-    "Sat": tilesSat,
-    "Sat2": tilesSat2
+    "Sat1": tilesSatBing,
+    "Sat2": tilesSat,
+    "Sat3": tilesSat2
 };
 
 var overlayMaps = {

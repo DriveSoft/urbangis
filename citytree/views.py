@@ -318,7 +318,7 @@ class DeleteAllTrees(View):
     def get(self, request, city_name):
         obj_city = get_object_or_404(City, sysname=city_name)
         #trees = Tree.objects.filter(city=obj_city)[:1000].delete()
-        Tree.objects.filter(pk__in=Tree.objects.filter(city=obj_city).values_list('pk')[:500]).delete()
+        #Tree.objects.filter(pk__in=Tree.objects.filter(city=obj_city).values_list('pk')[:500]).delete()
         return redirect(obj_city)
 
 

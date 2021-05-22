@@ -773,7 +773,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
     markers = L.geoJSON(ajax_geojson, {
         pointToLayer: function (feature, latlng) {
-            geojsonMarkerOptions.radius = feature.properties.crowndiameter;
+            geojsonMarkerOptions.radius = Math.floor(feature.properties.crowndiameter / 2);
             if (geojsonMarkerOptions.radius < 2) {
                 geojsonMarkerOptions.radius = 2;
             }

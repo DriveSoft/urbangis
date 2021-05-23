@@ -723,42 +723,67 @@ function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
 }
 
 
-/*
-function ZoomToRadius (zoom, trunkgirth) {
-    if (trunkgirth == 0) { trunkgirth = 100 };
 
-    if (zoom >= 22) { k = 1.5;}
-    if (zoom == 21) { k = 3;  }
-    if (zoom == 20) { k = 6;  }
-    if (zoom == 19) { k = 12; }
-    if (zoom == 18) { k = 24; }
-    if (zoom == 17) { k = 36; }
-    if (zoom == 16) { k = 48; }
-    if (zoom == 15) { k = 72; }
-    if (zoom <= 14) { k = 96; }
-
-    return trunkgirth / k;
+function ZoomToRadius (zoom, crowndiameter) {
+    if (zoom > 17) {
+        return Math.floor(crowndiameter / 2);
+    } else if (zoom == 17){
+        return 7;
+    } else if (zoom == 16){
+        return 10;
+    } else if (zoom == 15){
+        return 14;
+    } else if (zoom == 14){
+        return 19
+    } else if (zoom == 13){
+        return 24
+    } else if (zoom == 12){
+        return 30
+    } else if (zoom == 11){
+        return 37
+    } else if (zoom < 11){
+        return 45
+    }
 }
 
 mymap.on('zoomend', function() {
-
   let zoom = mymap.getZoom();
   console.log(zoom);
+
+
+
   markers.eachLayer(function (marker) {
-    let geojson = marker.toGeoJSON();
+    if (zoom > 17) {
+        let geojson = marker.toGeoJSON();
+        marker.setRadius( ZoomToRadius(zoom, geojson.properties.crowndiameter) );
+    } else {
+        marker.setRadius( ZoomToRadius(zoom, 0) );
+    }
 
-    marker.setRadius(ZoomToRadius(zoom, geojson.properties.trunkgirth))
+    /*
+    if (zoom > 17) {
+        let geojson = marker.toGeoJSON();
+        marker.setRadius(Math.floor(geojson.properties.crowndiameter / 2));
+    } else if (zoom == 17){
+        marker.setRadius(7)
+    } else if (zoom == 16){
+        marker.setRadius(10)
+    } else if (zoom == 15){
+        marker.setRadius(14)
+    } else if (zoom == 14){
+        marker.setRadius(19)
+    } else if (zoom == 13){
+        marker.setRadius(24)
+    } else if (zoom == 13){
+        marker.setRadius(30)
+    } else if (zoom < 12){
+        marker.setRadius(37)
+    }
+    */
 
-    //marker.setRadius( geojson.properties.trunkgirth * (zoom);
-
-    //marker.setRadius(markerRadius(marker._price));
-    //marker.setRadius();//mymap.getZoom()
-
-    //marker.Radius = 5;
-    //marker.setRadius(10);
   });
 });
-*/
+
 
 
 
@@ -770,13 +795,18 @@ function LoadTreesToMap(firsttime, filterEnabled) {
     // update dataset for heatmap
     HeatMapData.data.length = 0; // clear data array
     let heatItem = {};
+    let zoom = mymap.getZoom();
 
     markers = L.geoJSON(ajax_geojson, {
         pointToLayer: function (feature, latlng) {
-            geojsonMarkerOptions.radius = Math.floor(feature.properties.crowndiameter / 2);
+
+            geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.crowndiameter);
+            //geojsonMarkerOptions.radius = Math.floor(feature.properties.crowndiameter / 2);
+
             if (geojsonMarkerOptions.radius < 2) {
                 geojsonMarkerOptions.radius = 2;
             }
+
             return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
         },
 

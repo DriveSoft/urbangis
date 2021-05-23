@@ -726,24 +726,27 @@ function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
 
 function ZoomToRadius (zoom, crowndiameter) {
     if (zoom > 17) {
-        return Math.floor(crowndiameter / 2);
+        r = Math.floor(crowndiameter / 2);
     } else if (zoom == 17){
-        return 7;
+        r = 7;
     } else if (zoom == 16){
-        return 10;
+        r = 10;
     } else if (zoom == 15){
-        return 14;
+        r = 14;
     } else if (zoom == 14){
-        return 19
+        r = 19
     } else if (zoom == 13){
-        return 24
+        r = 24
     } else if (zoom == 12){
-        return 30
+        r = 30
     } else if (zoom == 11){
-        return 37
+        r = 37
     } else if (zoom < 11){
-        return 45
+        r = 45
     }
+
+    if (r < 2) { r = 2 }
+    return r;
 }
 
 mymap.on('zoomend', function() {

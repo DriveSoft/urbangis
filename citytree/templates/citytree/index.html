@@ -7,15 +7,25 @@ City Tree Map - {{ block.super }}
 {% endblock %}
 
 <!-- меняет файл стиля для sidebar, т.к. в этом app он нужен более широкий -->
-{% block css_sidebar %}<link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">{% endblock %}
+{% block css_sidebar %}
+<link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">
+{% endblock %}
 
 
 
-{% block head %}
+{% block scriptfiles %}
 <!-- client resize photos -->
 <script src="{% static 'script/image-blob-reduce.js' %}"></script>
 <script src="{% static 'script/citytree_resize_photos.js' %}"></script>
+
+<script>
+    {% include 'citytree/includes/index.js' %}
+</script>
+
 {% endblock %}
+
+
+
 
 
 
@@ -26,13 +36,13 @@ City Tree Map - {{ block.super }}
         <li class="nav-item" role="presentation" id="tabFilter">
             <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Търсенето</a>
         </li>
-        <li class="nav-item" role="presentation" id="tabTree">
+        <li class="nav-item" role="presentation" id="tabTree" style="display: none">
             <a class="nav-link" id="tree-tab" data-toggle="tab" href="#tree" role="tab" aria-controls="tree" aria-selected="false">Дърво</a>
         </li>
-        <li class="nav-item" role="presentation" id="tabInspection">
+        <li class="nav-item" role="presentation" id="tabInspection" style="display: none">
             <a class="nav-link" id="inspection-tab" data-toggle="tab" href="#inspection" role="tab" aria-controls="tree" aria-selected="false">Преглед</a>
         </li>
-        <li class="nav-item" role="presentation" id="tabAction">
+        <li class="nav-item" role="presentation" id="tabAction" style="display: none">
             <a class="nav-link" id="action-tab" data-toggle="tab" href="#action" role="tab" aria-controls="tree" aria-selected="false">Дейност</a>
         </li>
 
@@ -751,14 +761,17 @@ City Tree Map - {{ block.super }}
 {% block map %}
 
 <div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
-<button id="doneMarkerMobile" class="btn btn-success">Готово</button>
-<button id="cancelMarkerMobile" class="btn btn-secondary">&#x2715;</button>
+<button id="doneMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
+<button id="cancelMarkerMobile" class="btn btn-secondary" style="display: none">&#x2715;</button>
 
+
+
+{% comment %}
 <script>
-
     {% include 'citytree/includes/index.js' %}
-
 </script>
+{% endcomment %}
+
 
 
 

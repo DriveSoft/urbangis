@@ -40,22 +40,22 @@
 
 
     <link rel="stylesheet" href="{% static 'script/leaflet_1.7.1/leaflet.css' %}">
-    <script src="{% static 'script/leaflet_1.7.1/leaflet.js' %}" ></script>
+    <!--<script src="{% static 'script/leaflet_1.7.1/leaflet.js' %}" ></script> -->
 
-    <script src="{% static 'script/leaflet-bing-layer.js' %}"></script>
+    <!-- <script src="{% static 'script/leaflet-bing-layer.js' %}"></script> -->
 
 
 
-    <script src="{% static 'script/easy-button.js' %}"></script>
+    <!-- <script src="{% static 'script/easy-button.js' %}"></script> -->
     <link href="{% static 'css/easy-button.css' %}" rel="stylesheet"/>
 
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster-src.js"></script>
+    <!-- <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster-src.js"></script> -->
 
-    <script src="{% static 'script/heatmap.min.js' %}"></script>
-    <script src="{% static 'script/leaflet-heatmap.js' %}"></script>
+    <!-- <script src="{% static 'script/heatmap.min.js' %}"></script> -->
+    <!-- <script src="{% static 'script/leaflet-heatmap.js' %}"></script> -->
 
 
     <!-- CDN link used below is compatible with this example -->
@@ -69,7 +69,7 @@
 
 
     <!-- screw-filereader will take care of exif rotation for u -->
-    <script src="https://cdn.jsdelivr.net/npm/screw-filereader@1.4.3/index.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/screw-filereader@1.4.3/index.min.js"></script> -->
 
     <!-- to put scripts -->
     {% block head %}
@@ -185,25 +185,42 @@
 
         <!-- https://developer.snapappointments.com/bootstrap-select/examples/ -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
-
         <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
 
 
 
 
+        <script src="{% static 'script/leaflet_1.7.1/leaflet.js' %}" ></script>
+        <script src="{% static 'script/leaflet-bing-layer.js' %}"></script>
 
-        <!-- Menu Toggle Script -->
-        <script>
+        <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster-src.js"></script>
+
+        <script src="{% static 'script/heatmap.min.js' %}"></script>
+        <script src="{% static 'script/leaflet-heatmap.js' %}"></script>
+
+        <script src="{% static 'script/easy-button.js' %}"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/screw-filereader@1.4.3/index.min.js"></script>
+
+
+        {% block scriptfiles %}
+        {% endblock %}
+
+
+
+
+
+
+<!-- Menu Toggle Script -->
+<script>
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
       $("#wrapper").toggleClass("toggled");
 
       window.setTimeout(function(){window.mymap.invalidateSize({pan: false});}, 600)
     });
-
-
-
 </script>
+
 
 
     </div>

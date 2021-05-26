@@ -751,9 +751,6 @@ function ZoomToRadius (zoom, crowndiameter) {
 
 mymap.on('zoomend', function() {
   let zoom = mymap.getZoom();
-  console.log(zoom);
-
-
 
   markers.eachLayer(function (marker) {
     if (zoom > 17) {
@@ -763,27 +760,6 @@ mymap.on('zoomend', function() {
         marker.setRadius( ZoomToRadius(zoom, 0) );
     }
 
-    /*
-    if (zoom > 17) {
-        let geojson = marker.toGeoJSON();
-        marker.setRadius(Math.floor(geojson.properties.crowndiameter / 2));
-    } else if (zoom == 17){
-        marker.setRadius(7)
-    } else if (zoom == 16){
-        marker.setRadius(10)
-    } else if (zoom == 15){
-        marker.setRadius(14)
-    } else if (zoom == 14){
-        marker.setRadius(19)
-    } else if (zoom == 13){
-        marker.setRadius(24)
-    } else if (zoom == 13){
-        marker.setRadius(30)
-    } else if (zoom < 12){
-        marker.setRadius(37)
-    }
-    */
-
   });
 });
 
@@ -792,6 +768,7 @@ mymap.on('zoomend', function() {
 
 
 function LoadTreesToMap(firsttime, filterEnabled) {
+
     if (!firsttime) {
         mymap.removeLayer(markers);
     }
@@ -804,11 +781,20 @@ function LoadTreesToMap(firsttime, filterEnabled) {
         pointToLayer: function (feature, latlng) {
 
             geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.crowndiameter);
-            //geojsonMarkerOptions.radius = Math.floor(feature.properties.crowndiameter / 2);
 
             if (geojsonMarkerOptions.radius < 2) {
                 geojsonMarkerOptions.radius = 2;
             }
+
+            {% if status %}
+                {% for statusItem in status %}
+                    if (feature.properties.status == "{{statusItem.id}}")
+                    {
+                        geojsonMarkerOptions.fillColor = "#{{statusItem.hexcolor}}";
+                        geojsonMarkerOptions.color = "#{{statusItem.hexcolor}}";
+                    }
+                {% endfor %}
+            {% endif %}
 
             return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
         },

@@ -66,6 +66,7 @@ class IrrigationMethod(models.Model):# метод полива, например
 
 class Status(models.Model):# оцена состояния дерева: новозасадено, в перфектно състояние, в добро състояние със сухи клони (под 20%), Задоволително - със сухи клони 20-50%, в лошо състояние - сухи клони над 50%, мъртво
     statusname = models.CharField(max_length=100)
+    hexcolor = models.CharField(max_length=6, default="008000")
 
     def __str__(self):
         return self.statusname

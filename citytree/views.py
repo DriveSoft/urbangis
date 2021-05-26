@@ -308,6 +308,8 @@ class getGeojson(View):
 
 class ExportGeoJson(View):
     def get(self, request, city_name):
+        if not request.user.is_staff:
+            raise PermissionDenied('You do not have enough permissions.')
         obj_city = get_object_or_404(City, sysname=city_name)
         citydataToGeoJson(obj_city)
         return redirect(obj_city)

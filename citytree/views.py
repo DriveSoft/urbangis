@@ -671,3 +671,86 @@ def citydataToGeoJson2(obj_city):
     # return redirect(obj_city)
 
 
+
+
+
+
+import boto3
+from botocore.client import Config
+
+def get_s3_connection():
+    key = getattr(djangoSettings, 'AWS_ACCESS_KEY_ID', None)
+    secret = getattr(djangoSettings, 'AWS_SECRET_ACCESS_KEY', None)
+    if not key or not secret:
+        return None
+
+    print(secret)
+    return boto3.client(
+        's3',
+        'eu-central-1',
+        aws_access_key_id=key,
+        aws_secret_access_key=secret,
+        config=Config(signature_version='s3v4')
+        )
+
+
+class GetS3SignedUrl(View):
+    """
+    Generate Signed url for s3
+    """
+
+    def get(self, request, *args, **kwargs):
+        c = get_s3_connection()
+        file_name = request.GET.get('file_name')
+        username = request.GET.get('username')
+        #final_file_name = 'videos/{0}/{1}'.format(username, file_name)
+        final_file_name = 'media/citytree/images_tree/' + file_name
+        secondsPerDay = 24*60*60
+        #url = c.generate_url_sigv4(
+        #    secondsPerDay, "PUT", bucket=settings.S3_BUCKET_NAME, key=final_file_name, force_http=True)
+
+        #url = c.generate_presigned_url('put_object',
+        #    Params={'Bucket': djangoSettings.AWS_STORAGE_BUCKET_NAME, 'Key': final_file_name, 'ContentType': 'image/jpeg'},
+        #    ExpiresIn=3600,
+        #    HttpMethod='PUT')
+
+        url = c.generate_presigned_post(
+            Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME,
+            Key=final_file_name,
+            Fields={"acl": "public-read", "Content-Type": "image/jpeg"},
+            Conditions=[
+                {"acl": "public-read"},
+                {"Content-Type": "image/jpeg"}
+            ],
+            ExpiresIn=3600
+        )
+
+        print(final_file_name)
+
+        out_url = 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name)
+
+        #json_send = json.dumps({'signed_request': url, 'url': out_url, 's3_key': final_file_name, 'status': 'ok'})
+        #return HttpResponse(json_send)
+
+        return HttpResponse(json.dumps({
+            'data': url,
+            'url': 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name)
+            }))
+
+class Makes3VideoPublic(View):
+    """
+    Make s3 video public
+    """
+    def post(self, request, *args, **kwargs):
+        post_data = request.POST
+        aws_access_key_id = settings.AWS_ACCESS_KEY_ID
+        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+        #conn = boto.connect_s3(aws_access_key_id, aws_secret_access_key)
+        #try:
+        #    bucket = conn.get_bucket(settings.S3_BUCKET_NAME, validate=True)
+        #except S3ResponseError:
+        #    bucket = conn.create_bucket(settings.S3_BUCKET_NAME)
+        #k = bucket.get_key(request.POST.get('s3_key'))
+        #k.make_public()
+        #print post_data
+        #return Response(post_data)

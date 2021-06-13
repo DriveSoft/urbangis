@@ -1470,6 +1470,43 @@ document.onreadystatechange = function(){
 
     PermissionsApply();
     AjaxLoadJson();
+
+
+
+
+
+
+    $('#saveButton').click(function(){
+        // Get the file from frontend
+   	    var myFile = $('#fileToUpload').prop('files');
+
+        if(!myFile[0]){
+          return alert("No file selected.");
+        }
+
+   	    // Send a get request to generate signed url
+        let data = {file_name: myFile[0].name, username: 'Username'};
+
+        $.ajax({
+            type: "GET",
+            url: "{% url 'generate_signed_url' %}",
+            data: data,
+            success: function(response){
+                let responseData = jQuery.parseJSON(response);
+                uploadFile(myFile[0], responseData.data, responseData.url);
+            },
+            async: false,
+        });
+
+   });
+
+
+
+
+
+
+
+
    }
 }
 
@@ -1565,5 +1602,39 @@ function PermissionsApply(){
 }
 
 
+
+function uploadFile(file, s3Data, url){
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", s3Data.url);
+  xhr.upload.onprogress = updateProgress;
+
+  var postData = new FormData();
+  for(key in s3Data.fields){
+    postData.append(key, s3Data.fields[key]);
+  }
+  postData.append('file', file);
+
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState === 4){
+      if(xhr.status === 200 || xhr.status === 204){
+        //document.getElementById("preview").src = url;
+        //document.getElementById("avatar-url").value = url;
+
+      }
+      else{
+        alert("Could not upload file.");
+      }
+   }
+  };
+
+  xhr.send(postData);
+
+  function updateProgress (ev) {
+        if (ev.lengthComputable) {
+            var percentComplete = Math.round((ev.loaded / ev.total) * 100);
+            console.log(percentComplete);
+        }
+  }
+}
 
 

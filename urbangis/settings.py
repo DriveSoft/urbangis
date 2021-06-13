@@ -29,7 +29,7 @@ SECRET_KEY = '5&h4p*m+9!1+1^2_fv@jeurfmht5=+5mwkkv6p-$np&5l6f)hk'
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
 #if platform == "win32":
-DEBUG = False
+DEBUG = True
 #else:
 #    DEBUG = False
 
@@ -169,6 +169,10 @@ if USE_S3:
     AWS_ACCESS_KEY_ID = 'AKIA2YSO7FE5PEVJC3QV'
     AWS_SECRET_ACCESS_KEY = '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'
     AWS_STORAGE_BUCKET_NAME = 'urbangis'
+
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    #AWS_S3_REGION_NAME = "ap-south-1"
+
     #AWS_DEFAULT_ACL = None
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_FILE_OVERWRITE = False
@@ -184,8 +188,6 @@ if USE_S3:
 else:
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = "/media/"
 

@@ -12,6 +12,9 @@ urlpatterns = [
     path('get/ajax/tree/', ajaxGetTree.as_view(), name = "get_tree"),
     path('get/ajax/setmapname/', ajaxSetMapName.as_view(), name = "set_mapname"),
 
+    path('get/ajax/generate_signed_url/', GetS3SignedUrl.as_view(), name='generate_signed_url'),
+    path('get/ajax/make_video_public/', Makes3VideoPublic.as_view(), name='make_video_public'),
+
 ]
 
 

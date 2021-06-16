@@ -139,7 +139,7 @@ var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHh
     {% elif request.session.mapname == "Sat1" %}
         tilesSatBing.addTo(mymap);
     {% elif request.session.mapname == "Sat2" %}
-        tilesSat1.addTo(mymap);
+        tilesSat.addTo(mymap);
     {% elif request.session.mapname == "Sat3" %}
         tilesSat2.addTo(mymap);
     {% else %}
@@ -461,6 +461,11 @@ function onMapClick(e) {
         document.getElementById("dateplanted").value = '';
         document.getElementById("status").value = 0;
 
+        document.getElementById("id_first_insp_photo1_new_name").value = '';
+        document.getElementById("id_first_insp_photo2_new_name").value = '';
+        document.getElementById("id_first_insp_photo3_new_name").value = '';
+
+
         but_newmarker.state('off');
         but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
@@ -506,6 +511,11 @@ function buttonDoneMarkerMobileOnClick(e) {
     document.getElementById("irrigationmethod").value = 1;
     document.getElementById("dateplanted").value = '';
     document.getElementById("status").value = 0;
+
+    document.getElementById("id_first_insp_photo1_new_name").value = '';
+    document.getElementById("id_first_insp_photo2_new_name").value = '';
+    document.getElementById("id_first_insp_photo3_new_name").value = '';
+
 
     but_newmarker.state('off');
     but_newmarker.button.style.backgroundColor = 'white';
@@ -1477,30 +1487,139 @@ document.onreadystatechange = function(){
 
 
     $('#saveButton').click(function(){
-        // Get the file from frontend
-   	    var myFile = $('#fileToUpload').prop('files');
 
-        if(!myFile[0]){
-          return alert("No file selected.");
+        // Get the file from frontend
+   	    let myFile1 = $('#id_first_insp_photo1').prop('files');
+   	    let myFile2 = $('#id_first_insp_photo2').prop('files');
+   	    let myFile3 = $('#id_first_insp_photo3').prop('files');
+
+        // если во всех нету файла или он уже загружен, тогда кликаем submit
+        if ( (!myFile1[0] || $('#id_first_insp_photo1_browse_button').text() === 'Done') &&
+             (!myFile2[0] || $('#id_first_insp_photo2_browse_button').text() === 'Done') &&
+             (!myFile3[0] || $('#id_first_insp_photo3_browse_button').text() === 'Done') ){
+
+            $('#saveButtonSubmit').click();
+
+        } else {
+            if(myFile1[0] && $('#id_first_insp_photo1_browse_button').text() !== 'Done'){
+                let data1 = {file_name: myFile1[0].name};
+                $('#id_first_insp_photo1_loading').show();
+                StartUpload(myFile1, data1, 'id_first_insp_photo1');
+            }
+
+            if(myFile2[0] && $('#id_first_insp_photo2_browse_button').text() !== 'Done'){
+                let data2 = {file_name: myFile2[0].name};
+                $('#id_first_insp_photo2_loading').show();
+                StartUpload(myFile2, data2, 'id_first_insp_photo2');
+            }
+
+            if(myFile3[0] && $('#id_first_insp_photo3_browse_button').text() !== 'Done'){
+                let data3 = {file_name: myFile3[0].name};
+                $('#id_first_insp_photo3_loading').show();
+                StartUpload(myFile3, data3, 'id_first_insp_photo3');
+            }
         }
 
-   	    // Send a get request to generate signed url
-        let data = {file_name: myFile[0].name, username: 'Username'};
 
-        $.ajax({
-            type: "GET",
-            url: "{% url 'generate_signed_url' %}",
-            data: data,
-            success: function(response){
-                let responseData = jQuery.parseJSON(response);
-                uploadFile(myFile[0], responseData.data, responseData.url);
-            },
-            async: false,
-        });
+        function StartUpload(fileObj, data, idElement) {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'generate_signed_url' %}",
+                data: data,
+                success: function(response){
+                    let responseData = jQuery.parseJSON(response);
+                    if (responseData.file_exists === false) {
+                        uploadFile(fileObj[0], responseData.data, responseData.final_file_name, idElement, 'saveButtonSubmit');
+                    } else {
+                        let rndStr = makeRandomStr(5);
+                        $('#'+idElement+'_new_name').val(rndStr+'_'+ fileObj[0].name);
+                        let data_new = {file_name: rndStr + '_' + fileObj[0].name};
+                        StartUpload(fileObj, data_new, idElement);
+                    }
+
+                },
+                async: true,
+            });
+        }
+
 
    });
 
 
+
+
+
+
+    $('#saveInspButton').click(function(){
+
+        // Get the file from frontend
+   	    let myFile1 = $('#id_insp_photo1').prop('files');
+   	    let myFile2 = $('#id_insp_photo2').prop('files');
+   	    let myFile3 = $('#id_insp_photo3').prop('files');
+
+   	    if ( $('#id_insp_photo1_filename').val() === '*will_be_deleted*' ) {
+   	        $('#id_insp_photo1').val('');
+   	    }
+
+   	    if ( $('#id_insp_photo2_filename').val() === '*will_be_deleted*' ) {
+   	        $('#id_insp_photo2').val('');
+   	    }
+
+   	    if ( $('#id_insp_photo3_filename').val() === '*will_be_deleted*' ) {
+   	        $('#id_insp_photo3').val('');
+   	    }
+
+        // если во всех нету файла или он уже загружен, тогда кликаем submit
+        if ( (!myFile1[0] || $('#id_insp_photo1_browse_button').text() === 'Done') &&
+             (!myFile2[0] || $('#id_insp_photo2_browse_button').text() === 'Done') &&
+             (!myFile3[0] || $('#id_insp_photo3_browse_button').text() === 'Done') ){
+
+            $('#saveInspButtonSubmit').click();
+
+        } else {
+            if(myFile1[0] && $('#id_insp_photo1_browse_button').text() !== 'Done'){
+                let data1 = {file_name: myFile1[0].name};
+                $('#id_insp_photo1_loading').show();
+                StartUpload(myFile1, data1, 'id_insp_photo1');
+            }
+
+            if(myFile2[0] && $('#id_insp_photo2_browse_button').text() !== 'Done'){
+                let data2 = {file_name: myFile2[0].name};
+                $('#id_instp_photo2_loading').show();
+                StartUpload(myFile2, data2, 'id_insp_photo2');
+            }
+
+            if(myFile3[0] && $('#id_insp_photo3_browse_button').text() !== 'Done'){
+                let data3 = {file_name: myFile3[0].name};
+                $('#id_first_instp_photo3_loading').show();
+                StartUpload(myFile3, data3, 'id_insp_photo3');
+            }
+        }
+
+
+        function StartUpload(fileObj, data, idElement) {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'generate_signed_url' %}",
+                data: data,
+                success: function(response){
+                    let responseData = jQuery.parseJSON(response);
+                    if (responseData.file_exists === false) {
+                        uploadFile(fileObj[0], responseData.data, responseData.final_file_name, idElement, 'saveInspButtonSubmit');
+                    } else {
+                        let rndStr = makeRandomStr(5);
+                        $('#'+idElement+'_new_name').val(rndStr+'_'+ fileObj[0].name);
+                        let data_new = {file_name: rndStr + '_' + fileObj[0].name};
+                        StartUpload(fileObj, data_new, idElement);
+                    }
+
+                },
+                async: true,
+            });
+        }
+
+
+   });
 
 
 
@@ -1603,7 +1722,7 @@ function PermissionsApply(){
 
 
 
-function uploadFile(file, s3Data, url){
+function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
   var xhr = new XMLHttpRequest();
   xhr.open("POST", s3Data.url);
   xhr.upload.onprogress = updateProgress;
@@ -1619,6 +1738,30 @@ function uploadFile(file, s3Data, url){
       if(xhr.status === 200 || xhr.status === 204){
         //document.getElementById("preview").src = url;
         //document.getElementById("avatar-url").value = url;
+        $('#'+idElement+'_loading').hide();
+        $('#'+idElement+'_browse_button').html('Done');
+
+   	    // чтобы определить, когда все файлы загрузились, значит можно нажимать кнопку Submit
+   	    let myFile1 = $('#'+idElement.slice(0, -1)+'1').prop('files');
+   	    let myFile2 = $('#'+idElement.slice(0, -1)+'2').prop('files');
+   	    let myFile3 = $('#'+idElement.slice(0, -1)+'3').prop('files');
+
+        let File1Done = false;
+        let File2Done = false;
+        let File3Done = false;
+
+        if (!myFile1[0]) { File1Done = true; }
+        if (!myFile2[0]) { File2Done = true; }
+        if (!myFile3[0]) { File3Done = true; }
+
+        if (myFile1[0] && $('#'+idElement.slice(0, -1)+'1_browse_button').text() === 'Done') { File1Done = true; }
+        if (myFile2[0] && $('#'+idElement.slice(0, -1)+'2_browse_button').text() === 'Done') { File2Done = true; }
+        if (myFile3[0] && $('#'+idElement.slice(0, -1)+'3_browse_button').text() === 'Done') { File3Done = true; }
+
+
+        if ( File1Done && File2Done && File3Done ) {
+            $('#'+id_SubmitButton).click();
+        }
 
       }
       else{
@@ -1633,8 +1776,19 @@ function uploadFile(file, s3Data, url){
         if (ev.lengthComputable) {
             var percentComplete = Math.round((ev.loaded / ev.total) * 100);
             console.log(percentComplete);
+            $('#'+idElement+'_browse_button').html(percentComplete+'%');
         }
   }
 }
 
 
+function makeRandomStr(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() *
+ charactersLength));
+   }
+   return result;
+}

@@ -181,7 +181,7 @@ City Tree Map - {{ block.super }}
 
         <div class="tab-pane fade ml-3 mr-1" id="tree" role="tabpanel" aria-labelledby="tree-tab">
             <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_tree">
-                <form action="{{ obj_city.get_absolute_url }}" method="post" enctype="multipart/form-data">
+                <form action="{{ obj_city.get_absolute_url }}" method="post" id="id_form_tree" enctype="multipart/form-data">
                     {% csrf_token %}
                     <p> {{ formTree.errors }}</p>
                     <p> {{ formInspection.errors }}</p>
@@ -428,19 +428,38 @@ City Tree Map - {{ block.super }}
                         </div>
 
                         <div class="form-row">
+
                             <div class="form-group col-4 text-center">
-                                <!-- <input type="file" name="photo1" accept="image/*" id="id_first_insp_photo1" style="display: none;"> -->
+                                <input type="file" name="photo1" accept="image/*" id="id_first_insp_photo1" style="display: none;">
                                 <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo1').click();" /> -->
-                                <input type="file" name="photo1" id="fileToUpload">
+
+                                <button class="btn btn-outline-secondary" id="id_first_insp_photo1_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_first_insp_photo1').click();">
+                                    <span id="id_first_insp_photo1_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Browse...
+                                </button>
+                                <input type="hidden" name="photo1_newname" id="id_first_insp_photo1_new_name">
                             </div>
+
                             <div class="form-group col-4 text-center">
                                 <input type="file" name="photo2" accept="image/*" id="id_first_insp_photo2" style="display: none;">
-                                <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo2').click();" />
+                                <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo2').click();" /> -->
+                                <button class="btn btn-outline-secondary" id="id_first_insp_photo2_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_first_insp_photo2').click();">
+                                    <span id="id_first_insp_photo2_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Browse...
+                                </button>
+                                <input type="hidden" name="photo2_newname" id="id_first_insp_photo2_new_name">
                             </div>
+
                             <div class="form-group col-4 text-center">
                                 <input type="file" name="photo3" accept="image/*" id="id_first_insp_photo3" style="display: none;">
-                                <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo3').click();" />
+                                <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo3').click();" /> -->
+                                <button class="btn btn-outline-secondary" id="id_first_insp_photo3_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_first_insp_photo3').click();">
+                                    <span id="id_first_insp_photo3_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Browse...
+                                </button>
+                                <input type="hidden" name="photo3_newname" id="id_first_insp_photo3_new_name">
                             </div>
+
                         </div>
 
 
@@ -471,7 +490,8 @@ City Tree Map - {{ block.super }}
                             <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabTree">Изход</button>
                         </div>
                         <div class="form-group col-6 text-center">
-                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Запази</button>
+                            <button style="width: 100%; display: none;" type="submit" class="btn btn-primary" name="send" value="save" id="saveButtonSubmit">Запази</button>
+                            <button style="width: 100%" type="button" class="btn btn-primary" name="send" value="save" id="saveButton">Запази2</button>
                         </div>
                     </div>
 
@@ -577,30 +597,49 @@ City Tree Map - {{ block.super }}
                     <div class="form-row mt-5">
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo1">
-                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo1_filename').value='*will_be_deleted*'; $('#id_insp_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo1_filename').value='*will_be_deleted*'; $('#id_insp_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo2">
-                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo2_filename').value='*will_be_deleted*'; $('#id_insp_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo2_filename').value='*will_be_deleted*'; $('#id_insp_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo3">
-                            <a href="#"><i class="fas fa-times fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo3_filename').value='*will_be_deleted*'; $('#id_insp_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo3_filename').value='*will_be_deleted*'; $('#id_insp_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-4 text-center">
                             <input type="file" name="photo1" accept="image/*" id="id_insp_photo1" style="display: none;">
-                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo1').click();" />
+
+                            <button class="btn btn-outline-secondary" id="id_insp_photo1_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_insp_photo1').click();">
+                                <span id="id_insp_photo1_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Browse...
+                            </button>
+                            <input type="hidden" name="photo1_newname" id="id_insp_photo1_new_name">
+
+                            <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo1').click();" /> -->
                         </div>
                         <div class="form-group col-4 text-center">
                             <input type="file" name="photo2" accept="image/*" id="id_insp_photo2" style="display: none;">
-                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo2').click();" />
+
+                            <button class="btn btn-outline-secondary" id="id_insp_photo2_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_insp_photo2').click();">
+                                <span id="id_insp_photo2_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Browse...
+                            </button>
+                            <input type="hidden" name="photo2_newname" id="id_insp_photo2_new_name">
+                            <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo2').click();" /> -->
                         </div>
                         <div class="form-group col-4 text-center">
                             <input type="file" name="photo3" accept="image/*" id="id_insp_photo3" style="display: none;">
-                            <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo3').click();" />
+
+                            <button class="btn btn-outline-secondary" id="id_insp_photo3_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_insp_photo3').click();">
+                                <span id="id_insp_photo3_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Browse...
+                            </button>
+                            <input type="hidden" name="photo3_newname" id="id_insp_photo3_new_name">
+                            <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_insp_photo3').click();" /> -->
                         </div>
                     </div>
 
@@ -630,7 +669,8 @@ City Tree Map - {{ block.super }}
                             <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabInsp">Изход</button>
                         </div>
                         <div class="form-group col-6 text-center">
-                            <button style="width: 100%" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Запази</button>
+                            <button style="display: none" type="submit" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButtonSubmit">Запази</button>
+                            <button style="width: 100%" type="button" class="btn btn-primary" name="send" value="saveInsp" id="saveInspButton">Запази</button>
                         </div>
                     </div>
 

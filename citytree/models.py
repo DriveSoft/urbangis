@@ -8,6 +8,8 @@ from django.dispatch import receiver
 
 from django.db.models.signals import post_save, post_delete, m2m_changed
 
+from django.conf import settings as djangoSettings
+
 
 
 class City(coreCity):
@@ -168,9 +170,9 @@ class Inspection(models.Model):
     status = models.ForeignKey(Status, on_delete=models.PROTECT)
     remarks = models.ManyToManyField('Remark', blank=True, related_name='inspections')
     recommendations = models.ManyToManyField('CareType', blank=True, related_name='inspections')
-    photo1 = models.ImageField(upload_to=user_directory_path, blank=True)
-    photo2 = models.ImageField(upload_to=user_directory_path, blank=True)
-    photo3 = models.ImageField(upload_to=user_directory_path, blank=True)
+    photo1 = models.ImageField(upload_to=user_directory_path, max_length=254, blank=True)
+    photo2 = models.ImageField(upload_to=user_directory_path, max_length=255, blank=True)
+    photo3 = models.ImageField(upload_to=user_directory_path, max_length=255, blank=True)
     #photo1 = models.ImageField(upload_to='citytree/images_tree', blank=True)
     #photo2 = models.ImageField(upload_to='citytree/images_tree', blank=True)
     #photo3 = models.ImageField(upload_to='citytree/images_tree', blank=True)

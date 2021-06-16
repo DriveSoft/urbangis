@@ -1,3 +1,3 @@
-cmd.exe /k "C:\Dima\[Project]\UrbanGis\urbangis\venv\Scripts\activate.bat"
+cmd.exe /k "D:\PROGRAMMER\[PROJECTS]\UrbanGIS\[project]\venv\Scripts\activate.bat"
 
  

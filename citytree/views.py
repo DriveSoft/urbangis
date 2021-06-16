@@ -109,7 +109,7 @@ class Map(View):
                     #print(request.POST.get('recommendations'))
 
                     if bound_form_tree.is_valid() and bound_form_inspec.is_valid():
-                        print('valid')
+
                         obj_newtree = bound_form_tree.save(commit=False)
                         obj_newtree.city_id = obj_city.id
                         obj_newtree.useradded = request.user
@@ -118,6 +118,21 @@ class Map(View):
                         obj_newinspec = bound_form_inspec.save(commit=False)
                         obj_newinspec.tree_id = obj_newtree.id
                         obj_newinspec.user = request.user
+
+                        # если файл уже существует в S3, тогда в photo1_newname содержится новое имя файла
+                        photo1_newname = request.POST.get('photo1_newname')
+                        if photo1_newname:
+                            obj_newinspec.photo1.name = photo1_newname
+
+                        photo2_newname = request.POST.get('photo2_newname')
+                        if photo2_newname:
+                            obj_newinspec.photo2.name = photo2_newname
+
+                        photo3_newname = request.POST.get('photo3_newname')
+                        if photo3_newname:
+                            obj_newinspec.photo3.name = photo3_newname
+
+
                         bound_form_inspec.save()
 
                         response = redirect(obj_city)
@@ -163,6 +178,21 @@ class Map(View):
 
                         obj_insp = bound_form_insp.save(commit=False)
                         #obj_insp.user_id = 1
+
+
+                        # если файл уже существует в S3, тогда в photo1_newname содержится новое имя файла
+                        photo1_newname = request.POST.get('photo1_newname')
+                        if photo1_newname:
+                            obj_insp.photo1.name = photo1_newname
+
+                        photo2_newname = request.POST.get('photo2_newname')
+                        if photo2_newname:
+                            obj_insp.photo2.name = photo2_newname
+
+                        photo3_newname = request.POST.get('photo3_newname')
+                        if photo3_newname:
+                            obj_insp.photo3.name = photo3_newname
+
 
                         # for deleting photos
                         if request.POST.get('insp_photo1_filename') == '*will_be_deleted*':
@@ -677,6 +707,8 @@ def citydataToGeoJson2(obj_city):
 
 import boto3
 from botocore.client import Config
+from pathlib import Path
+from botocore.errorfactory import ClientError
 
 def get_s3_connection():
     key = getattr(djangoSettings, 'AWS_ACCESS_KEY_ID', None)
@@ -687,10 +719,10 @@ def get_s3_connection():
     print(secret)
     return boto3.client(
         's3',
-        'eu-central-1',
+        djangoSettings.AWS_S3_REGION_NAME,
         aws_access_key_id=key,
         aws_secret_access_key=secret,
-        config=Config(signature_version='s3v4')
+        config=Config(signature_version=djangoSettings.AWS_S3_SIGNATURE_VERSION)
         )
 
 
@@ -700,21 +732,25 @@ class GetS3SignedUrl(View):
     """
 
     def get(self, request, *args, **kwargs):
-        c = get_s3_connection()
+        s3 = get_s3_connection()
+
         file_name = request.GET.get('file_name')
-        username = request.GET.get('username')
-        #final_file_name = 'videos/{0}/{1}'.format(username, file_name)
-        final_file_name = 'media/citytree/images_tree/' + file_name
-        secondsPerDay = 24*60*60
-        #url = c.generate_url_sigv4(
-        #    secondsPerDay, "PUT", bucket=settings.S3_BUCKET_NAME, key=final_file_name, force_http=True)
+        #username = request.GET.get('username')
 
-        #url = c.generate_presigned_url('put_object',
-        #    Params={'Bucket': djangoSettings.AWS_STORAGE_BUCKET_NAME, 'Key': final_file_name, 'ContentType': 'image/jpeg'},
-        #    ExpiresIn=3600,
-        #    HttpMethod='PUT')
+        final_file_name = djangoSettings.AWS_LOCATION + '/' + user_directory_path(request, file_name)
 
-        url = c.generate_presigned_post(
+        print(final_file_name)
+
+        #check if file exists in bucket
+        is_file_exists = False
+        response = s3.list_objects_v2(Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME, Prefix=final_file_name)
+        for obj in response.get('Contents', []):
+            if obj['Key'] == final_file_name:
+                is_file_exists = True
+                break
+
+
+        url = s3.generate_presigned_post(
             Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME,
             Key=final_file_name,
             Fields={"acl": "public-read", "Content-Type": "image/jpeg"},
@@ -726,31 +762,11 @@ class GetS3SignedUrl(View):
         )
 
         print(final_file_name)
+        print(url)
 
-        out_url = 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name)
-
-        #json_send = json.dumps({'signed_request': url, 'url': out_url, 's3_key': final_file_name, 'status': 'ok'})
-        #return HttpResponse(json_send)
 
         return HttpResponse(json.dumps({
             'data': url,
-            'url': 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name)
+            'url': 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name),
+            'file_exists': is_file_exists
             }))
-
-class Makes3VideoPublic(View):
-    """
-    Make s3 video public
-    """
-    def post(self, request, *args, **kwargs):
-        post_data = request.POST
-        aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-        #conn = boto.connect_s3(aws_access_key_id, aws_secret_access_key)
-        #try:
-        #    bucket = conn.get_bucket(settings.S3_BUCKET_NAME, validate=True)
-        #except S3ResponseError:
-        #    bucket = conn.create_bucket(settings.S3_BUCKET_NAME)
-        #k = bucket.get_key(request.POST.get('s3_key'))
-        #k.make_public()
-        #print post_data
-        #return Response(post_data)

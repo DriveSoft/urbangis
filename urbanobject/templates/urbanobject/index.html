@@ -1,0 +1,488 @@
+{% extends 'urbanobject/base_urbanobject.html' %}
+{% load static %}
+
+
+{% block title %}
+Карта на градски обекти - {{ block.super }}
+{% endblock %}
+
+
+{% block meta %}
+<meta property="og:image" content="{% static "website/images/citytree.png" %}" />
+<meta property="og:type" content="website" />
+{% endblock %}
+
+
+<!-- меняет файл стиля для sidebar, т.к. в этом app он нужен более широкий -->
+{% block css_sidebar %}
+<link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">
+{% endblock %}
+
+
+
+{% block scriptfiles %}
+<script>
+    {% include 'urbanobject/includes/index.js' %}
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block sidebar %}
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation" id="tabFilter">
+        <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#id_filter" role="tab" aria-controls="id_filter" aria-selected="true">Търсене</a>
+    </li>
+    <li class="nav-item" role="presentation" id="id_tabUrbanobject" style="display: none">
+        <a class="nav-link" id="urbanobject-tab" data-toggle="tab" href="#id_urbanobject" role="tab" aria-controls="id_urbanobject" aria-selected="false">Обект</a>
+    </li>
+</ul>
+
+
+<div class="tab-content" id="myTabContent">
+
+    <div class="tab-pane fade show active m-3" id="id_filter" role="tabpanel" aria-labelledby="filter-tab">
+        <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_filter" data-trigger="focus">
+
+            <div class="form-group">
+
+                <label for="id_filter_category">Категории</label>
+                <div class="class_Filter_Species">
+
+                    <select name="categories" id="id_filter_category" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                        {% for cat in categories %}
+                        <option data-divider="true"></option>
+                        <option value="{{ cat.id }}" style="padding: .5rem 0.5rem;">{{ cat.catname }}</option>
+
+                        {% for subcat in cat.subcats.all %}
+                        <option value="_{{ subcat.id }}" data-subtext="{{ subcat.comment }}">{{ subcat.subcatname }}</option>
+                        {% endfor %}
+                        {% endfor %}
+                    </select>
+
+
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label for="id_filter_description">Описание</label>
+                <input type="text" class="form-control" name="description" id="id_filter_description">
+            </div>
+
+
+            <div class="form-group">
+                <label for="id_filter_comment">Коментар</label>
+                <input type="text" class="form-control" name="comment" id="id_filter_comment">
+            </div>
+
+
+            <div class="form-group">
+                <label for="id_filter_radius">Покажи радиус на обслужване</label>
+                <select name="species" id="id_filter_radius" class="form-control">
+                    <option selected></option>
+                    {% for item in radiusMode %}
+                    <option value="{{ item.radius }}">{{ item.description }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group form-check" style="margin-top: -15px;">
+                <input type="checkbox" class="form-check-input" id="id_filter_checkbox_rating_radius">
+                <label class="form-check-label" for="id_filter_checkbox_rating_radius">Вземи предвид рейтинг на обекта</label>
+            </div>
+
+
+            <div class="float-lg-right">
+                <button type="button" class="btn btn-light" id="reset_Filter">Изчисти</button>
+                <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Търси</button>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <div class="tab-pane fade ml-3 mr-1" id="id_urbanobject" role="tabpanel" aria-labelledby="urbanobject-tab">
+        <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_urbanobject">
+            <form action="{{ obj_city.get_absolute_url }}" method="post" id="id_form_urbanobject" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p> {{ formUrbanObject.errors }}</p>
+
+
+
+                <div class="form-row mb-4">
+                    <div class="col">
+                        <label class="col-form-label col-form-label-sm">Lat/Lng</label>&nbsp;<a href="#" id="id_edit_coord_link"><i class="fas fa-edit align-middle" id="id_edit_coord"></i></a>
+                    </div>
+                    <div class="col">
+                        <input type="number" name="latitude" id="id_latitude" class="form-control form-control-sm" step="any" style="min-width: 80px; max-width: 150px;" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" name="longitude" id="id_longitude" class="form-control form-control-sm" step="any" style="min-width: 80px; max-width: 150px;" required>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label class="required" for="id_category">Категория на обекта</label>
+                    <div class="class_Tree_Species">
+                        <select name="category" id="id_category" class="form-control" data-style="btn-outline-primary" title="Нищо не е избрано" required>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.catname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="id_subcategories">Подкатегории на обекта</label>
+                    <div class="class_Tree_Species">
+                        <select name="subcategories" id="id_subcategories" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                            {% for cat in categories %}
+                            <!-- <optgroup label="{{cat.catname}}"> -->
+                            {% for subcat in cat.subcats.all %}
+                            <option class="cat_id_{{ cat.id }} subcat-items" value="{{ subcat.id }}" data-subtext="{{ subcat.comment }}">{{ subcat.subcatname }}</option>
+                            {% endfor %}
+                            <!-- </optgroup>-->
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="id_description">Описание</label>
+                    <input type="text" class="form-control" name="description" id="id_description">
+                </div>
+
+
+                <div class="form-group">
+                    <label for="id_comment">Коментар</label>
+                    <textarea class="form-control" name="comment" id="id_comment" row="4"></textarea>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="id_googlestreeturl">Линк към Google Street View</label>
+                    <input type="text" class="form-control" name="googlestreeturl" id="id_googlestreeturl">
+                </div>
+
+                <div class="form-group">
+                    <label for="id_rating">Рейтинг</label>
+                    <input id="id_rating" name="rating" type="number" class="rating" data-size="lg" data-max="5" data-step="1" data-show-caption="false">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-4 align-self-end">
+                        <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo1" onclick="document.getElementById('id_photo1').click();">
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo1_filename').value='*will_be_deleted*'; $('#id_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                    </div>
+                    <div class="form-group col-4 align-self-end">
+                        <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo2" onclick="document.getElementById('id_photo2').click();">
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo2_filename').value='*will_be_deleted*'; $('#id_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                    </div>
+                    <div class="form-group col-4 align-self-end">
+                        <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo3" onclick="document.getElementById('id_photo3').click();">
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo3_filename').value='*will_be_deleted*'; $('#id_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                    </div>
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group col-4 text-center">
+                        <input type="file" accept="image/*" id="id_photo1" style="display: none;" onchange="document.getElementById('id_img_photo1').src = window.URL.createObjectURL(this.files[0])">
+                        <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo1').click();" /> -->
+
+                        <button class="btn btn-outline-secondary" id="id_photo1_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_photo1').click();">
+                            <span id="id_photo1_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Browse...
+                        </button>
+                        <input type="hidden" name="photo1_newname" id="id_photo1_new_name">
+                    </div>
+
+                    <div class="form-group col-4 text-center">
+                        <input type="file" accept="image/*" id="id_photo2" style="display: none;" onchange="document.getElementById('id_img_photo2').src = window.URL.createObjectURL(this.files[0])">
+                        <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo2').click();" /> -->
+                        <button class="btn btn-outline-secondary" id="id_photo2_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_photo2').click();">
+                            <span id="id_photo2_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Browse...
+                        </button>
+                        <input type="hidden" name="photo2_newname" id="id_photo2_new_name">
+                    </div>
+
+                    <div class="form-group col-4 text-center">
+                        <input type="file" accept="image/*" id="id_photo3" style="display: none;" onchange="document.getElementById('id_img_photo3').src = window.URL.createObjectURL(this.files[0])">
+                        <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo3').click();" /> -->
+                        <button class="btn btn-outline-secondary" id="id_photo3_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_photo3').click();">
+                            <span id="id_photo3_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Browse...
+                        </button>
+                        <input type="hidden" name="photo3_newname" id="id_photo3_new_name">
+                    </div>
+
+                </div>
+
+
+                <input type="hidden" id="id_photo1_filename" name="photo1_filename">
+                <input type="hidden" id="id_photo2_filename" name="photo2_filename">
+                <input type="hidden" id="id_photo3_filename" name="photo3_filename">
+
+                <input type="hidden" id="id_urbanObjectId" name="urbanObjectId">
+
+
+                <div class="form-row mt-4">
+                    <div class="form-group col-3 text-center">
+                        <button type="button" style="width: 100%" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Изтрий</button>
+                    </div>
+                    <div class="form-group col-3 text-center">
+                        <button type="button" style="width: 100%" class="btn btn-secondary" id="button_CloseTabUrbanObject">Изход</button>
+                    </div>
+                    <div class="form-group col-6 text-center">
+                        <button style="width: 100%; display: none;" type="submit" class="btn btn-primary" name="send" value="save" id="saveButtonSubmit">Запази</button>
+                        <!-- <button style="width: 100%" type="button" class="btn btn-primary" name="send" value="save" id="saveButton">Запази</button> -->
+
+                        <button class="btn btn-primary" id="saveButton" type="button" style="width: 100%">
+                            <span id="saveButtonLoading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Запази
+                        </button>
+
+
+                    </div>
+                </div>
+
+
+
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Изтриване</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Наистина ли искате да изтриете този обект?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block map %}
+
+<div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
+<button id="doneMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
+<button id="doneEditMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
+<button id="cancelMarkerMobile" class="btn btn-secondary" style="display: none">&#x2715;</button>
+
+
+
+{% comment %}
+<script>
+    {% include 'urbanobject/includes/index.js' %}
+</script>
+{% endcomment %}
+
+
+
+
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="id_SlideShow_Modal" style="z-index:1100">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div id="id_container_Modal">
+                <div id="id_carousel_Modal" class="carousel slide" data-ride="carousel" data-interval="false">
+                    <ol class="carousel-indicators"></ol>
+                    <div class="carousel-inner"></div>
+
+                    <a class="carousel-control-prev" href="#id_carousel_Modal" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Предишната</span>
+                    </a>
+                    <a class="carousel-control-next" href="#id_carousel_Modal" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Следваща</span>
+                    </a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="id_modalObjectInfo">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <span style="font-size: 1.5em; font-weight: bold;" class="modal-title" id="id_objectpreview_title_category">Category</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+
+            <div class="modal-body p-1 pt-3">
+
+                <div class="container">
+                    <div class="form-row">
+                        <div class="form-group col-lg-6">
+                            <!-- <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" style="width: 100%"> -->
+
+                            <div id="id_container_ObjectPreview">
+                                <div id="id_carousel_ObjectPreview" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <ol class="carousel-indicators"></ol>
+                                    <div class="carousel-inner"></div>
+
+                                    <a class="carousel-control-prev" href="#id_carousel_ObjectPreview" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Предишната</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#id_carousel_ObjectPreview" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Следваща</span>
+                                    </a>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px;">Информация за обект</h3>
+
+
+                            <div class="container">
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Категория</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_cat">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Подкатегории</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_subcats">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Описание</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_description">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Коментар</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_comment">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Google Street View</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_googlestreetview">col</div>
+                                </div>
+                                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                                    <div class="col-4 pl-1">Рейтинг</div>
+                                    <div class="col-8 pr-1" id="id_objectpreview_rating">
+                                        <input id="id_rating_preview" type="number" class="rating" data-display-only="true" data-size="md" data-max="5" data-step="1" data-show-caption="false">
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+
+                            <!--
+                            <h3 style="color: #56abb2; font-size: 2.4rem; font-weight: 300; line-height: 3rem; margin-bottom: 10px; margin-top: 30px;">Прегледи и дейности</h3>
+
+                            <div id="divTreeInspActData_PreviewTree">
+                                <table id="table_InspActData_PreviewTree" class="table-sm" data-sort-name="datetime" data-sort-order="desc">
+                                    <thead>
+                                    <tr>
+                                        <th data-field="datetime" data-formatter="dateFormatterPreview" data-sortable="true">Дата</th>
+                                        <th data-field="type" data-formatter="operateTranslater">Тип</th>
+                                        <th data-field="operate" data-formatter="operateFormatterPreview" data-events="operateEventsPreviewTree"></th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                                <script>
+                                    function dateFormatterPreview(value, row) {
+                                        return value.slice(0, 10)
+                                    }
+
+                                    function operateTranslater(value, row) {
+                                        if (value === "Inspection") { return "Преглед" }
+                                        if (value === "Action") { return "Дейност" }
+                                    }
+
+                                    function operateFormatterPreview(value, row, index) {
+                                        if (row.type=="Inspection" && (row.photo1 !=="" || row.photo2 !=="" || row.photo3 !=="")) {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>&nbsp;&nbsp;&nbsp;',
+                                                '<a class="photos" href="javascript:void(0)" title="Photos">',
+                                                '<i style="font-size:15pt" class="fa fa-camera"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        } else {
+                                            return [
+                                                '<a class="edit" href="javascript:void(0)" title="Edit">',
+                                                '<i style="font-size:15pt" class="fa fa-edit"></i>',
+                                                '</a>'
+                                            ].join('')
+                                        }
+                                    }
+                                </script>
+                            </div>-->
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="id_editButton_ObjectPreview">Редактиране</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" style="min-width: 150px">Затвори</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}

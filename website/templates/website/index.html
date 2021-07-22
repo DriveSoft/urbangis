@@ -1,0 +1,144 @@
+{% extends 'base_website.html' %}
+{% load static %}
+
+
+{% block title %}
+Градска информационна система
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+<header class="header d-flex flex-column justify-content-center align-items-center">
+  <div class="container">
+    <h1 class="display-3">Градска информационна система</h1>
+    <p class="lead">За интелигентни и устойчиви градове</p>
+  </div>
+</header>
+
+
+
+<section class="page-section maps" id="maps">
+  <div class="container">
+
+    <!-- About Section Heading -->
+    <h2 class="page-section-heading text-center text-uppercase">Карти</h2>
+
+    <div class="row">
+      <div class="col-lg-12">
+
+        <div class="card-deck">
+
+          <div class="card text-center">
+            <img src="{% static "website/images/citytree.svg" %}" class="card-img-top" alt="">
+            <div class="card-body">
+              <h5 class="card-title">Карта на градската дървесна растителност</h5>
+              <p class="card-text"><a class="btn btn-success" href="{% url 'website_citytree' %}" role="button">Подробности</a></p>
+              <div class="btn-group">
+                <button class="btn btn-secondary btn-sm dropdown-toggle btn-block" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Изберете град
+                </button>
+                <div class="dropdown-menu">
+
+                  {% for city in obj_all_cities %}
+                  <a class="dropdown-item" href="{% url 'citytree_map_url' city.sysname %}">{{ city.cityname }}</a>
+                  {% endfor %}
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="card text-center">
+            <img src="{% static "website/images/roadaccident.svg" %}" class="card-img-top" alt="">
+            <div class="card-body">
+              <h5 class="card-title">Карта за пътно транспортни произшествия</h5>
+              <p class="card-text"></p>
+              <div class="btn-group">
+                <button class="btn btn-secondary btn-sm dropdown-toggle btn-block" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Изберете град
+                </button>
+                <div class="dropdown-menu">
+
+                  {% for city in obj_all_cities %}
+                  <a class="dropdown-item" href="{% url 'roadaccident_map_url' city.sysname %}">{{ city.cityname }}</a>
+                  {% endfor %}
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="card text-center">
+            <img src="{% static "website/images/urbanobject.svg" %}" class="card-img-top p-3">
+            <div class="card-body">
+              <h5 class="card-title">Достъпността за социално важни обекти</h5>
+              <p class="card-text"></p>
+
+              <div class="btn-group">
+                <button class="btn btn-secondary btn-sm dropdown-toggle btn-block" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Изберете град
+                </button>
+                <div class="dropdown-menu">
+
+                  {% for city in obj_all_cities %}
+                  <a class="dropdown-item" href="{% url 'urbanobject_map_url' city.sysname %}">{{ city.cityname }}</a>
+                  {% endfor %}
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+
+          <div class="card text-center">
+            <img src="{% static "website/images/work-in-progress.jpg" %}" class="card-img-top">
+            <div class="card-body">
+              <h5 class="card-title">Карта за градска инфраструктура</h5>
+              <p class="card-text"></p>
+
+            </div>
+          </div>
+
+
+
+
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+
+
+<section class="page-section maps">
+  <div class="container">
+
+    <!-- About Section Heading -->
+    <h2 class="page-section-heading text-center text-uppercase mb-3">C подкрепата на:</h2>
+
+    <a href="http://geya.eu/" target="_blank"><img src="{% static 'images/partners/geya.png' %}"></a>
+
+
+  </div>
+</section>
+{% endblock %}
+
+
+{% block scripts %}
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+{% endblock %}

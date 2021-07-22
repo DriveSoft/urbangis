@@ -1,0 +1,726 @@
+{% extends 'base_website.html' %}
+{% load static %}
+
+
+{% block title %}
+Карта на градската дървесна растителност - {{ block.super }}
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+<header class="header d-flex flex-column justify-content-center align-items-center">
+  <div class="container">
+    <h1 class="display-3">Градска информационна система</h1>
+    <p class="lead">Карта на градската дървесна растителност</p>
+  </div>
+</header>
+
+
+
+
+
+<section class="page-section" id="maps">
+  <div class="container">
+
+    <h2 class="page-section-heading text-center text-uppercase mb-5">Най разпространени видове</h2>
+
+
+
+    <h3>Едролистна липа - <i>Tilia platyphyllos</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees1" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/tilia_platyphyllos1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/tilia_platyphyllos2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees1" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees1" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <h3 class="mt-5">Източен чинар - <i>Platanus orientalis</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees2" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/platanus_orientalis1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/platanus_orientalis2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/platanus_orientalis3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/platanus_orientalis4.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees2" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees2" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+    <h3 class="mt-5">Обикновен конски кестен - <i>Aesculus hippocastanum</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees3" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/aesculus_hippocastanum1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/aesculus_hippocastanum2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees3" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees3" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+    <h3 class="mt-5">Планински ясен - <i>Fraxinus excelsior</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees4" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/fraxinus_excelsior1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/fraxinus_excelsior2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/fraxinus_excelsior3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees4" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees4" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+    <h3 class="mt-5">Тришипна гледичия - <i>Gleditsia triacanthos</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees5" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/gleditsia_triacanthos1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/gleditsia_triacanthos2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/gleditsia_triacanthos3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/gleditsia_triacanthos4.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees5" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees5" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+    <h3 class="mt-5">Шестил - <i>Acer platanoides</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees6" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/acer_platanoides1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/acer_platanoides2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/acer_platanoides3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees6" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees6" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+    <h3 class="mt-5">Южна копривка - <i>Celtis australis</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees7" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/celtis_australis1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/celtis_australis2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/celtis_australis3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/celtis_australis4.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees7" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees7" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+    <h2 class="page-section-heading text-center text-uppercase mb-5 mt-5">Средно разпространени видове</h2>
+
+
+
+    <h3 class="mt-5">Двуделен гинко - <i>Ginkgo biloba</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees8" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/ginkgo_biloba1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/ginkgo_biloba2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees8" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees8" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+    <h3 class="mt-5">Едроцветна Магнолия - <i>Magnolia grandiflora</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees9" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/magnolia_grandiflora1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/magnolia_grandiflora2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees9" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees9" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+    <h3 class="mt-5">Пауловния - <i>Paulownia tomentosa</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees10" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="4"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="5"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/paulownia_tomentosa1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/paulownia_tomentosa2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/paulownia_tomentosa3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/paulownia_tomentosa4.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/paulownia_tomentosa5.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/paulownia_tomentosa6.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees10" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees10" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+    <h3 class="mt-5">Японска вишна - <i>Prunus serrulata</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees11" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/prunus_serrulata1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/prunus_serrulata2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees11" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees11" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <h2 class="page-section-heading text-center text-uppercase mb-5 mt-5">Вечнозелени видове</h2>
+
+
+
+
+    <h3 class="mt-5">Обикновен кипарис - <i>Cupressus sempervirens</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees12" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="4"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/cupressus_sempervirens1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/cupressus_sempervirens2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/cupressus_sempervirens3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/cupressus_sempervirens4.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/cupressus_sempervirens5.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees12" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees12" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+    <h3 class="mt-5">Морски бор - <i>Pinus pinaster</i></h3>
+
+    <div class="container-fluid px-0">
+      <div id="carouselTrees13" class="carousel slide" data-ride="carousel" data-interval="false">
+
+        <ol class="carousel-indicators">
+          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+        </ol>
+
+        <div class="carousel-inner bg-dark" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'citytree/images/species/pinus_pinaster1.jpg' %}" class="d-block"  style="max-height:100%; max-width:100%;">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/pinus_pinaster2.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="d-flex align-items-center justify-content-center" style="height: 90vh">
+              <img src="{% static 'images/loader.gif' %}" data-lazy-load-src="{% static 'citytree/images/species/pinus_pinaster3.jpg' %}" class="d-block" style="max-height:100%; max-width:100%;" alt="...">
+            </div>
+          </div>
+
+        </div>
+        <a class="carousel-control-prev" href="#carouselTrees13" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselTrees13" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+
+
+
+
+
+  </div>
+</section>
+{% endblock %}
+
+
+
+
+{% block scripts %}
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+<script>
+$('.carousel.slide').on('slide.bs.carousel', function(e) {
+  $(e.relatedTarget).find('img').each(function() {
+    var $this = $(this);
+    var src = $this.data('lazy-load-src');
+
+    if (typeof src !== "undefined" && src != "") {
+      $this.attr('src', src)
+      $this.data('lazy-load-src', '');  // clean up
+    }
+  });
+});
+</script>
+
+
+{% endblock %}
+
+
+

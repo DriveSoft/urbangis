@@ -1,0 +1,30 @@
+[  
+  {
+    "model": "roadaccident.Maneuver",
+    "pk": 1,
+    "fields": {
+      "maneuvername": "Ahead movement"
+    }
+  },
+  {
+    "model": "roadaccident.Maneuver",
+    "pk": 2,
+    "fields": {
+      "maneuvername": "Turn right"
+    }
+  },
+  {
+    "model": "roadaccident.Maneuver",
+    "pk": 3,
+    "fields": {
+      "maneuvername": "Turn left"
+    }
+  },
+  {  
+    "model": "roadaccident.Maneuver",
+    "pk": 4,
+    "fields": {
+      "maneuvername": "Backward movement"
+    }
+  }
+]

@@ -1,0 +1,493 @@
+{% extends 'roadaccident/base_ra.html' %}
+{% load static %}
+
+
+{% block title %}
+Карта за пътно транспортни произшествия - {{ block.super }}
+{% endblock %}
+
+
+{% block meta %}
+<meta property="og:image" content="{% static "website/images/roadaccident.png" %}" />
+<meta property="og:type" content="website" />
+{% endblock %}
+
+
+
+{% block scriptfiles %}
+<script>
+    {% include 'roadaccident/includes/index.js' %}
+</script>
+{% endblock %}
+
+
+
+{% block sidebar %}
+
+<style>
+  .cluster {
+    background: #2d84c8;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-weight: 700;
+    border: 1px solid #2d84c8;
+    font-family: monospace;
+  }
+
+  .cluster:before {
+    content: ' ';
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    border: 1px solid white;
+  }
+
+  .digits-1 {
+    font-size: 14px;
+    height: 28px;
+    width: 28px;
+    line-height: 28px;
+    margin-top: -14px;
+    margin-left: -14px;
+  }
+
+  .digits-2 {
+    font-size: 16px;
+    height: 34px;
+    width: 34px;
+    line-height: 35px;
+    margin-top: -17px;
+    margin-left: -17px;
+  }
+
+  .digits-2:before {
+    border-width: 2px;
+  }
+
+  .digits-3 {
+    font-size: 18px;
+    height: 48px;
+    width: 47px;
+    line-height: 47px;
+    border-width: 3px;
+    margin-top: -24px;
+    margin-left: -24px;
+  }
+
+  .digits-3:before {
+    border-width: 3px;
+  }
+
+  .digits-4 {
+    font-size: 18px;
+    height: 53px;
+    width: 53px;
+    line-height: 52px;
+    border-width: 4px;
+    margin-top: -29px;
+    margin-left: -29px;
+  }
+
+  .digits-4:before {
+    border-width: 3px;
+  }
+
+  .digits-5 {
+    font-size: 18px;
+    height: 58px;
+    width: 58px;
+    line-height: 57px;
+    border-width: 4px;
+    margin-top: -29px;
+    margin-left: -29px;
+  }
+
+  .digits-5:before {
+    border-width: 4px;
+  }
+</style>
+
+
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="filter-tab" data-toggle="tab" href="#filter" role="tab" aria-controls="filter" aria-selected="true">Търсене</a>
+        </li>
+        <li class="nav-item" role="presentation" id="tabAccident">
+            <a class="nav-link" id="accident-tab" data-toggle="tab" href="#accident" role="tab" aria-controls="accident" aria-selected="false">ПТП</a>
+        </li>
+    </ul>
+
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active m-3" id="filter" role="tabpanel" aria-labelledby="filter-tab">
+
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 130px);">
+
+
+                <div class="form-row">
+                    <div class="form-group col-sm-6">
+                        <label for="dateFrom">От</label>
+                        <input type="date" class="form-control" name="dateFrom" id="dateFrom" required>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="dateTo">До</label>
+                        <input type="date" class="form-control" name="dateTo" id="dateTo" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group" style="margin-top: -10px">
+                    <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range -->
+                    <input type="range" class="form-control-range" id="id_dateRange" min="2000" max="2021" value="2021">
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group col-sm-6">
+                        <label for="maneuver_Filter">Маньовър на МПС</label>
+                        <select name="maneuver_Filter" id="maneuver_Filter" class="form-control">
+                            <option selected></option>
+                            {% for item in maneuvers %}
+                            <option value="{{ item.id }}">{{ item.maneuvername }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="description_Filter">Описание</label>
+                        <input type="text" class="form-control" name="description_Filter" id="description_Filter" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="filter_violations_type">Вид на нарушение</label>
+                    <select name="violations_type" id="filter_violations_type" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                        {% for item in TypeViolation_dict %}
+                        <option value="{{ item.id }}">{{ item.violationname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filter_violators">Нарушители</label>
+                    <select name="violators" id="filter_violators" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                        {% for item in Violator_dict %}
+                        <option value="{{ item.id }}">{{ item.violatorname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+
+                <div class="card w-100 mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Пострадали</h6>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="driver_violation_Filter" id="drivers_injured_Filter">
+                            <label class="form-check-label" for="drivers_injured_Filter">Шофьор</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="motorcyclist_violation_Filter" id="motorcyclists_injured_Filter">
+                            <label class="form-check-label" for="motorcyclists_injured_Filter">Мотоциклист</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="cyclist_violation_Filter" id="cyclists_injured_Filter">
+                            <label class="form-check-label" for="cyclists_injured_Filter">Велосипедист</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="ped_injured_Filter">
+                            <label class="form-check-label" for="ped_injured_Filter">Пешеходец</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="kids_injured_Filter">
+                            <label class="form-check-label" for="kids_injured_Filter">Дете</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="pubtr_passengers_injured_Filter">
+                            <label class="form-check-label" for="pubtr_passengers_injured_Filter">Пътник на ГТ</label>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="card w-100 mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Убити</h6>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="driver_violation_Filter" id="drivers_killed_Filter">
+                            <label class="form-check-label" for="drivers_killed_Filter">Шофьор</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="motorcyclist_violation_Filter" id="motorcyclists_killed_Filter">
+                            <label class="form-check-label" for="motorcyclists_killed_Filter">Мотоциклист</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="cyclist_violation_Filter" id="cyclists_killed_Filter">
+                            <label class="form-check-label" for="cyclists_killed_Filter">Велосипедист</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="ped_killed_Filter">
+                            <label class="form-check-label" for="ped_killed_Filter">Пешеходец</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="kids_killed_Filter">
+                            <label class="form-check-label" for="kids_killed_Filter">Дете</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="pedestrian_violation_Filter" id="pubtr_passengers_killed_Filter">
+                            <label class="form-check-label" for="pubtr_passengers_killed_Filter">Пътник на ГТ</label>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="form-check mt-3 mb-3">
+                    <input class="form-check-input" type="checkbox" name="public_transport_involved_Filter" id="public_transport_involved_Filter">
+                    <label class="form-check-label" for="public_transport_involved_Filter">ГТ участва в ПТП</label>
+                </div>
+
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="filter_showOnlyMyAccidents">
+                    <label class="form-check-label" for="filter_showOnlyMyAccidents">Покажи ПТП добавени от мен</label>
+                </div>
+
+
+                <div class="float-lg-right">
+                    <button type="button" class="btn btn-light" id="reset_Filter">Изчисти</button>
+                    <button style="min-width: 150px;" type="button" class="btn btn-primary" id="apply_Filter">Търси</button>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="tab-pane fade m-3" id="accident" role="tabpanel" aria-labelledby="accident-tab">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 130px);">
+                <form action="{{ obj_city.get_absolute_url }}" method="post" >
+                    {% csrf_token %}
+
+                    <p> {{ form.errors }}</p>
+
+                    <div class="form-row mb-2">
+                        <div class="col">
+                            <label class="col-form-label col-form-label-sm">Lat/Lng</label>&nbsp;<a href="#" id="id_edit_coord_link"><i class="fas fa-edit align-middle" id="id_edit_coord" disabled></i></a>
+                        </div>
+
+                        <div class="col">
+                            <input type="number" name="latitude" id="latitude" class="form-control form-control-sm" step="any" required>
+                        </div>
+
+                        <div class="col">
+                            <input type="number" name="longitude" id="longitude" class="form-control form-control-sm" step="any" required>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea class="form-control" name="description" id="description" row="4"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-sm-7">
+                            <label class="required" for="datetime">Дата и час</label>
+                            <input type="datetime-local" class="form-control" name="datetime" id="datetime" required>
+                        </div>
+                        <div class="form-group col-sm-5">
+                            <label for="maneuver">Маньовър на МПС</label>
+                            <select name="maneuver" id="maneuver" class="form-control">
+                                <option selected></option>
+                                {% for item in maneuvers %}
+                                <option value="{{ item.id }}">{{ item.maneuvername }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                <div class="form-group">
+                    <label for="accident_violations_type">Вид на нарушение</label>
+                    <select name="violations_type" id="accident_violations_type" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                        {% for item in TypeViolation_dict %}
+                        <option value="{{ item.id }}">{{ item.violationname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="accident_violators">Нарушители</label>
+                    <select name="violators" id="accident_violators" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
+                        {% for item in Violator_dict %}
+                        <option value="{{ item.id }}">{{ item.violatorname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+
+
+                    <div class="form-row">
+                        <div class="col-2">
+                            <label class="col-form-label col-form-label-sm"></label>
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-car fa-lg" title="Шофьор и пътници"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Шофьор</label> -->
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-motorcycle fa-lg" title="Мотоциклист"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Мотоцик.</label>-->
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-bicycle fa-lg" title="Велосипедист"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Велосип.</label> -->
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-walking fa-lg" title="Пешеходец"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Пешеходец</label> -->
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-baby fa-lg" title="Дете"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Дете</label>-->
+                        </div>
+                        <div class="col d-flex justify-content-center">
+                            <i class="fas fa-bus-alt fa-lg" title="Пътник на градски транспорт"></i>
+                            <!-- <label class="col-form-label col-form-label-sm">Пътник на ГТ</label>-->
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-2">
+                            <label class="col-form-label col-form-label-sm">Постр:</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="drivers_injured" id="drivers_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="motorcyclists_injured" id="motorcyclists_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="cyclists_injured" id="cyclists_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="ped_injured" id="ped_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="kids_injured" id="kids_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="pubtr_passengers_injured" id="pubtr_passengers_injured" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row ">
+                        <div class="col-2">
+                            <label class="col-form-label col-form-label-sm">Убити:</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="drivers_killed" id="drivers_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="motorcyclists_killed" id="motorcyclists_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="cyclists_killed" id="cyclists_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="ped_killed" id="ped_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="kids_killed" id="kids_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control form-control-sm" name="pubtr_passengers_killed" id="pubtr_passengers_killed" value="0" min="0" max="99" onkeypress="return event.charCode >= 48" onkeyup="if(this.value>99){this.value=99}" required>
+                        </div>
+                    </div>
+
+
+                    <div class="form-check mt-3 mb-3">
+                        <input class="form-check-input" type="checkbox" name="public_transport_involved" id="public_transport_involved">
+                        <label class="form-check-label" for="public_transport_involved">
+                            ГТ участва в ПТП
+                        </label>
+                    </div>
+
+
+                    <input type="hidden" id="accidentId" name="accidentId">
+
+                    <div class="float-lg-right">
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Изтрий</button>
+                        <button type="button" class="btn btn-secondary" id="button_CloseTabAccident">Изход</button>
+                        <button style="min-width: 105px;" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Запази</button>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">Изтриване</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Наистина ли искате да изтриете този инцидент?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+
+
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block map %}
+
+<div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
+
+
+
+{% endblock %}

@@ -161,6 +161,15 @@ class Map(View):
 
 
 
+class ajaxSetMapName(View):
+    def get(self, request):
+
+        if request.is_ajax:
+            mapname = request.GET.get('mapname', 'Default')
+            request.session['mapname'] = mapname
+            return HttpResponse(status=200)
+
+
 
 
 def citydataToGeoJson(obj_city):

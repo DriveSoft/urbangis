@@ -245,17 +245,7 @@ let redIcon = new L.Icon({ // https://github.com/pointhi/leaflet-color-markers
 
 let MarkersObject = {};
 
-/*
-MarkersObject.object_garden = new L.Icon({
-  iconUrl: '{% static 'markers/object_garden.png' %}',
-  shadowUrl: '{% static 'markers/marker-shadow.png' %}',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
 
-*/
 
 
 // генерируем маркеры для каждой категории

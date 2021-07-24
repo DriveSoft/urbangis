@@ -10,6 +10,8 @@ urlpatterns = [
     path('website/citytree/', views.citytree, name="website_citytree"),
     path('website/citytree/trees/', views.trees, name="website_citytree_trees"),
 
+    path('website/urbanobject/', views.urbanobject, name="website_urbanobject"),
+
     path('register/', views.registerPage, name="register"),
     path('login/', views.loginPage, name="login"),
     path('logout/', views.logoutUser, name="logout"),

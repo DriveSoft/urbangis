@@ -836,7 +836,7 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
                         if (is_rating_object_involved) {
                             circleOpacity = (feature.properties.rating-1) * 0.15 + 0.2;
                         } else {
-                            circleOpacity = 0.8;
+                            circleOpacity = 0.5;
                         }
 
                         let circle = L.circle(latlng, { radius: document.getElementById("id_filter_radius").value,

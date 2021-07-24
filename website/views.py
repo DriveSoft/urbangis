@@ -36,6 +36,19 @@ def trees(request):
 
 
 
+def urbanobject(request):
+    #obj_all_cities = coreCity.objects.all().order_by('-population')
+    #context = {'obj_all_cities': obj_all_cities}
+
+    count_cities = coreCity.objects.count()
+    all_cities1 = coreCity.objects.all().order_by('-population')[:ceil(count_cities/2)]
+    all_cities2 = coreCity.objects.all().order_by('-population')[ceil(count_cities/2):]
+    context = {'all_cities1': all_cities1, 'all_cities2': all_cities2}
+
+    return render(request, 'website/urbanobject.html', context)
+
+
+
 
 
 

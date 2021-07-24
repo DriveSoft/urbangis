@@ -1,0 +1,187 @@
+{% extends 'base_website.html' %}
+{% load static %}
+
+
+{% block title %}
+Достъпността за социално важни обекти - {{ block.super }}
+{% endblock %}
+
+
+{% block meta %}
+<meta property="og:image" content="{% static "website/images/urbanobject.png" %}" />
+<meta property="og:type" content="website" />
+{% endblock %}
+
+
+
+{% block content %}
+
+<header class="header d-flex flex-column justify-content-center align-items-center">
+  <div class="container">
+    <h1 class="display-3">Градска информационна система</h1>
+    <p class="lead">Карта на достъпността за социално важни обекти</p>
+  </div>
+</header>
+
+
+
+
+<section class="page-section cities text-white mb-0" id="cities">
+  <div class="container">
+
+    <!-- About Section Heading -->
+    <h2 class="page-section-heading text-center text-uppercase text-white mb-5">Градове</h2>
+    <!-- About Section Content -->
+    <div class="row">
+
+      <div class="col-lg-4 ml-auto">
+        <ul class="list-group text-dark">
+          {% for city in all_cities1 %}
+          <a href="{% url 'urbanobject_map_url' city.sysname %}" class="list-group-item-action">
+          <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            {{ city.cityname }}
+            <span class="badge badge-primary badge-pill">{{ city.count_urbanobjects }}</span>
+          </li>
+          </a>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="col-lg-4 mr-auto">
+        <ul class="list-group text-dark">
+          {% for city in all_cities2 %}
+          <a href="{% url 'urbanobject_map_url' city.sysname %}" class="list-group-item-action">
+          <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            {{ city.cityname }}
+            <span class="badge badge-primary badge-pill">{{ city.count_urbanobjects }}</span>
+          </li>
+          </a>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+
+    <p class="text-center mt-3"><a href="mailto:drive.soft.mail@gmail.com">Пишете ни</a>, ако искате да добавите свой град.</p>
+
+  </div>
+</section>
+
+
+
+
+<section class="page-section" id="maps">
+  <div class="container">
+
+    <h2 class="page-section-heading text-center text-uppercase mb-5">Защо е необходима карта на достъпността за социално важни обекти</h2>
+
+    <div class="row">
+
+
+      <div class="col-lg-4 ml-auto">
+        <img src="{% static "website/images/urbanobject.svg" %}" alt="...">
+      </div>
+
+
+      <div class="col-lg-8 ml-auto">
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Позволява на града да планира дейностите по-ефективно, свързани със засаждания, санитарни резитби и лечение на дървесната растителност.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Насърчава градската администрация да обърне повече внимание на градската растителност.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Позволява анализ на данните за вземане на решения относно развитието на градската растителност.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Позволява да се намалят рисковете, свързани с опасни дървета, които могат да причинят материални щети или да представляват заплаха за живота и здравето на жителите на града.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Включва жителите в развитието на градската растителност.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Осигурява по-ефективен граждански контрол върху опазването на дърветата в града.</p>
+
+        <p class="card-text"><i class="fas fa-check-square" style="color: #9CC925;"></i>
+          Позволява на жителите да научат повече за градската растителност.</p>
+
+        <p class="card-text"><br><i class="fas fa-info-circle" style="color: #7BA60D;"></i>
+          В много градове вече има интерактивна карта на дърветата, създадена с помощта на доброволци. Защото тази задача е голяма и изисква общи усилия и упоритост.</p>
+
+        <p class="card-text">
+          Примери по света:<br>
+          <a href="https://maps.amsterdam.nl/bomen/" target="_blank">Amsterdam</a>,
+          <a href="https://fbinter.stadt-berlin.de/fb/index.jsp?loginkey=zoomStart&center=389555,5820133&width=1200&height=800&mapId=k_wfs_baumbestand@senstadt" target="_blank">Berlin</a>,
+          <a href="https://www.data.gv.at/katalog/dataset/stadt-wien_baumkatasterderstadtwien" target="_blank">Vienna</a>,
+          <a href="https://apps.london.gov.uk/street-trees" target="_blank">London</a>,
+          <a href="https://tree-map.nycgovparks.org/" target="_blank">New York</a>,
+          <a href="https://caseytrees.org/resources-list/d-c-street-trees-map/" target="_blank">Washington</a>,
+          <a href="http://melbourneurbanforestvisual.com.au/" target="_blank">Melbourn</a>,
+          <a href="http://www.stocktongov.com/discover/treemap.html" target="_blank">Stockton</a>,
+          <a href="https://www.nparks.gov.sg/treessg" target="_blank">Singapore</a>,
+          <a href="https://www.arcgis.com/apps/MapSeries/index.html?appid=a7072ffa326c4ef39a0f031961ebace6" target="_blank">Seattle</a>,
+          <a href="https://pg-cloud.com/Wisconsin/" target="_blank">Wisconsin</a>
+        </p>
+
+
+      </div>
+
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+<section class="page-section">
+  <div class="container text-center">
+
+    <!-- About Section Heading -->
+    <h2 class="page-section-heading text-center text-uppercase mb-5">Как работи</h2>
+    <!-- <div class="videoWrapper> -->
+    <div class="row">
+      <div class="col-12">
+        <iframe style="width: 75vw; height: 85vh;" src="https://www.youtube.com/embed/GkXyKjiwxPE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+
+
+<section class="page-section">
+  <div class="container">
+
+    <!-- About Section Heading -->
+    <h2 class="page-section-heading text-center text-uppercase mb-5">Полезни линкове</h2>
+
+    <ul>
+      <li><a href="{% url 'website_citytree_trees' %}" target="_blank">Най разпространени видове в България</a></li>
+      <li><a href="{% url 'open_data' city_name='varna' %}" target="_blank">Отворени данни за дървета във Варна</a></li>
+      <li><a href="https://play.google.com/store/apps/details?id=org.plantnet&hl=bg&gl=US" target="_blank">Приложение, което ви позволява да идентифицирате растенията просто като ги снимате с вашия смартфон.</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Tree_measurement" target="_blank">Tree measurement</a></li>
+
+
+    </ul>
+
+  </div>
+</section>
+{% endblock %}
+
+
+
+{% block scripts %}
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+{% endblock %}

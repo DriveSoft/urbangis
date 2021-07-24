@@ -977,15 +977,15 @@ mymap.on('click', onMapClick);
 
 
 input_photo1.onchange = function() {
-    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo1', 'saveButton');
+    OnChangeInputFileElementForResize(this, 1500, 'id_img_photo1', 'saveButton');
 }
 
 input_photo2.onchange = function() {
-    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo2', 'saveButton');
+    OnChangeInputFileElementForResize(this, 1500, 'id_img_photo2', 'saveButton');
 }
 
 input_photo3.onchange = function() {
-    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo3', 'saveButton');
+    OnChangeInputFileElementForResize(this, 1500, 'id_img_photo3', 'saveButton');
 }
 
 

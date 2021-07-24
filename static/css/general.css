@@ -97,7 +97,7 @@ label.required:after
 .marker-dot {
     height: 12px;
     width: 12px;
-    border:1px solid #000000AA;
+    /*border:1px solid #000000AA;*/
     border-radius: 50%;
     display: inline-block;
 }

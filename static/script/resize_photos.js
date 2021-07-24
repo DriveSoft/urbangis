@@ -22,6 +22,8 @@ function OnChangeInputFileElementForResize(inputElement, maxWidth, idImagePrevie
         )
         .then(function (blob) {
           document.getElementById(idImagePreview).src = URL.createObjectURL(blob);
+          //document.getElementById(idPhotoNFilename).value = ""; // чтобы удалить оттуда *will_be_deleted*, например пользователь сперва очищает рисунок, затем загружает
+
 
           const resizedFile = new File([blob], inputElement.files[0].name, inputElement.files[0])
           let listFile = [];

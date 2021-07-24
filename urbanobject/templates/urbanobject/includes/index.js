@@ -569,23 +569,26 @@ function EditUrbanObject (geojson) {
         //document.getElementById("id_photo1_filename").value = "{% get_media_prefix %}"+geojson.properties.photo1;
     } else {
         $("#id_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
-        document.getElementById("id_photo1_filename").value = "";
+        //document.getElementById("id_photo1_filename").value = "";
+        document.getElementById("id_photo1_new_name").value = "";
     }
 
     if (geojson.properties.photo2 !== "") {
         $("#id_img_photo2").attr("src", "{% get_media_prefix%}"+geojson.properties.photo2);
-        document.getElementById("id_photo2_filename").value = "{% get_media_prefix %}"+geojson.properties.photo2;
+        //document.getElementById("id_photo2_filename").value = "{% get_media_prefix %}"+geojson.properties.photo2;
     } else {
         $("#id_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-        document.getElementById("id_photo2_filename").value = "";
+        //document.getElementById("id_photo2_filename").value = "";
+        document.getElementById("id_photo2_new_name").value = "";
     }
 
     if (geojson.properties.photo3 !== "") {
         $("#id_img_photo3").attr("src", "{% get_media_prefix%}"+geojson.properties.photo3);
-        document.getElementById("id_photo3_filename").value = "{% get_media_prefix %}"+geojson.properties.photo3;
+        //document.getElementById("id_photo3_filename").value = "{% get_media_prefix %}"+geojson.properties.photo3;
     } else {
         $("#id_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-        document.getElementById("id_photo3_filename").value = "";
+        //document.getElementById("id_photo3_filename").value = "";
+        document.getElementById("id_photo3_new_name").value = "";
     }
 
 
@@ -1155,6 +1158,7 @@ document.onreadystatechange = function(){
             $('#saveButtonSubmit').click();
 
         } else {
+
             if(myFile1[0] && $('#id_photo1_browse_button').text() !== 'Done'){
                 let data1 = {file_name: myFile1[0].name};
                 $('#id_photo1_loading').show();

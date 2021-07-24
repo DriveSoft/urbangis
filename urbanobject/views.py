@@ -73,24 +73,33 @@ class Map(View):
                         # имя файла береться из photoN_newname, т.к. в POST запросе файлы на сервер не передаются
                         photo1_newname = request.POST.get('photo1_newname')
                         if photo1_newname:
-                            obj_urbanobject.photo1.name = user_directory_path(request, photo1_newname)
+                            if photo1_newname == '*will_be_deleted*':
+                                obj_urbanobject.photo1 = ''
+                            else:
+                                obj_urbanobject.photo1.name = user_directory_path(request, photo1_newname)
 
                         photo2_newname = request.POST.get('photo2_newname')
                         if photo2_newname:
-                           obj_urbanobject.photo2.name = user_directory_path(request, photo2_newname)
+                            if photo2_newname == '*will_be_deleted*':
+                                obj_urbanobject.photo2 = ''
+                            else:
+                                obj_urbanobject.photo2.name = user_directory_path(request, photo2_newname)
 
                         photo3_newname = request.POST.get('photo3_newname')
                         if photo3_newname:
-                            obj_urbanobject.photo3.name = user_directory_path(request, photo3_newname)
+                            if photo3_newname == '*will_be_deleted*':
+                                obj_urbanobject.photo3 = ''
+                            else:
+                                obj_urbanobject.photo3.name = user_directory_path(request, photo3_newname)
 
 
                         # for deleting photos
-                        if request.POST.get('photo1_filename') == '*will_be_deleted*':
-                            obj_urbanobject.photo1 = '' #obj_insp.photo1.delete()
-                        if request.POST.get('photo2_filename') == '*will_be_deleted*':
-                            obj_urbanobject.photo2 = ''
-                        if request.POST.get('photo3_filename') == '*will_be_deleted*':
-                            obj_urbanobject.photo3 = ''
+                        #if request.POST.get('photo1_filename') == '*will_be_deleted*':
+                        #    obj_urbanobject.photo1 = '' #obj_insp.photo1.delete()
+                        #if request.POST.get('photo2_filename') == '*will_be_deleted*':
+                        #    obj_urbanobject.photo2 = ''
+                        #if request.POST.get('photo3_filename') == '*will_be_deleted*':
+                        #    obj_urbanobject.photo3 = ''
 
 
                         obj_urbanobject = bound_form_urbanobject.save()

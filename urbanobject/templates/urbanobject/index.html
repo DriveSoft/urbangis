@@ -21,6 +21,11 @@
 
 
 {% block scriptfiles %}
+
+<!-- client resize photos -->
+<script src="{% static 'script/image-blob-reduce.js' %}"></script>
+<script src="{% static 'script/resize_photos.js' %}"></script>
+
 <script>
     {% include 'urbanobject/includes/index.js' %}
 </script>
@@ -204,8 +209,9 @@
 
                 <div class="form-row">
                     <div class="form-group col-4 text-center">
-                        <input type="file" accept="image/*" id="id_photo1" style="display: none;" onchange="document.getElementById('id_img_photo1').src = window.URL.createObjectURL(this.files[0])">
-                        <!-- <input type="button" value="Browse..." style="width: 100%" class="btn btn-outline-secondary" onclick="document.getElementById('id_first_insp_photo1').click();" /> -->
+                        <input type="file" accept="image/*" id="id_photo1" style="display: none;">
+                        <!-- <input type="file" accept="image/*" id="id_photo1" style="display: none;" onchange="document.getElementById('id_img_photo1').src = window.URL.createObjectURL(this.files[0])"> -->
+
 
                         <button class="btn btn-outline-secondary" id="id_photo1_browse_button" type="button" style="width: 100%" onclick="document.getElementById('id_photo1').click();">
                             <span id="id_photo1_loading" style="display: none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -310,13 +316,6 @@
 <button id="doneEditMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
 <button id="cancelMarkerMobile" class="btn btn-secondary" style="display: none">&#x2715;</button>
 
-
-
-{% comment %}
-<script>
-    {% include 'urbanobject/includes/index.js' %}
-</script>
-{% endcomment %}
 
 
 

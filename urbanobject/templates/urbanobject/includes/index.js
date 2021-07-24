@@ -6,6 +6,9 @@ let button_filter = document.getElementById('apply_Filter');
 let button_reset = document.getElementById('reset_Filter');
 let button_closeTabUrbanObject = document.getElementById('button_CloseTabUrbanObject');
 
+let input_photo1 = document.getElementById('id_photo1');
+let input_photo2 = document.getElementById('id_photo2');
+let input_photo3 = document.getElementById('id_photo3');
 
 let markers;
 let markers_is_dot
@@ -968,6 +971,22 @@ function Slideshow_Inspection_show(row) {
 
 
 mymap.on('click', onMapClick);
+
+
+
+
+
+input_photo1.onchange = function() {
+    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo1', 'saveButton');
+}
+
+input_photo2.onchange = function() {
+    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo2', 'saveButton');
+}
+
+input_photo3.onchange = function() {
+    OnChangeInputFileElementForResize(this, 2000, 'id_img_photo3', 'saveButton');
+}
 
 
 //=== UTILS ============================================================================================================

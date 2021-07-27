@@ -796,7 +796,9 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
 
             if (filterEnabled) {
 
-                let catsubcategories_values = $('#id_filter_category').val();
+                //let catsubcategories_values = $('#id_filter_category').val();
+                let catsubcategories_values = $('#id_filter_category').jstree(true).get_selected()
+
                 let description_value = document.getElementById("id_filter_description").value;
                 let comment_value = document.getElementById("id_filter_comment").value;
                 let is_rating_object_involved = $('#id_filter_checkbox_rating_radius').prop('checked');
@@ -824,7 +826,7 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
                     // проверяем,пересекаются ли два массива
                     let intersection = catsubcategories_values.filter(x => feature.properties.catsubcategories.includes(x));
                     catsubcategories_values_Filter = intersection.length > 0;
-                    console.log(catsubcategories_values);
+
                 }
 
                 let result = catsubcategories_values_Filter && description_Filter && comment_Filter;
@@ -840,7 +842,7 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
                         let circleOpacity;
 
                         if (is_rating_object_involved) {
-                            circleOpacity = (feature.properties.rating-1) * 0.15 + 0.2;
+                            circleOpacity = (feature.properties.rating-1) * 0.17 + 0.1;
                         } else {
                             circleOpacity = 0.5;
                         }
@@ -886,10 +888,13 @@ button_filter.onclick = function() {
     if (IS_MOBILE) {
         CloseSidebar();
     }
+
+
 }
 
 button_reset.onclick = function() {
-    $('#id_filter_category').selectpicker('deselectAll');
+    //$('#id_filter_category').selectpicker('deselectAll');
+    $('#id_filter_category').jstree(true).deselect_all();
     $('#id_filter_radius').value = 0;
 
     document.getElementById("id_filter_description").value = '';
@@ -1135,7 +1140,7 @@ document.onreadystatechange = function(){
 
         $.getJSON("{% url 'urbanobject_geojson_get' city_name=obj_city.sysname %}", function(json) {
             urbanObjectsData = json;
-            LoadUrbanObjectsToMap(true, false);
+            LoadUrbanObjectsToMap(true, true);
         });
 
 
@@ -1218,101 +1223,65 @@ document.onreadystatechange = function(){
    });
 
 
+    //$('#jstree2').jstree(true).get_selected()
+    $('#id_filter_category').jstree({'plugins':["wholerow","checkbox"], "checkbox":{"three_state": false},
+                            'core' : {
+								'data' : [
+
+                                    {% for cat in categories %}
+                                    {
+                                        "text" : "<big>{{ cat.catname }}</big>",  "icon": "{{ cat.icon }}", "id": "{{ cat.id }}",
+                                        "children" : [
+                                        {% for subcat in cat.subcats.all %}
+                                            { "text" : "{{ subcat.subcatname }} <span style='color: #aaaaaa'><small>({{ subcat.comment }})</small></span>", "icon" : "{{ cat.icon }}", "id": "_{{ subcat.id }}" },
+                                        {% endfor %}
+                                        ]
+
+                                    },
+                                    {% endfor %}
+
+								]
+							}});
+
+
+$('#id_filter_category')
+  // listen for event
+  .on('changed.jstree', function (e, data) {
+        //alert('dfg')
+  })
+
+$('#id_filter_category')
+    .on('loaded.jstree', function (e, data) {
+        {% for cat in categories %}
+        $("#{{ cat.id }}").css("background-color","#{{ cat.markercolor|truncatechars:6 }}40");
+        {% endfor %}
+
+        data.instance.select_node('3');
+        data.instance.select_node('4');
+    })
 
 
 
-/*
-    $('#saveInspButton').click(function(){
-
-        // Get the file from frontend
-   	    let myFile1 = $('#id_insp_photo1').prop('files');
-   	    let myFile2 = $('#id_insp_photo2').prop('files');
-   	    let myFile3 = $('#id_insp_photo3').prop('files');
-
-   	    if ( $('#id_insp_photo1_filename').val() === '*will_be_deleted*' ) {
-   	        $('#id_insp_photo1').val('');
-   	    }
-
-   	    if ( $('#id_insp_photo2_filename').val() === '*will_be_deleted*' ) {
-   	        $('#id_insp_photo2').val('');
-   	    }
-
-   	    if ( $('#id_insp_photo3_filename').val() === '*will_be_deleted*' ) {
-   	        $('#id_insp_photo3').val('');
-   	    }
-
-        // если во всех нету файла или он уже загружен, тогда кликаем submit
-        if ( (!myFile1[0] || $('#id_insp_photo1_browse_button').text() === 'Done') &&
-             (!myFile2[0] || $('#id_insp_photo2_browse_button').text() === 'Done') &&
-             (!myFile3[0] || $('#id_insp_photo3_browse_button').text() === 'Done') ){
-
-            $('#saveInspButtonSubmit').click();
-
-        } else {
-            if(myFile1[0] && $('#id_insp_photo1_browse_button').text() !== 'Done'){
-                let data1 = {file_name: myFile1[0].name};
-                $('#id_insp_photo1_loading').show();
-                StartUpload(myFile1, data1, 'id_insp_photo1');
-            }
-
-            if(myFile2[0] && $('#id_insp_photo2_browse_button').text() !== 'Done'){
-                let data2 = {file_name: myFile2[0].name};
-                $('#id_insp_photo2_loading').show();
-                StartUpload(myFile2, data2, 'id_insp_photo2');
-            }
-
-            if(myFile3[0] && $('#id_insp_photo3_browse_button').text() !== 'Done'){
-                let data3 = {file_name: myFile3[0].name};
-                $('#id_first_insp_photo3_loading').show();
-                StartUpload(myFile3, data3, 'id_insp_photo3');
-            }
+$('#id_filter_category')
+  .on('select_node.jstree', function (e, data) {
+          // снимаем чекбокс для родительского элемента, если чакаем дочерний
+        if (data.node.id.charAt(0) === '_') {
+            data.instance.deselect_node(data.node.parent);
+        } else { // снимаем чекбоксы с дочерних элементов, если родительский чекнут
+            data.instance.deselect_node(data.node.children);
         }
-
-
-        function StartUpload(fileObj, data, idElement) {
-            SetStateSaveButton('saveInspButton', false, 'Запази');
-            $('#'+idElement+'_new_name').val(data.file_name);
-
-            $.ajax({
-                type: "GET",
-                url: "{% url 'generate_signed_url' %}",
-                data: data,
-                async: true,
-                timeout: 15000,
-                success: function(response){
-                    let responseData = jQuery.parseJSON(response);
-                    if (responseData.file_exists === false) {
-                        uploadFile(fileObj[0], responseData.data, responseData.final_file_name, idElement, 'saveInspButtonSubmit');
-                    } else {
-                        let rndStr = makeRandomStr(5);
-                        //$('#'+idElement+'_new_name').val(rndStr+'_'+ fileObj[0].name);
-                        let data_new = {file_name: rndStr + '_' + fileObj[0].name};
-                        StartUpload(fileObj, data_new, idElement);
-                    }
-
-                },
-
-                error: function(){
-                    SetStateSaveButton('saveInspButton', true, 'Запази');
-                    $('#'+idElement+'_loading').hide();
-                    $('#'+idElement+'_browse_button').html('Browse...');
-                    alert('Error: generate_presigned_post');
-                },
-
-
-            });
-        }
-
-
-   }); */
-
-
+  })
 
 
 
 
    }
 }
+
+
+
+
+
 
 
 
@@ -1415,7 +1384,7 @@ function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
   function updateProgress (ev) {
         if (ev.lengthComputable) {
             var percentComplete = Math.round((ev.loaded / ev.total) * 100);
-            console.log(percentComplete);
+
             $('#'+idElement+'_browse_button').html(percentComplete+'%');
         }
   }

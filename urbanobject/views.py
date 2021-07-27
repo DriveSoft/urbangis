@@ -19,7 +19,7 @@ class Map(View):
         obj_city = get_object_or_404(City, sysname__iexact=city_name)
         #urbanObject_data = urbanObject.objects.filter(city_id=obj_city.id)
         categories = catObject.objects.all().order_by('catname')
-        radiusMode = RadiusTransportMode.objects.all()
+        radiusMode = RadiusTransportMode.objects.all().order_by('radius')
         obj_all_cities = City.objects.all().order_by('-population')
 
         formUrbanObject = urbanObjectForm()

@@ -16,6 +16,8 @@
 <!-- меняет файл стиля для sidebar, т.к. в этом app он нужен более широкий -->
 {% block css_sidebar %}
 <link rel="stylesheet" href="{% static 'css/sidebar_citytree.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/themes/default/style.min.css" integrity="sha512-P8BwDSUInKMA7I116Z1RFg/Dfk85uFdliEUYO7vQlwtxLVMNvZimfMAQsaf++9EhlAGOVX6yhDQAIY3/70jDUg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/urbanobject.css' %}">
 {% endblock %}
 
 
@@ -25,6 +27,8 @@
 <!-- client resize photos -->
 <script src="{% static 'script/image-blob-reduce.js' %}"></script>
 <script src="{% static 'script/resize_photos.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/jstree.min.js" integrity="sha512-bU6dl4fd2XN3Do3aWypPP2DcKywDyR3YlyszV+rOw9OpglrGyBs6TyTsbglf9umgE+sy+dKm1UHhi07Lv+Vtfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
     {% include 'urbanobject/includes/index.js' %}
@@ -60,6 +64,7 @@
                 <label for="id_filter_category">Категории</label>
                 <div class="class_Filter_Species">
 
+                    <!--
                     <select name="categories" id="id_filter_category" class="form-control selectpicker" data-style="btn-outline-primary" title="Нищо не е избрано" multiple>
                         {% for cat in categories %}
                         <option data-divider="true"></option>
@@ -69,10 +74,18 @@
                         <option value="_{{ subcat.id }}" data-subtext="{{ subcat.comment }}">{{ subcat.subcatname }}</option>
                         {% endfor %}
                         {% endfor %}
-                    </select>
+                    </select>-->
+
+
+                    <div id="id_filter_category"></div>
 
 
                 </div>
+
+
+
+
+
             </div>
 
 
@@ -111,9 +124,6 @@
 
         </div>
     </div>
-
-
-
 
 
 

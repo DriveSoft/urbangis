@@ -1224,13 +1224,13 @@ document.onreadystatechange = function(){
 
 
     //$('#jstree2').jstree(true).get_selected()
-    $('#id_filter_category').jstree({'plugins':["wholerow","checkbox"], "checkbox":{"three_state": false},
+    $('#id_filter_category').jstree({'plugins':["wholerow","checkbox"], "checkbox":{"three_state": false, "keep_selected_style": false},
                             'core' : {
 								'data' : [
 
                                     {% for cat in categories %}
                                     {
-                                        "text" : "<big>{{ cat.catname }}</big>",  "icon": "{{ cat.icon }}", "id": "{{ cat.id }}",
+                                        "text" : "<big>{{ cat.catname }}</big>",  "icon": "{{ cat.icon }}", "id": "{{ cat.id }}", "state": {"selected": true},
                                         "children" : [
                                         {% for subcat in cat.subcats.all %}
                                             { "text" : "{{ subcat.subcatname }} <span style='color: #aaaaaa'><small>({{ subcat.comment }})</small></span>", "icon" : "{{ cat.icon }}", "id": "_{{ subcat.id }}" },
@@ -1256,8 +1256,8 @@ $('#id_filter_category')
         $("#{{ cat.id }}").css("background-color","#{{ cat.markercolor|truncatechars:6 }}40");
         {% endfor %}
 
-        data.instance.select_node('3');
-        data.instance.select_node('4');
+        //data.instance.select_node('3');
+        //data.instance.select_node('4');
     })
 
 

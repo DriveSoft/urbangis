@@ -606,8 +606,29 @@ function markerOnClick(e)
             $("#id_treepreview_height").text(obj_tree.fields.lastinsp_height);
             $("#id_treepreview_crown").text(obj_tree.fields.lastinsp_crowndiameter);
             $("#id_treepreview_trunk").text(obj_tree.fields.lastinsp_trunkgirth);
+
+
             $("#id_treepreview_remarks").text(obj_tree.fields.lastinsp_remarks);
+            if (obj_tree.fields.lastinsp_remarks) {
+                $("#id_div_treepreview_remarks").show();
+            } else {
+                $("#id_div_treepreview_remarks").hide();
+            }
+
             $("#id_treepreview_recommends").text(obj_tree.fields.lastinsp_recommendations);
+            if (obj_tree.fields.lastinsp_recommendations) {
+                $("#id_div_treepreview_recommends").show();
+            } else {
+                $("#id_div_treepreview_recommends").hide();
+            }
+
+            if (obj_tree.fields.googlestreeturl) {
+                $("#id_treepreview_googlestreetview").html('<a href="'+obj_tree.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+                $("#id_div_treepreview_googlestreetview").show();
+            } else {
+                $("#id_treepreview_googlestreetview").html('');
+                $("#id_div_treepreview_googlestreetview").hide();
+            }
 
             //console.log(obj_tree.fields.species);
             //console.log(obj.fields.localname);

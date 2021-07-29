@@ -453,15 +453,35 @@ function markerOnClick(e)
 
             $("#id_objectpreview_title_category").text(obj_UrbanObject.fields.category);
             $("#id_objectpreview_cat").text(obj_UrbanObject.fields.category);
+
             $("#id_objectpreview_subcats").text(obj_UrbanObject.fields.subcategories_text);
+            if (obj_UrbanObject.fields.subcategories_text) {
+                $("#id_div_objectpreview_subcats").show();
+            } else {
+                $("#id_div_objectpreview_subcats").hide();
+            }
 
             $("#id_objectpreview_description").text(obj_UrbanObject.fields.description);
+            if (obj_UrbanObject.fields.description) {
+                $("#id_div_objectpreview_description").show();
+            } else {
+                $("#id_div_objectpreview_description").hide();
+            }
+
             $("#id_objectpreview_comment").text(obj_UrbanObject.fields.comment);
+            if (obj_UrbanObject.fields.comment) {
+                $("#id_div_objectpreview_comment").show();
+            } else {
+                $("#id_div_objectpreview_comment").hide();
+            }
+
 
             if (obj_UrbanObject.fields.googlestreeturl) {
                 $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+                $("#id_div_objectpreview_googlestreetview").show();
             } else {
                 $("#id_objectpreview_googlestreetview").html('');
+                $("#id_div_objectpreview_googlestreetview").hide();
             }
 
             if (obj_UrbanObject.fields.rating == 0) { // чтобы показывать надпись not rated

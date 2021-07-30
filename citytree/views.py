@@ -24,7 +24,7 @@ import datetime
 
 
 class Map(View):
-    def get(self, request, city_name):
+    def get(self, request, city_name, tree_id=0):
         obj_city = get_object_or_404(City, sysname__iexact=city_name)
 
         #tree_data = Tree.objects.filter(city_id=obj_city.id).select_related('lastinsp_status')
@@ -57,7 +57,7 @@ class Map(View):
         context = {'formTree': formTree, 'formInspection': formInspection, 'formAction': formAction, 'obj_all_cities': obj_all_cities,
                    'placetype': placetype, 'obj_city': obj_city, 'irrigationmethod': irrigationmethod,
                    'caretype': caretype, 'status': status, 'remark': remark, 'species_by_group': species_by_group,
-                   'tree_data': tree_data, 'lat': request.GET.get('lat'), 'lng': request.GET.get('lng')}
+                   'tree_data': tree_data, 'tree_id': tree_id, 'lat': request.GET.get('lat'), 'lng': request.GET.get('lng')}
 
         return render(request, 'citytree/index.html', context=context)
 
@@ -408,11 +408,13 @@ class ajaxGetTree(View):
             sRemarks = ', '.join(obj_tree.lastinsp_remarks.values_list('remarkname', flat=True))
             sRecommendations = ', '.join(obj_tree.lastinsp_recommendations.values_list('carename', flat=True))
 
+            struct[0]["fields"]["species_id"] = struct[0]["fields"]["species"]
             struct[0]["fields"]["species"] = obj_species.speciesname
             struct[0]["fields"]["localname"] = obj_species.localname
             struct[0]["fields"]["lastinsp_status"] = obj_status.statusname
             struct[0]["fields"]["lastinsp_remarks"] = sRemarks
             struct[0]["fields"]["lastinsp_recommendations"] = sRecommendations
+            struct[0]["fields"]["id"] = obj_tree.id
 
             json_send = json.dumps(struct[0], ensure_ascii=False)
             return JsonResponse(json_send, safe=False, status=200)

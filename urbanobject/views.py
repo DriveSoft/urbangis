@@ -15,7 +15,7 @@ from .models import *
 
 
 class Map(View):
-    def get(self, request, city_name):
+    def get(self, request, city_name, object_id=0):
         obj_city = get_object_or_404(City, sysname__iexact=city_name)
         #urbanObject_data = urbanObject.objects.filter(city_id=obj_city.id)
         categories = catObject.objects.all().order_by('catname')
@@ -33,7 +33,9 @@ class Map(View):
                    'formUrbanObject': formUrbanObject,
 
                    'lat': request.GET.get('lat'),
-                   'lng': request.GET.get('lng')
+                   'lng': request.GET.get('lng'),
+
+                   'object_id': object_id
                    }
 
         return render(request, 'urbanobject/index.html', context)
@@ -325,8 +327,10 @@ class getUrbanObject(View):
             obj_category = catObject.objects.get(pk=idFK_category)
             sSubcats = ', '.join(obj_urbanObject.subcategories.values_list('subcatname', flat=True))
 
+            struct[0]["fields"]["category_id"] = struct[0]["fields"]["category"]
             struct[0]["fields"]["category"] = obj_category.catname
             struct[0]["fields"]["subcategories_text"] = sSubcats
+            struct[0]["fields"]["id"] = obj_urbanObject.id
 
             json_send = json.dumps(struct[0], ensure_ascii=False)
             return JsonResponse(json_send, safe=False, status=200) #, json_dumps_params={'ensure_ascii': False}

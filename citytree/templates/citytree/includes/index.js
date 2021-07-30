@@ -16,6 +16,8 @@ var markers;
 var ajax_geojson;
 var idsFromDB = []; // храним id маркеров деревьев, которые пришли из базы, чтобы исключитть эти маркеры из ajax_geojson
 
+let baseURL = '/citytree/{{obj_city.sysname}}/'; // for html5 history API
+
 
 
 
@@ -576,27 +578,58 @@ function buttonCancelMarkerMobileOnClick(e) {
 var selectedMarker;
 function markerOnClick(e)
 {
-  let marker = e.target;
-  let geojson = marker.toGeoJSON();
+    let marker = e.target;
+    let geojson = marker.toGeoJSON();
 
-  if (selectedMarker) {
-    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
-  }
+    if (selectedMarker) { // снимаем выделение с предыдущего
+        selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+    }
 
-  marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
-  selectedMarker = marker;
+    marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+    selectedMarker = marker;
 
-  // delete previous marker if exists
-  mymap.removeLayer(newMarker);
+    // delete previous marker if exists
+    mymap.removeLayer(newMarker);
+
+    history.pushState({page: "treepreview", treeId: geojson.properties.id}, null, baseURL+"tree/"+geojson.properties.id+"/");
+    //ShowTreePreview(geojson.properties.id);
+
+    getAsyncObjectTree(geojson.properties.id, ShowTreePreview);
+}
 
 
+function selectMarker (id) {
+    markers.eachLayer(function (marker) {
+        let geojson = marker.toGeoJSON();
+
+        if (geojson.properties.id == id) {
+            if (selectedMarker) { // снимаем выделение с предыдущего
+                selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+            }
+
+            marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+            selectedMarker = marker;
+        }
+
+    });
+}
+
+
+function getAsyncObjectTree(id, callback){
     $.ajax({
         url: "{% url 'get_tree' %}",
-        //data: {'idtree': document.getElementById("treeId").value},
-        data: {'idtree': geojson.properties.id},
+        data: {'idtree': id},
         dataType: 'json',
         success: function (jsonResult) {
             let obj_tree = jQuery.parseJSON(jsonResult);
+            callback(obj_tree);
+        }
+  });
+}
+
+
+
+function ShowTreePreview(obj_tree) {
 
 
             $("#id_treepreview_title_local_name").text(obj_tree.fields.localname);
@@ -630,44 +663,213 @@ function markerOnClick(e)
                 $("#id_div_treepreview_googlestreetview").hide();
             }
 
-            //console.log(obj_tree.fields.species);
-            //console.log(obj.fields.localname);
-
-        }
-      });
-
-
-  $('#modalTreeInfo').modal('show');
-
-
-  document.getElementById("treeId").value = geojson.properties.id;
-  Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
-
-
-  let photo1 = "";
-  let photo2 = "";
-  let photo3 = "";
-
-  if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
-  if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
-  if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
-
-  if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
-
-  ShowSlideShow(photo1, photo2, photo3, "TreePreview")
 
 
 
-  let editButton_TreePreview = document.getElementById('id_editButton_TreePreview');
-  editButton_TreePreview.onclick = function() {
-    $('#modalTreeInfo').modal('hide');
-    EditTree (geojson);
-  }
+            $('#modalTreeInfo').modal('show');
+
+
+            document.getElementById("treeId").value = obj_tree.fields.id;
+            Show_Inspections_Actions_Table('PreviewTree', obj_tree.fields.id);
+
+
+            let photo1 = "";
+            let photo2 = "";
+            let photo3 = "";
+
+            //if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
+            //if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
+            //if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+            if (obj_tree.fields.lastinsp_photo1) { photo1 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo1 }
+            if (obj_tree.fields.lastinsp_photo2) { photo2 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo2 }
+            if (obj_tree.fields.lastinsp_photo3) { photo3 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo3 }
+
+            if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
+
+            ShowSlideShow(photo1, photo2, photo3, "TreePreview")
+
+
+            let editButton_TreePreview = document.getElementById('id_editButton_TreePreview');
+            editButton_TreePreview.onclick = function() {
+                history.pushState(null, null, baseURL);
+                $('#modalTreeInfo').modal('hide');
+                EditTree (obj_tree);
+            }
+
+            let closeButton_TreePreview = document.getElementById('id_closeButton_TreePreview');
+            closeButton_TreePreview.onclick = function() {
+                history.pushState(null, null, baseURL);
+            }
 
 
 }
 
+/*
+function ShowTreePreview(id) {
 
+    $.ajax({
+        url: "{% url 'get_tree' %}",
+        //data: {'idtree': document.getElementById("treeId").value},
+        data: {'idtree': id},
+        dataType: 'json',
+        success: function (jsonResult) {
+            let obj_tree = jQuery.parseJSON(jsonResult);
+
+            $("#id_treepreview_title_local_name").text(obj_tree.fields.localname);
+            $("#id_treepreview_title_species_name").text(obj_tree.fields.species);
+            $("#id_treepreview_status").text(obj_tree.fields.lastinsp_status);
+
+            $("#id_treepreview_height").text(obj_tree.fields.lastinsp_height);
+            $("#id_treepreview_crown").text(obj_tree.fields.lastinsp_crowndiameter);
+            $("#id_treepreview_trunk").text(obj_tree.fields.lastinsp_trunkgirth);
+
+
+            $("#id_treepreview_remarks").text(obj_tree.fields.lastinsp_remarks);
+            if (obj_tree.fields.lastinsp_remarks) {
+                $("#id_div_treepreview_remarks").show();
+            } else {
+                $("#id_div_treepreview_remarks").hide();
+            }
+
+            $("#id_treepreview_recommends").text(obj_tree.fields.lastinsp_recommendations);
+            if (obj_tree.fields.lastinsp_recommendations) {
+                $("#id_div_treepreview_recommends").show();
+            } else {
+                $("#id_div_treepreview_recommends").hide();
+            }
+
+            if (obj_tree.fields.googlestreeturl) {
+                $("#id_treepreview_googlestreetview").html('<a href="'+obj_tree.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+                $("#id_div_treepreview_googlestreetview").show();
+            } else {
+                $("#id_treepreview_googlestreetview").html('');
+                $("#id_div_treepreview_googlestreetview").hide();
+            }
+
+
+
+
+            $('#modalTreeInfo').modal('show');
+
+
+            document.getElementById("treeId").value = id;
+            Show_Inspections_Actions_Table('PreviewTree', id);
+
+
+            let photo1 = "";
+            let photo2 = "";
+            let photo3 = "";
+
+            //if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
+            //if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
+            //if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+            if (obj_tree.fields.lastinsp_photo1) { photo1 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo1 }
+            if (obj_tree.fields.lastinsp_photo2) { photo2 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo2 }
+            if (obj_tree.fields.lastinsp_photo3) { photo3 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo3 }
+
+            if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
+
+            ShowSlideShow(photo1, photo2, photo3, "TreePreview")
+
+
+            let editButton_TreePreview = document.getElementById('id_editButton_TreePreview');
+            editButton_TreePreview.onclick = function() {
+                history.pushState(null, null, baseURL);
+                $('#modalTreeInfo').modal('hide');
+                EditTree (obj_tree);
+            }
+
+            let closeButton_TreePreview = document.getElementById('id_closeButton_TreePreview');
+            closeButton_TreePreview.onclick = function() {
+                history.pushState(null, null, baseURL);
+            }
+
+
+        }
+  });
+}
+*/
+
+
+function EditTree (obj_tree) {
+
+  let $table_InspActData = $('#table_InspActData');
+  $table_InspActData.bootstrapTable('destroy');
+  $('#button_show_inspact').show();
+  $('#divTreeInspActData').hide();
+
+
+  // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
+  document.getElementById("latitude").value = obj_tree.fields.latitude;
+  document.getElementById("longitude").value = obj_tree.fields.longitude;
+  //document.getElementById("species").value = geojson.properties.species;
+  $('#species').selectpicker('val', obj_tree.fields.species_id);
+
+  document.getElementById("speciescomment").value = obj_tree.fields.speciescomment;
+  document.getElementById("comment").value = obj_tree.fields.comment.replace(/<br\s*[\/]?>/gi, "\n");
+  document.getElementById("placetype").value = obj_tree.fields.placetype;
+  document.getElementById("irrigationmethod").value = obj_tree.fields.irrigationmethod;
+  document.getElementById("dateplanted").value = obj_tree.fields.dateplanted;
+  document.getElementById("googlestreeturl").value = obj_tree.fields.googlestreeturl;
+  document.getElementById("treeId").value = obj_tree.fields.id;
+
+
+  //document.getElementById('wrapper').classList.remove("toggled");
+  $('#divNewTree').hide();
+  $('#divExistsTree').show();
+
+  $("#saveButton").html('Актуализиране');
+
+  {% if perms.citytree.change_tree and perms.citytree.can_change_not_own_tree_record %}
+    $('#saveButton').prop('disabled',false);
+    $('#saveButton').prop('title','');
+  {% elif perms.citytree.change_tree and not perms.citytree.can_change_not_own_tree_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#saveButton').prop('disabled',false);
+        $('#saveButton').prop('title','');
+    } else {
+        $('#saveButton').prop('disabled',true);
+        $('#saveButton').prop('title','You cannot change information about the tree that was created by another user.');
+    }
+  {% else %}
+    $('#saveButton').prop('disabled',true);
+    $('#saveButton').prop('title','You do not have enough privileges to change the tree information.');
+  {% endif %}
+
+
+  {% if perms.citytree.delete_tree and perms.citytree.can_delete_not_own_tree_record %}
+    $('#deleteButton').prop('disabled',false);
+    $('#deleteButton').prop('title','');
+  {% elif perms.citytree.delete_tree and not perms.citytree.can_delete_not_own_tree_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#deleteButton').prop('disabled',false);
+        $('#deleteButton').prop('title','');
+    } else {
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','You cannot delete the tree that was created by another user.');
+    }
+  {% else %}
+    $('#deleteButton').prop('disabled',true);
+    $('#deleteButton').prop('title','You don\'t have enough privileges to remove the tree.');
+  {% endif %}
+
+
+
+
+  $('#height').removeAttr('required');
+  $('#crowndiameter').removeAttr('required');
+  $('#trunkgirth').removeAttr('required');
+
+  $('#tabTree').show();
+  $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
+
+
+  Show_Inspections_Actions_Table('EditTree', obj_tree.fields.id);
+  OpenSidebar();
+}
+
+
+/*
 function EditTree (geojson) {
 
   let $table_InspActData = $('#table_InspActData');
@@ -745,6 +947,7 @@ function EditTree (geojson) {
   Show_Inspections_Actions_Table('EditTree', geojson.properties.id);
   OpenSidebar();
 }
+*/
 
 
 
@@ -902,7 +1105,8 @@ function LoadTreesToMap(firsttime, filterEnabled) {
                 {% endfor %}
             {% endif %}
 
-            return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
+            return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);
+
         },
 
         filter: function(feature, layer) {
@@ -1417,11 +1621,6 @@ button_NewAction.onclick = function() {
 
 
 
-
-
-
-
-
 mymap.on('click', onMapClick);
 
 
@@ -1576,41 +1775,8 @@ document.onreadystatechange = function(){
 
 
 
-    // чтобы на при добавлении нового дерева, при заполнении первой инспекции, в img загружался рисунок при его изменении в input type=file
-    //$("#id_first_insp_photo1").change(function(){
-    //    readURL(this, '#id_first_insp_img_photo1');
-    //});
-
-    //$("#id_first_insp_photo2").change(function(){
-    //    readURL(this, '#id_first_insp_img_photo2');
-    //});
-    //$("#id_first_insp_photo3").change(function(){
-    //    readURL(this, '#id_first_insp_img_photo3');
-    //});
-
-
-
-    // чтобы на вкладке Inspection в img загружался рисунок при его изменении в input type=file
-    //$("#id_insp_photo1").change(function(){
-        //readURL(this, '#id_insp_img_photo1');
-        //document.getElementById("id_insp_photo1_filename").value = this.files[0].name;
-    //});
-    //$("#id_insp_photo2").change(function(){
-    //    readURL(this, '#id_insp_img_photo2');
-    //    document.getElementById("id_insp_photo2_filename").value = this.files[0].name;
-    //});
-    //$("#id_insp_photo3").change(function(){
-    //     readURL(this, '#id_insp_img_photo3');
-    //    document.getElementById("id_insp_photo3_filename").value = this.files[0].name;
-    //});
-
-
-
-
     PermissionsApply();
     AjaxLoadJson();
-
-
 
 
 
@@ -1778,6 +1944,19 @@ document.onreadystatechange = function(){
    });
 
 
+
+
+    // если нужно показать preview конкретного дерева
+    if ({{tree_id}} > 0) {
+        getAsyncObjectTree({{tree_id}}, callback_ObjectTree); // ajax return object to callback function
+
+        function callback_ObjectTree(object_tree) {
+            ShowTreePreview(object_tree);
+            let latlng = L.latLng(object_tree.fields.latitude, object_tree.fields.longitude);
+            mymap.setView(latlng, 20);
+            selectMarker({{tree_id}});
+        }
+    }
 
 
 
@@ -1994,3 +2173,24 @@ function SetStateSaveButton (idName, enabled, caption) {
         $('#'+idName).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'+caption);
     }
 }
+
+
+
+
+// html5 history API
+window.addEventListener('popstate', function(event) {
+    if (event.state == null) {
+        $('#modalTreeInfo').modal('hide')
+        return;
+    }
+
+    if (event.state.page == "treepreview") {
+        getAsyncObjectTree(event.state.treeId, ShowTreePreview); // ajax return object to callback function
+    } else {
+        $('#modalTreeInfo').modal('hide');
+    }
+
+
+});
+
+

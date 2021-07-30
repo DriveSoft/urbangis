@@ -15,6 +15,7 @@ let markers_is_dot
 
 let isochronsLayer = L.layerGroup();
 
+let baseURL = '/urbanobject/{{obj_city.sysname}}/'; // for html5 history API
 
 
 
@@ -440,9 +441,11 @@ function markerOnClick(e)
 
   // delete previous marker if exists
   mymap.removeLayer(newMarker);
+  history.pushState({page: "objectpreview", objectId: geojson.properties.id}, null, baseURL+"object/"+geojson.properties.id+"/");
 
+    getAsyncUrbanObject(geojson.properties.id, ShowUrbanObjectPreview);
 
-  $.ajax({
+  /*$.ajax({
         url: "{% url 'get_urban_object' %}",
         //data: {'idtree': document.getElementById("treeId").value},
         data: {'idUrbanObject': geojson.properties.id},
@@ -492,40 +495,147 @@ function markerOnClick(e)
 
             $('#id_rating_preview').rating('update', obj_UrbanObject.fields.rating);
 
+
+            $('#id_modalObjectInfo').modal('show');
+
+
+            document.getElementById("id_urbanObjectId").value = geojson.properties.id;
+            //Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
+
+
+            let photo1 = "";
+            let photo2 = "";
+            let photo3 = "";
+
+            if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
+            if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
+            if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+
+
+            if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
+
+            ShowSlideShow(photo1, photo2, photo3, "ObjectPreview")
+
+
+
+            let editButton_ObjectPreview = document.getElementById('id_editButton_ObjectPreview');
+            editButton_ObjectPreview.onclick = function() {
+                $('#id_modalObjectInfo').modal('hide');
+                EditUrbanObject (geojson);
+            }
+
+        } //success: function (jsonResult) {
+  }); // $.ajax({ */
+
+} // function markerOnClick(e)
+
+
+function getAsyncUrbanObject(id, callback){
+    $.ajax({
+        url: "{% url 'get_urban_object' %}",
+        data: {'idUrbanObject': id},
+        dataType: 'json',
+        success: function (jsonResult) {
+            let urban_object = jQuery.parseJSON(jsonResult);
+            callback(urban_object);
         }
   });
-
-
-  $('#id_modalObjectInfo').modal('show');
-
-
-  document.getElementById("id_urbanObjectId").value = geojson.properties.id;
-  //Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
-
-
-  let photo1 = "";
-  let photo2 = "";
-  let photo3 = "";
-
-  if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
-  if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
-  if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
-
-
-  if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
-
-  ShowSlideShow(photo1, photo2, photo3, "ObjectPreview")
+}
 
 
 
-  let editButton_ObjectPreview = document.getElementById('id_editButton_ObjectPreview');
-  editButton_ObjectPreview.onclick = function() {
-    $('#id_modalObjectInfo').modal('hide');
-    EditUrbanObject (geojson);
-  }
+function ShowUrbanObjectPreview (obj_UrbanObject) {
+    $("#id_objectpreview_title_category").text(obj_UrbanObject.fields.category);
+    $("#id_objectpreview_cat").text(obj_UrbanObject.fields.category);
 
+    $("#id_objectpreview_subcats").text(obj_UrbanObject.fields.subcategories_text);
+    if (obj_UrbanObject.fields.subcategories_text) {
+        $("#id_div_objectpreview_subcats").show();
+    } else {
+        $("#id_div_objectpreview_subcats").hide();
+    }
+
+    $("#id_objectpreview_description").text(obj_UrbanObject.fields.description);
+    if (obj_UrbanObject.fields.description) {
+        $("#id_div_objectpreview_description").show();
+    } else {
+        $("#id_div_objectpreview_description").hide();
+    }
+
+    $("#id_objectpreview_comment").text(obj_UrbanObject.fields.comment);
+    if (obj_UrbanObject.fields.comment) {
+        $("#id_div_objectpreview_comment").show();
+    } else {
+        $("#id_div_objectpreview_comment").hide();
+    }
+
+
+    if (obj_UrbanObject.fields.googlestreeturl) {
+        $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+        $("#id_div_objectpreview_googlestreetview").show();
+    } else {
+        $("#id_objectpreview_googlestreetview").html('');
+        $("#id_div_objectpreview_googlestreetview").hide();
+    }
+
+    if (obj_UrbanObject.fields.rating == 0) { // чтобы показывать надпись not rated
+        $('#id_rating_preview').rating('refresh', {showCaption: true});
+    } else {
+        $('#id_rating_preview').rating('refresh', {showCaption: false});
+    }
+
+    $('#id_rating_preview').rating('update', obj_UrbanObject.fields.rating);
+
+
+    $('#id_modalObjectInfo').modal('show');
+
+
+    document.getElementById("id_urbanObjectId").value = obj_UrbanObject.fields.id;
+    //Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
+
+
+    let photo1 = "";
+    let photo2 = "";
+    let photo3 = "";
+
+    //if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
+    //if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
+    //if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
+    if (obj_UrbanObject.fields.photo1) { photo1 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo1 }
+    if (obj_UrbanObject.fields.photo2) { photo2 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo2 }
+    if (obj_UrbanObject.fields.photo3) { photo3 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo3 }
+
+
+    if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
+
+    ShowSlideShow(photo1, photo2, photo3, "ObjectPreview")
+
+
+
+    let editButton_ObjectPreview = document.getElementById('id_editButton_ObjectPreview');
+    editButton_ObjectPreview.onclick = function() {
+        history.pushState(null, null, baseURL);
+        $('#id_modalObjectInfo').modal('hide');
+        //EditUrbanObject (geojson);
+        EditUrbanObject (obj_UrbanObject);
+    }
+
+    let closeButton_ObjectPreview = document.getElementById('id_closeButton_ObjectPreview');
+    closeButton_ObjectPreview.onclick = function() {
+        history.pushState(null, null, baseURL);
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
 
 
 $('#id_category').change(function() {
@@ -556,6 +666,114 @@ function subcategoriesInputElementUpdate(catElement, clearSubcats) {
 
 
 
+
+
+function EditUrbanObject (obj_UrbanObject) {
+
+  //let $table_InspActData = $('#table_InspActData');
+  //$table_InspActData.bootstrapTable('destroy');
+  //$('#divTreeInspActData').hide();
+
+
+  // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
+  document.getElementById("id_latitude").value = obj_UrbanObject.fields.latitude;
+  document.getElementById("id_longitude").value = obj_UrbanObject.fields.longitude;
+
+
+  //$('#id_category').selectpicker('val', geojson.properties.category);
+  console.log(obj_UrbanObject.fields.category_id);
+  document.getElementById("id_category").value = obj_UrbanObject.fields.category_id;
+  $('#id_subcategories').selectpicker('val', obj_UrbanObject.fields.subcategories);
+  subcategoriesInputElementUpdate($('#id_category'), false);
+
+
+  document.getElementById("id_description").value = obj_UrbanObject.fields.description;
+  document.getElementById("id_comment").value = obj_UrbanObject.fields.comment.replace(/<br\s*[\/]?>/gi, "\n");
+  document.getElementById("id_googlestreeturl").value = obj_UrbanObject.fields.googlestreeturl;
+  $('#id_rating').rating('update', obj_UrbanObject.fields.rating);
+  document.getElementById("id_urbanObjectId").value = obj_UrbanObject.fields.id;
+
+  $("#saveButton").html('Актуализиране');
+
+
+
+    if (obj_UrbanObject.fields.photo1) {
+        $("#id_img_photo1").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo1);
+        //document.getElementById("id_photo1_filename").value = "{% get_media_prefix %}"+geojson.properties.photo1;
+    } else {
+        $("#id_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
+        //document.getElementById("id_photo1_filename").value = "";
+        document.getElementById("id_photo1_new_name").value = "";
+    }
+
+    if (obj_UrbanObject.fields.photo2) {
+        $("#id_img_photo2").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo2);
+        //document.getElementById("id_photo2_filename").value = "{% get_media_prefix %}"+geojson.properties.photo2;
+    } else {
+        $("#id_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
+        //document.getElementById("id_photo2_filename").value = "";
+        document.getElementById("id_photo2_new_name").value = "";
+    }
+
+    if (obj_UrbanObject.fields.photo3) {
+        $("#id_img_photo3").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo3);
+        //document.getElementById("id_photo3_filename").value = "{% get_media_prefix %}"+geojson.properties.photo3;
+    } else {
+        $("#id_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
+        //document.getElementById("id_photo3_filename").value = "";
+        document.getElementById("id_photo3_new_name").value = "";
+    }
+
+
+
+
+
+  {% if perms.coregis.change_coreurbanobject and perms.coregis.can_change_not_own_object_record %}
+    $('#saveButton').prop('disabled',false);
+    $('#saveButton').prop('title','');
+  {% elif perms.coregis.change_coreurbanobject and not perms.coregis.can_change_not_own_object_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#saveButton').prop('disabled',false);
+        $('#saveButton').prop('title','');
+    } else {
+        $('#saveButton').prop('disabled',true);
+        $('#saveButton').prop('title','You cannot change information about the object that was created by another user.');
+    }
+  {% else %}
+    $('#saveButton').prop('disabled',true);
+    $('#saveButton').prop('title','You do not have enough privileges to change the object information.');
+  {% endif %}
+
+
+  {% if perms.coregis.delete_coreurbanobject and perms.coregis.can_delete_not_own_object_record %}
+    $('#deleteButton').prop('disabled',false);
+    $('#deleteButton').prop('title','');
+  {% elif perms.coregis.delete_object and not perms.coregis.can_delete_not_own_object_record %}
+    if (geojson.properties.user_id=={{user.id}}) {
+        $('#deleteButton').prop('disabled',false);
+        $('#deleteButton').prop('title','');
+    } else {
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','You cannot delete the object that was created by another user.');
+    }
+  {% else %}
+    $('#deleteButton').prop('disabled',true);
+    $('#deleteButton').prop('title','You don\'t have enough privileges to remove the object.');
+  {% endif %}
+
+
+  $('#id_tabUrbanobject').show();
+  $('#myTab a[href="#id_urbanobject"]').tab('show'); // Select tab by name
+
+
+  OpenSidebar();
+}
+
+
+
+
+
+/*
 function EditUrbanObject (geojson) {
 
   //let $table_InspActData = $('#table_InspActData');
@@ -660,7 +878,7 @@ function EditUrbanObject (geojson) {
 
   //Show_Inspections_Actions_Table('EditTree', geojson.properties.id);
   OpenSidebar();
-}
+}*/
 
 
 
@@ -1295,13 +1513,21 @@ $('#id_filter_category')
 
 
 
+
+    // если нужно показать preview конкретного дерева
+    if ({{object_id}} > 0) {
+        getAsyncUrbanObject({{object_id}}, callback_UrbanObject); // ajax return object to callback function
+
+        function callback_UrbanObject(urban_object) {
+            ShowUrbanObjectPreview(urban_object);
+            let latlng = L.latLng(urban_object.fields.latitude, urban_object.fields.longitude);
+            mymap.setView(latlng, 20);
+            //selectMarker({{object_id}});
+        }
+    }
+
    }
 }
-
-
-
-
-
 
 
 
@@ -1433,3 +1659,20 @@ function SetStateSaveButton (idName, enabled, caption) {
         $('#'+idName).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'+caption);
     }
 }
+
+
+// html5 history API
+window.addEventListener('popstate', function(event) {
+    if (event.state == null) {
+        $('#id_modalObjectInfo').modal('hide')
+        return;
+    }
+
+    if (event.state.page == "objectpreview") {
+        getAsyncUrbanObject(event.state.objectId, ShowUrbanObjectPreview); // ajax return object to callback function
+    } else {
+        $('#id_modalObjectInfo').modal('hide');
+    }
+
+
+});

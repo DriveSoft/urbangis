@@ -126,6 +126,20 @@ var tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
 });//.addTo(mymap);
 
 
+var titlesGoogle = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    attribution: 'Google',
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+
+var titlesGoogleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    attribution: 'Google',
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+
+
+
 var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHhyKil9rD9dFK8536u8hTj1', {
     maxZoom: 22
 });//.addTo(mymap);
@@ -133,16 +147,19 @@ var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHh
 
 
 {% if request.session.mapname %}
-
     {% if request.session.mapname == "Default" %}
         tilesDefault.addTo(mymap);
     {% elif request.session.mapname == "Dark" %}
         tilesDark.addTo(mymap);
+    {% elif request.session.mapname == "Google" %}
+        titlesGoogle.addTo(mymap);
     {% elif request.session.mapname == "Sat1" %}
         tilesSatBing.addTo(mymap);
     {% elif request.session.mapname == "Sat2" %}
-        tilesSat.addTo(mymap);
+        titlesGoogleSat.addTo(mymap);
     {% elif request.session.mapname == "Sat3" %}
+        tilesSat.addTo(mymap);
+    {% elif request.session.mapname == "Sat4" %}
         tilesSat2.addTo(mymap);
     {% else %}
         tilesDefault.addTo(mymap);
@@ -165,9 +182,11 @@ L.control.zoom({
 var baseMaps = {
     "Default": tilesDefault,
     "Dark": tilesDark,
+    "Google": titlesGoogle,
     "Sat1": tilesSatBing,
-    "Sat2": tilesSat,
-    "Sat3": tilesSat2
+    "Sat2": titlesGoogleSat,
+    "Sat3": tilesSat,
+    "Sat4": tilesSat2,
 };
 
 var overlayMaps = {

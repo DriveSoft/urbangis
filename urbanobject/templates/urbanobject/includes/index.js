@@ -173,6 +173,21 @@ let but_newmarker = L.easyButton({
             icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
             onClick: function(control){
 
+    /*
+    mymap.eachLayer(function(layer){
+
+        if(layer._latlngs){
+            if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
+                console.log(layer);
+                //if (layer.urbanObjectId == id && layer.isChanged) {
+                //    layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
+                //}
+            }
+        }
+
+    }); */
+
+
                 mymap.removeLayer(newMarker);
                 control.state('on');
                 but_newmarker.button.style.backgroundColor = 'red';
@@ -344,6 +359,7 @@ function onMapClick(e) {
         document.getElementById("id_photo2_new_name").value = '';
         document.getElementById("id_photo3_new_name").value = '';
 
+        document.getElementById("id_polygonCoords").value = '';
 
         but_newmarker.state('off');
         but_newmarker.button.style.backgroundColor = 'white';
@@ -411,6 +427,7 @@ function buttonDoneMarkerMobileOnClick(e) {
     document.getElementById("id_photo2_new_name").value = '';
     document.getElementById("id_photo3_new_name").value = '';
 
+    document.getElementById("id_polygonCoords").value = '';
 
 
     but_newmarker.state('off');
@@ -447,6 +464,19 @@ function markerOnClick(e)
   let marker = e.target;
   let geojson = marker.toGeoJSON();
 
+    //console.log(e.layer);
+    //e.layer.pm.enable({
+    //    allowSelfIntersection: false,
+    //});
+
+  //console.log(geojson);
+
+
+  //for (item of geojson.geometry.geometries) {
+  //  console.log(item.type);
+  //}
+
+  //console.log(geojson.geometry.geometries[1].type);
 
 
   //if (selectedMarker) {
@@ -460,89 +490,7 @@ function markerOnClick(e)
   mymap.removeLayer(newMarker);
   history.pushState({page: "objectpreview", objectId: geojson.properties.id}, null, baseURL+"object/"+geojson.properties.id+"/");
 
-    getAsyncUrbanObject(geojson.properties.id, ShowUrbanObjectPreview);
-
-  /*$.ajax({
-        url: "{% url 'get_urban_object' %}",
-        //data: {'idtree': document.getElementById("treeId").value},
-        data: {'idUrbanObject': geojson.properties.id},
-        dataType: 'json',
-        success: function (jsonResult) {
-            let obj_UrbanObject = jQuery.parseJSON(jsonResult);
-
-
-            $("#id_objectpreview_title_category").text(obj_UrbanObject.fields.category);
-            $("#id_objectpreview_cat").text(obj_UrbanObject.fields.category);
-
-            $("#id_objectpreview_subcats").text(obj_UrbanObject.fields.subcategories_text);
-            if (obj_UrbanObject.fields.subcategories_text) {
-                $("#id_div_objectpreview_subcats").show();
-            } else {
-                $("#id_div_objectpreview_subcats").hide();
-            }
-
-            $("#id_objectpreview_description").text(obj_UrbanObject.fields.description);
-            if (obj_UrbanObject.fields.description) {
-                $("#id_div_objectpreview_description").show();
-            } else {
-                $("#id_div_objectpreview_description").hide();
-            }
-
-            $("#id_objectpreview_comment").text(obj_UrbanObject.fields.comment);
-            if (obj_UrbanObject.fields.comment) {
-                $("#id_div_objectpreview_comment").show();
-            } else {
-                $("#id_div_objectpreview_comment").hide();
-            }
-
-
-            if (obj_UrbanObject.fields.googlestreeturl) {
-                $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
-                $("#id_div_objectpreview_googlestreetview").show();
-            } else {
-                $("#id_objectpreview_googlestreetview").html('');
-                $("#id_div_objectpreview_googlestreetview").hide();
-            }
-
-            if (obj_UrbanObject.fields.rating == 0) { // чтобы показывать надпись not rated
-                $('#id_rating_preview').rating('refresh', {showCaption: true});
-            } else {
-                $('#id_rating_preview').rating('refresh', {showCaption: false});
-            }
-
-            $('#id_rating_preview').rating('update', obj_UrbanObject.fields.rating);
-
-
-            $('#id_modalObjectInfo').modal('show');
-
-
-            document.getElementById("id_urbanObjectId").value = geojson.properties.id;
-            //Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
-
-
-            let photo1 = "";
-            let photo2 = "";
-            let photo3 = "";
-
-            if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
-            if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
-            if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
-
-
-            if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
-
-            ShowSlideShow(photo1, photo2, photo3, "ObjectPreview")
-
-
-
-            let editButton_ObjectPreview = document.getElementById('id_editButton_ObjectPreview');
-            editButton_ObjectPreview.onclick = function() {
-                $('#id_modalObjectInfo').modal('hide');
-                EditUrbanObject (geojson);
-            }
-
-        } //success: function (jsonResult) {
-  }); // $.ajax({ */
+  getAsyncUrbanObject(geojson.properties.id, ShowUrbanObjectPreview);
 
 } // function markerOnClick(e)
 
@@ -682,15 +630,99 @@ function subcategoriesInputElementUpdate(catElement, clearSubcats) {
 }
 
 
+function EditObjectPolygon(id) {
+    mymap.eachLayer(function(layer){
+
+        if(layer._latlngs){
+            if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
+                if (id > 0) {
+                    if (layer.urbanObjectId == id) {
+                        layer.pm.enable({
+                            allowSelfIntersection: false,
+                        });
+                        layer.isChanged = true;
+                        return true;
+                    }
+                } else if (id == -1) {
+                    if (!layer.urbanObjectId) {
+                        layer.pm.enable({
+                            allowSelfIntersection: false,
+                        });
+                        layer.isChanged = true;
+                        return true;
+                    }
+                }
+                //layer.bindPopup('Hello'+Math.random());
+
+                //layer.pm.enable({
+                //    allowSelfIntersection: false,
+                //});
+            }
+        }
+
+        //if(layer._latlng){
+        //    let geojson = layer.toGeoJSON();
+        //    console.log(layer.properties.id);
+        //}
+
+
+    });
+}
+
+
+function GetChangedObjectPolygonShape(id) {
+    let polygon_coords = '';
+
+    mymap.eachLayer(function(layer){
+
+        if(layer._latlngs){
+            if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
+                if (id > 0) {
+                    if (layer.urbanObjectId == id && layer.isChanged) {
+                        layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
+                    }
+                } else if (id == -1) {
+                    if (!layer.urbanObjectId) {
+                        layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
+                    }
+                }
+            }
+        }
+
+    });
+
+    return polygon_coords;
+}
+
+
+function DeleteObjectPolygon(id) {
+    mymap.eachLayer(function(layer){
+
+        if(layer._latlngs){
+            if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
+                if (id > 0) {
+                    if (layer.urbanObjectId == id) {
+                        layer.pm.remove();
+                        document.getElementById("id_polygonCoords").value = 'delete'
+                    }
+                } else if (id == -1) {
+                    if (!layer.urbanObjectId) {
+                        layer.pm.remove();
+                        document.getElementById("id_polygonCoords").value = 'delete'
+                    }
+                }
+            }
+        }
+
+    });
+}
+
+
+
 
 
 
 function EditUrbanObject (obj_UrbanObject) {
-
-  //let $table_InspActData = $('#table_InspActData');
-  //$table_InspActData.bootstrapTable('destroy');
-  //$('#divTreeInspActData').hide();
-
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
   document.getElementById("id_latitude").value = obj_UrbanObject.fields.latitude;
@@ -708,6 +740,9 @@ function EditUrbanObject (obj_UrbanObject) {
   document.getElementById("id_comment").value = obj_UrbanObject.fields.comment.replace(/<br\s*[\/]?>/gi, "\n");
   document.getElementById("id_googlestreeturl").value = obj_UrbanObject.fields.googlestreeturl;
   $('#id_rating').rating('update', obj_UrbanObject.fields.rating);
+
+  document.getElementById("id_polygonCoords").value = obj_UrbanObject.fields.polygon_exists;
+
   document.getElementById("id_urbanObjectId").value = obj_UrbanObject.fields.id;
 
   $("#saveButton").html('Актуализиране');
@@ -927,6 +962,48 @@ function iEditCoordOnClick(e) {
 
 
 
+document.getElementById("id_create_polygon").onclick = onClickCreatePolygon;
+function onClickCreatePolygon(e) {
+    // удаляем все полигоны с карты, в которых нет свойства urbanObjectId, чтобы удалить предыдущий полигон, который например не сохранили
+    let id = document.getElementById("id_urbanObjectId").value;
+    if (id) {
+        DeleteObjectPolygon(id);
+    }
+    DeleteObjectPolygon(-1);
+
+    mymap.pm.enableDraw('Polygon', {
+        snappable: true,
+    });
+
+}
+
+document.getElementById("id_edit_polygon").onclick = onClickEditPolygon;
+function onClickEditPolygon(e) {
+    // если в режиме редактирования
+    let id = document.getElementById("id_urbanObjectId").value;
+    if (id) {
+        if (!EditObjectPolygon(id)) {
+            EditObjectPolygon(-1);
+        }
+    } else {
+        EditObjectPolygon(-1);
+    }
+}
+
+document.getElementById("id_delete_polygon").onclick = onClickDeletePolygon;
+function onClickDeletePolygon(e) {
+    // если в режиме редактирования
+    let id = document.getElementById("id_urbanObjectId").value;
+    if (id) {
+        DeleteObjectPolygon(id);
+    }
+    DeleteObjectPolygon(-1);
+}
+
+
+
+
+
 function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
     // clear then populate slider
     $('#id_container_'+id_carousel_suffix+' .carousel-inner').html('');
@@ -1010,8 +1087,17 @@ function ChangeMarkerToDot(force){
     if (zoom > 13) {
         if (markers_is_dot || markers_is_dot === undefined || force) {
             markers.eachLayer(function (marker) {
-                let geojson = marker.toGeoJSON();
-                marker.setIcon(MarkersObject[geojson.properties.icon]);
+
+                if(marker.feature.geometry.type == 'GeometryCollection'){
+                    marker.eachLayer(function(layer_GeometryCollection) {
+                        if(layer_GeometryCollection._latlng){
+                            layer_GeometryCollection.setIcon(MarkersObject[marker.feature.properties.icon]);
+                        }
+                    })
+                }
+
+                //let geojson = marker.toGeoJSON();
+                //marker.setIcon(MarkersObject[geojson.properties.icon]);
             });
         }
 
@@ -1021,8 +1107,18 @@ function ChangeMarkerToDot(force){
 
         if (!markers_is_dot || markers_is_dot === undefined || force) {
             markers.eachLayer(function (marker) {
-                let geojson = marker.toGeoJSON();
-                marker.setIcon(MarkersObject[geojson.properties.icon+'_dot']);
+
+                if(marker.feature.geometry.type == 'GeometryCollection'){
+                    marker.eachLayer(function(layer_GeometryCollection) {
+                        if(layer_GeometryCollection._latlng){
+                            layer_GeometryCollection.setIcon(MarkersObject[marker.feature.properties.icon+'_dot']);
+                        }
+                    })
+
+                   //let geojson = marker.toGeoJSON();
+                   //marker.setIcon(MarkersObject[geojson.properties.icon+'_dot']);
+
+                }
             });
         }
 
@@ -1042,9 +1138,41 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
 
 
     markers = L.geoJSON(urbanObjectsData, {
-        pointToLayer: function (feature, latlng) {
+
+        //pointToLayer: function (feature, latlng) {
             //return L.marker(latlng, {icon: MarkersObject[feature.properties.icon]}).on('click', markerOnClick);
-            return L.marker(latlng).on('click', markerOnClick);
+
+            //let just_marker = L.marker(latlng).on('click', markerOnClick);
+            //just_marker.feature = feature; // вручную присваиваем маркеру его данные, т.к. при использовании в GeoJSON GeometryCollection, properties у маркера почему то отстуствуют в событии markerOnClick
+            //return just_marker;
+        //},
+
+        onEachFeature: function (feature, layer) {
+
+                //доступ до geometries, например присвоить событие только point (маркеру), но тогда данные properties опять пропадают
+                /*
+                if(feature.geometry.type == 'GeometryCollection'){
+                    layer.eachLayer(function(layer_GeometryCollection) {
+                        if(layer_GeometryCollection._latlng){
+                            console.log("point");
+                        } else if (layer_GeometryCollection._latlngs) {
+                            console.log("polygon");
+                            layer_GeometryCollection.on('click', markerOnClick);
+                        }
+                    })
+                } */
+
+                // присваиваем полигонам id объекта
+                if(feature.geometry.type == 'GeometryCollection'){
+                    layer.eachLayer(function(layer_GeometryCollection) {
+                        if (layer_GeometryCollection._latlngs) {
+                            layer_GeometryCollection.urbanObjectId = feature.properties.id;
+                        }
+                    })
+                }
+
+
+            layer.on('click', markerOnClick);
         },
 
         filter: function(feature, layer) {
@@ -1131,6 +1259,8 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
     ChangeMarkerToDot(true); // в зависимости от масштаба, показывает маркер или точки
     mymap.addLayer(markers);
     mymap.addLayer(isochronsLayer);
+
+
 }
 
 
@@ -1171,6 +1301,7 @@ button_reset.onclick = function() {
 button_closeTabUrbanObject.onclick = function() {
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
+    DeleteObjectPolygon(-1); // на всякий случай удаляем полигоны с карты без свойства urbanObjectId, если пользователь например нарисовал полигон для объекта, но потом нажал Изход
 
     $('#myTab a[href="#id_filter"]').tab('show'); // Select tab by name
     $('#id_tabUrbanobject').hide();
@@ -1253,7 +1384,9 @@ input_photo3.onchange = function() {
 
 
 //=== UTILS ============================================================================================================
-var circle_geolocation = L.circle();
+//var circle_geolocation = L.circle();
+var circle_geolocation = L.circle([0, 0], {radius: 0}) // нужно указать параметры, иначе почему то плагин geoman ругается
+
 var setView_nTimes_gps = 4; // чтобы только N раз установить центр карты по GPS локации, иначе карта будет двигаться переодически за gps координатами
 function onLocationFound(e) {
     let radius = e.accuracy / 2;
@@ -1341,7 +1474,10 @@ function readURL(input, idImg) {
 
 
 
-
+mymap.on('pm:create', e => {
+  console.log(e.shape);
+  console.log(e.layer);
+});
 
 
 document.onreadystatechange = function(){
@@ -1400,10 +1536,28 @@ document.onreadystatechange = function(){
 
 
 
-
-
-
     $('#saveButton').click(function(){
+
+
+        let id = document.getElementById("id_urbanObjectId").value;
+        let s;
+        if (id) { // edit
+            s = GetChangedObjectPolygonShape(id);
+            if (s) {
+                document.getElementById("id_polygonCoords").value = s;
+            } else {
+                s = GetChangedObjectPolygonShape(-1);
+                if (s) {
+                    document.getElementById("id_polygonCoords").value = s;
+                }
+            }
+        } else { // new record
+            s = GetChangedObjectPolygonShape(-1);
+            if (s) {
+                document.getElementById("id_polygonCoords").value = s;
+            }
+        }
+
 
         // Get the file from frontend
    	    let myFile1 = $('#id_photo1').prop('files');
@@ -1542,6 +1696,7 @@ $('#id_filter_category')
             //selectMarker({{object_id}});
         }
     }
+
 
    }
 }

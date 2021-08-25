@@ -9,6 +9,7 @@ import os
 import json
 import gzip
 import shutil
+from decimal import Decimal
 
 from .forms import *
 from .models import *
@@ -106,6 +107,28 @@ class Map(View):
 
                         obj_urbanobject = bound_form_urbanobject.save()
 
+                        # записываем полигон, если есть
+                        polygonCoords = request.POST.get('polygonCoords')
+                        if polygonCoords == 'delete':
+                            urbanObjectPolygon.objects.filter(object=obj_urbanobject).delete()  # удаляем существующий полигон из БД
+                        elif polygonCoords and polygonCoords.count(',')>=6: # в строке должно быть как минимум 6 запятых, т.к. координаты разделяются запятыми
+                            listCoords = polygonCoords[:-1].split(',') # удаляем последний символ запятой и разделяем
+                            map_object = map(Decimal, listCoords) # преобразуем список строк в список decimals
+                            listCoords_of_decimals = list(map_object)
+                            len_coords = len(listCoords_of_decimals)
+                            if len_coords % 2 == 0 and len_coords >=6: # проверяем, чтобы количество координат было четное число и больше или равно 6, т.е. как минимум 3 gps координаты
+                                urbanObjectPolygon.objects.filter(object=obj_urbanobject).delete() # удаляем существующий полигон из БД
+                                for i in range(0, len_coords, 2):
+                                    obj_polygon = urbanObjectPolygon(object=obj_urbanobject, latitude=listCoords_of_decimals[i], longitude=listCoords_of_decimals[i+1])
+                                    obj_polygon.save()
+                                # последней точкой должна быть начальная, по спецификации GoeJson
+                                obj_polygon = urbanObjectPolygon(object=obj_urbanobject, latitude=listCoords_of_decimals[0], longitude=listCoords_of_decimals[1])
+                                obj_polygon.save()
+
+
+
+
+
                         response = redirect(obj_city)
                         response['Location'] += '?lat=' + str(obj_urbanobject.latitude) + '&lng=' + str(obj_urbanobject.longitude)
                         return response
@@ -146,6 +169,21 @@ class Map(View):
                         #print(request.META['CONTENT_LENGTH'])
 
                         obj_urbanobject = bound_form_urbanobject.save()
+
+                        # записываем полигон, если есть
+                        polygonCoords = request.POST.get('polygonCoords')
+                        if polygonCoords:
+                            listCoords = polygonCoords[:-1].split(',') # удаляем последний символ запятой и разделяем
+                            map_object = map(Decimal, listCoords) # преобразуем список строк в список decimals
+                            listCoords_of_decimals = list(map_object)
+                            len_coords = len(listCoords_of_decimals)
+                            if len_coords % 2 == 0 and len_coords >=6: # проверяем, чтобы количество координат было четное число и больше или равно 6, т.е. как минимум 3 gps координаты
+                                for i in range(0, len_coords, 2):
+                                    obj_polygon = urbanObjectPolygon(object=obj_urbanobject, latitude=listCoords_of_decimals[i], longitude=listCoords_of_decimals[i+1])
+                                    obj_polygon.save()
+                                # последней точкой должна быть начальная, по спецификации GoeJson
+                                obj_polygon = urbanObjectPolygon(object=obj_urbanobject, latitude=listCoords_of_decimals[0], longitude=listCoords_of_decimals[1])
+                                obj_polygon.save()
 
 
                         response = redirect(obj_city)
@@ -197,21 +235,21 @@ def citydataToGeoJson(obj_city):
         for urbanobjectItem in urbanobject_data:
 
 
-            subcategories = []
+            subcategories = [] # содержит подкатегории объекта
             if urbanobjectItem.subcategories:
                 subcategories_Q = urbanobjectItem.subcategories.values_list('id', flat=True)
                 for item in subcategories_Q:
                     subcategories.append(str(item))
 
 
-            catsubcategories = []
+            catsubcategories = [] # содержит категорию объекта и подкатегории с префиксом _, нужно, чтобы искать объекты на фронтенде
             if urbanobjectItem.subcategories:
                 subcategories_Q = urbanobjectItem.subcategories.values_list('id', flat=True)
                 for item in subcategories_Q:
                     catsubcategories.append('_'+str(item))
 
             if urbanobjectItem.category_id:
-                catsubcategories.append(str(urbanobjectItem.category_id))
+                catsubcategories.append(str(urbanobjectItem.category_id)) # добавляет категорию объекта к catsubcategories
 
 
             if urbanobjectItem.description:
@@ -232,10 +270,6 @@ def citydataToGeoJson(obj_city):
 
             urbanobjectJson = {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [str(urbanobjectItem.longitude), str(urbanobjectItem.latitude)]
-                },
 
                 "properties": {
                     "coordinates": [str(urbanobjectItem.longitude), str(urbanobjectItem.latitude)],
@@ -252,8 +286,45 @@ def citydataToGeoJson(obj_city):
                     "photo1": '{}'.format(urbanobjectItem.photo1),
                     "photo2": '{}'.format(urbanobjectItem.photo2),
                     "photo3": '{}'.format(urbanobjectItem.photo3),
+                },
+
+
+                "geometry": {
+                    "type": "GeometryCollection",
+                    "geometries": [
+                        {
+                            "type": "Point",
+                            "coordinates": [
+                                str(urbanobjectItem.longitude),
+                                str(urbanobjectItem.latitude)
+                            ]
+                        }
+                    ]
                 }
+
+
             }
+
+
+            # для добавления в geometries[]
+            urbanobject_Polygon = {
+                "type": "Polygon",
+                "coordinates": []
+            }
+
+            # будут содержаться координаты полигона
+            urbanobject_PolygonCoords = []
+
+            # добавляемв массив координаты полигона
+            if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
+                for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
+                    urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
+
+            # добавляем координаты полигона
+            urbanobject_Polygon["coordinates"].append(urbanobject_PolygonCoords)
+
+            # добавляем геометрию полигона в geoJson
+            urbanobjectJson["geometry"]["geometries"].append(urbanobject_Polygon)
 
 
             # print(treeJson)
@@ -331,6 +402,12 @@ class getUrbanObject(View):
             struct[0]["fields"]["category"] = obj_category.catname
             struct[0]["fields"]["subcategories_text"] = sSubcats
             struct[0]["fields"]["id"] = obj_urbanObject.id
+
+            if obj_urbanObject.coreurbanobjectpolygon_set.count() >= 4: # если есть 4 координаты или более, значит полигон у объекта присутствует (4 т.к. правильный полигон должен иметь как минимум 4 координаты)
+                struct[0]["fields"]["polygon_exists"] = True
+            else:
+                struct[0]["fields"]["polygon_exists"] = False
+
 
             json_send = json.dumps(struct[0], ensure_ascii=False)
             return JsonResponse(json_send, safe=False, status=200) #, json_dumps_params={'ensure_ascii': False}

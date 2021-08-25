@@ -4,7 +4,6 @@ from .views import *
 #from .data import *
 
 urlpatterns = [
-
     path('<str:city_name>/', Map.as_view(), name='urbanobject_map_url'),
     path('<str:city_name>/object/<int:object_id>/', Map.as_view(), name='urbanobject_map_url'),
 

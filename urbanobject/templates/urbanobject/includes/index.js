@@ -451,52 +451,56 @@ function markerOnClick(e)
   let marker = e.target;
   let geojson = marker.toGeoJSON();
 
-    //console.log(e.layer);
-    //e.layer.pm.enable({
-    //    allowSelfIntersection: false,
-    //});
 
   //console.log(geojson);
+  // if object hsd polygon, calculate its area and send it to preview window
+  let polygonArea;
+  for (item of geojson.geometry.geometries) {
+    let x=[];
+    let y=[];
 
+    let vertices = [];
+    let points = []
 
-  //for (item of geojson.geometry.geometries) {
-  //  console.log(item.type);
-  //}
+    if (item.type == "Polygon") {
+        if (item.coordinates[0].length >= 4) { // correct polygon must have at least 4 coordinates
+            for (coord of item.coordinates[0]) {
+                points.push([coord[1], coord[0]])
+            }
+            polygonArea = GetAreaPolygon(latlontocart(points)).toFixed(2);
+        }
+    }
+  }
 
   //console.log(geojson.geometry.geometries[1].type);
 
 
-  //if (selectedMarker) {
-  //  selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
-  //}
-
-  //marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
-  //selectedMarker = marker;
 
   // delete previous marker if exists
   mymap.removeLayer(newMarker);
   history.pushState({page: "objectpreview", objectId: geojson.properties.id}, null, baseURL+"object/"+geojson.properties.id+"/");
 
-  getAsyncUrbanObject(geojson.properties.id, ShowUrbanObjectPreview);
+  getAsyncUrbanObject(geojson.properties.id, ShowUrbanObjectPreview, polygonArea);
 
 } // function markerOnClick(e)
 
 
-function getAsyncUrbanObject(id, callback){
+function getAsyncUrbanObject(id, callback, polygonArea){
     $.ajax({
         url: "{% url 'get_urban_object' %}",
         data: {'idUrbanObject': id},
         dataType: 'json',
         success: function (jsonResult) {
             let urban_object = jQuery.parseJSON(jsonResult);
-            callback(urban_object);
+            callback(urban_object, polygonArea);
         }
   });
 }
 
 
 
-function ShowUrbanObjectPreview (obj_UrbanObject) {
+function ShowUrbanObjectPreview (obj_UrbanObject, polygonArea) {
+
     $("#id_objectpreview_title_category").text(obj_UrbanObject.fields.category);
     $("#id_objectpreview_cat").text(obj_UrbanObject.fields.category);
 
@@ -521,7 +525,6 @@ function ShowUrbanObjectPreview (obj_UrbanObject) {
         $("#id_div_objectpreview_comment").hide();
     }
 
-
     if (obj_UrbanObject.fields.googlestreeturl) {
         $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
         $("#id_div_objectpreview_googlestreetview").show();
@@ -529,6 +532,15 @@ function ShowUrbanObjectPreview (obj_UrbanObject) {
         $("#id_objectpreview_googlestreetview").html('');
         $("#id_div_objectpreview_googlestreetview").hide();
     }
+
+
+    $("#id_objectpreview_polygonarea").text(polygonArea + ' кв.м.');
+    if (polygonArea) {
+        $("#id_div_objectpreview_polygonarea").show();
+    } else {
+        $("#id_div_objectpreview_polygonarea").hide();
+    }
+
 
     if (obj_UrbanObject.fields.rating == 0) { // чтобы показывать надпись not rated
         $('#id_rating_preview').rating('refresh', {showCaption: true});
@@ -1868,3 +1880,40 @@ window.addEventListener('popstate', function(event) {
 
 
 });
+
+
+
+function GetAreaPolygon(polygon) {
+    const length = polygon.length;
+
+    let sum = 0;
+
+    for (let i = 0; i < length; i += 2) {
+        sum +=
+        polygon[i] * polygon[(i + 3) % length] -
+        polygon[i + 1] * polygon[(i + 2) % length];
+    }
+
+    return Math.abs(sum) * 0.5;
+}
+
+function latlontocart(latlon) {
+    let latAnchor = latlon[0][0];
+    let lonAnchor = latlon[0][1];
+    let x = 0;
+    let y = 0;
+    let R = 6378137; //radius of earth
+
+    let pos = [];
+
+    for (let i = 0; i < latlon.length; i++) {
+        let xPos = (latlon[i][1] - lonAnchor) * ConvertToRadian(R) * Math.cos(latAnchor);
+        let yPos = (latlon[i][0] - latAnchor) * ConvertToRadian(R);
+        pos.push(xPos, yPos);
+    }
+    return pos;
+}
+
+function ConvertToRadian(input) {
+    return (input * Math.PI) / 180;
+}

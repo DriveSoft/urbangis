@@ -173,21 +173,7 @@ let but_newmarker = L.easyButton({
             icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
             onClick: function(control){
 
-    /*
-    mymap.eachLayer(function(layer){
-
-        if(layer._latlngs){
-            if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
-                console.log(layer);
-                //if (layer.urbanObjectId == id && layer.isChanged) {
-                //    layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
-                //}
-            }
-        }
-
-    }); */
-
-
+                VisibleOfPolygons(false);
                 mymap.removeLayer(newMarker);
                 control.state('on');
                 but_newmarker.button.style.backgroundColor = 'red';
@@ -210,6 +196,7 @@ let but_newmarker = L.easyButton({
             stateName: 'on',
             icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
             onClick: function(control){
+                VisibleOfPolygons(true);
                 control.state('off');
                 but_newmarker.button.style.backgroundColor = 'white';
                 $('.leaflet-container').css('cursor','');
@@ -719,7 +706,29 @@ function DeleteObjectPolygon(id) {
 
 
 
+function VisibleOfPolygons(visible) {
 
+    mymap.eachLayer(function(layer){
+
+        if(layer._latlngs){ // перебираем полигоны
+            if (visible) {
+                if (layer.prevLatLngs) { // если присутствует свойство, в котором сохранили оригинальные координаты полигона
+                    layer.setLatLngs(layer.prevLatLngs);
+                    delete layer.prevLatLngs;
+                }
+
+            } else {
+                if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
+
+                    layer.prevLatLngs = layer.getLatLngs(); // save origin coords of polygon
+                    layer.setLatLngs(false);// hide polygon from the map
+
+                }
+            }
+        }
+
+    });
+}
 
 
 function EditUrbanObject (obj_UrbanObject) {
@@ -964,6 +973,10 @@ function iEditCoordOnClick(e) {
 
 document.getElementById("id_create_polygon").onclick = onClickCreatePolygon;
 function onClickCreatePolygon(e) {
+    if (IS_MOBILE) {
+        CloseSidebar();
+    }
+
     // удаляем все полигоны с карты, в которых нет свойства urbanObjectId, чтобы удалить предыдущий полигон, который например не сохранили
     let id = document.getElementById("id_urbanObjectId").value;
     if (id) {
@@ -979,7 +992,10 @@ function onClickCreatePolygon(e) {
 
 document.getElementById("id_edit_polygon").onclick = onClickEditPolygon;
 function onClickEditPolygon(e) {
-    // если в режиме редактирования
+    if (IS_MOBILE) {
+        CloseSidebar();
+    }
+
     let id = document.getElementById("id_urbanObjectId").value;
     if (id) {
         if (!EditObjectPolygon(id)) {
@@ -1301,7 +1317,11 @@ button_reset.onclick = function() {
 button_closeTabUrbanObject.onclick = function() {
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
+
+    mymap.pm.disableGlobalEditMode();
+    mymap.pm.disableDraw();
     DeleteObjectPolygon(-1); // на всякий случай удаляем полигоны с карты без свойства urbanObjectId, если пользователь например нарисовал полигон для объекта, но потом нажал Изход
+    VisibleOfPolygons(true); // restore visibility of polygons, because we hide them when create a new object
 
     $('#myTab a[href="#id_filter"]').tab('show'); // Select tab by name
     $('#id_tabUrbanobject').hide();

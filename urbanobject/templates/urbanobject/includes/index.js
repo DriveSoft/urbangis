@@ -84,166 +84,8 @@ mymap.onButNewMarkerClick = function (control) {
 
 
 
-// create button to create a new marker
-/*
-let but_newmarker = L.easyButton({
-    position: 'topright',
-    states:[
-        {
-            stateName: 'off',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
 
-                VisibleOfPolygons(false);
-                mymap.removeLayer(newMarker);
-                control.state('on');
-                but_newmarker.button.style.backgroundColor = 'red';
-                //document.getElementById('wrapper').classList.remove("toggled");
-                //$('#myTab a[href="#tree"]').tab('show') // Select tab by name
-
-                if (IS_MOBILE) {
-                    startNewMarkerMobile();
-                } else {
-                   $('.leaflet-container').css('cursor','crosshair');
-                }
-
-                $('#deleteButton').prop('disabled',true);
-                $('#deleteButton').prop('title','');
-
-            }
-        },
-
-        {
-            stateName: 'on',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
-                VisibleOfPolygons(true);
-                control.state('off');
-                but_newmarker.button.style.backgroundColor = 'white';
-                $('.leaflet-container').css('cursor','');
-
-                if (IS_MOBILE) {
-                    $('#doneMarkerMobile').hide();
-                    $('#cancelMarkerMobile').hide();
-
-                    // delete previous marker if exists
-                    mymap.removeLayer(newMarker);
-                }
-            }
-        }]
-});
-
-but_newmarker.addTo(mymap);
-*/
-
-
-
-/*
-var tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 21,
-    id: 'mapbox/streets-v11',
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-})//.addTo(mymap);
-
-var tilesDark = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 21,
-    id: 'mapbox/dark-v10', //
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-});//.addTo(mymap);
-
-
-var tilesSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri',
-	maxZoom: 19
-});//.addTo(mymap);
-
-
-var tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 21,
-    id: 'mapbox/satellite-v9',
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-});//.addTo(mymap);
-
-
-var titlesGoogle = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
-    attribution: 'Google',
-    maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
-});
-
-var titlesGoogleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-    attribution: 'Google',
-    maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
-});
-
-
-var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHhyKil9rD9dFK8536u8hTj1', {
-    maxZoom: 22
-});//.addTo(mymap);
-
-
-
-{% if request.session.mapname %}
-    {% if request.session.mapname == "Default" %}
-        tilesDefault.addTo(mymap);
-    {% elif request.session.mapname == "Dark" %}
-        tilesDark.addTo(mymap);
-    {% elif request.session.mapname == "Google" %}
-        titlesGoogle.addTo(mymap);
-    {% elif request.session.mapname == "Sat1" %}
-        tilesSatBing.addTo(mymap);
-    {% elif request.session.mapname == "Sat2" %}
-        titlesGoogleSat.addTo(mymap);
-    {% elif request.session.mapname == "Sat3" %}
-        tilesSat.addTo(mymap);
-    {% elif request.session.mapname == "Sat4" %}
-        tilesSat2.addTo(mymap);
-    {% else %}
-        tilesDefault.addTo(mymap);
-    {% endif %}
-
-{% else %}
-    tilesDefault.addTo(mymap);
-{% endif %}
-
-
-
-L.control.zoom({
-    position: 'topright'
-}).addTo(mymap);
-
-
-var baseMaps = {
-    "Default": tilesDefault,
-    "Dark": tilesDark,
-    "Google": titlesGoogle,
-    "Sat1": tilesSatBing,
-    "Sat2": titlesGoogleSat,
-    "Sat3": tilesSat,
-    "Sat4": tilesSat2,
-};
-
-
-
-let overlayMaps = {
-    //"Heatmap": heatmapLayer
-};
-
-L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(mymap);
-*/
-
-
-// save map tiles
+// save map tiles to session
 mymap.on('baselayerchange', function(e) {
     $.ajax({
         url: "{% url 'set_mapname' %}",
@@ -261,46 +103,6 @@ let urbanObjectsData = {
 
 
 let myRenderer = L.canvas({ padding: 0.5 });
-
-
-
-
-
-
-
-
-
-// create button for geolocation
-/*
-let but_geolocation = L.easyButton({
-    position: 'topright',
-    states:[
-        {
-            stateName: 'off',
-            icon: '<i class="fas fa-satellite-dish fa-lg"></i>',
-            onClick: function(control){
-                control.state('on');
-                setView_nTimes_gps = 4;
-                but_geolocation.button.style.backgroundColor = 'red';
-                mymap.locate(maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
-            }
-        },
-
-        {
-            stateName: 'on',
-            icon: '<i class="fas fa-satellite-dish fa-lg"></i>',
-            onClick: function(control){
-                control.state('off');
-                but_geolocation.button.style.backgroundColor = 'white';
-                mymap.stopLocate();
-                mymap.removeLayer(circle_geolocation);
-                setView_nTimes_gps = 4;
-            }
-        }]
-});
-
-but_geolocation.addTo(mymap);
-*/
 
 
 
@@ -651,11 +453,6 @@ function ShowUrbanObjectPreview (obj_UrbanObject, polygonArea) {
 
 
 
-
-
-
-
-
 $('#id_category').change(function() {
     subcategoriesInputElementUpdate(this, true);
 })
@@ -898,114 +695,6 @@ function EditUrbanObject (obj_UrbanObject) {
 
 
 
-
-
-/*
-function EditUrbanObject (geojson) {
-
-  //let $table_InspActData = $('#table_InspActData');
-  //$table_InspActData.bootstrapTable('destroy');
-  //$('#divTreeInspActData').hide();
-
-
-  // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
-  document.getElementById("id_latitude").value = geojson.properties.coordinates[1];
-  document.getElementById("id_longitude").value = geojson.properties.coordinates[0];
-
-
-  //$('#id_category').selectpicker('val', geojson.properties.category);
-  document.getElementById("id_category").value = geojson.properties.category;
-  $('#id_subcategories').selectpicker('val', geojson.properties.subcategories);
-  subcategoriesInputElementUpdate($('#id_category'), false);
-
-
-  document.getElementById("id_description").value = geojson.properties.description;
-  document.getElementById("id_comment").value = geojson.properties.comment.replace(/<br\s*[\/]?>/gi, "\n");
-  document.getElementById("id_googlestreeturl").value = geojson.properties.googlestreeturl;
-  $('#id_rating').rating('update', geojson.properties.rating);
-  document.getElementById("id_urbanObjectId").value = geojson.properties.id;
-
-  $("#saveButton").html('Актуализиране');
-
-
-
-    if (geojson.properties.photo1 !== "") {
-        $("#id_img_photo1").attr("src", "{% get_media_prefix%}"+geojson.properties.photo1);
-        //document.getElementById("id_photo1_filename").value = "{% get_media_prefix %}"+geojson.properties.photo1;
-    } else {
-        $("#id_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo1_filename").value = "";
-        document.getElementById("id_photo1_new_name").value = "";
-    }
-
-    if (geojson.properties.photo2 !== "") {
-        $("#id_img_photo2").attr("src", "{% get_media_prefix%}"+geojson.properties.photo2);
-        //document.getElementById("id_photo2_filename").value = "{% get_media_prefix %}"+geojson.properties.photo2;
-    } else {
-        $("#id_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo2_filename").value = "";
-        document.getElementById("id_photo2_new_name").value = "";
-    }
-
-    if (geojson.properties.photo3 !== "") {
-        $("#id_img_photo3").attr("src", "{% get_media_prefix%}"+geojson.properties.photo3);
-        //document.getElementById("id_photo3_filename").value = "{% get_media_prefix %}"+geojson.properties.photo3;
-    } else {
-        $("#id_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo3_filename").value = "";
-        document.getElementById("id_photo3_new_name").value = "";
-    }
-
-
-
-
-
-  {% if perms.coregis.change_coreurbanobject and perms.coregis.can_change_not_own_object_record %}
-    $('#saveButton').prop('disabled',false);
-    $('#saveButton').prop('title','');
-  {% elif perms.coregis.change_coreurbanobject and not perms.coregis.can_change_not_own_object_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
-        $('#saveButton').prop('disabled',false);
-        $('#saveButton').prop('title','');
-    } else {
-        $('#saveButton').prop('disabled',true);
-        $('#saveButton').prop('title','You cannot change information about the object that was created by another user.');
-    }
-  {% else %}
-    $('#saveButton').prop('disabled',true);
-    $('#saveButton').prop('title','You do not have enough privileges to change the object information.');
-  {% endif %}
-
-
-  {% if perms.coregis.delete_coreurbanobject and perms.coregis.can_delete_not_own_object_record %}
-    $('#deleteButton').prop('disabled',false);
-    $('#deleteButton').prop('title','');
-  {% elif perms.coregis.delete_object and not perms.coregis.can_delete_not_own_object_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
-        $('#deleteButton').prop('disabled',false);
-        $('#deleteButton').prop('title','');
-    } else {
-        $('#deleteButton').prop('disabled',true);
-        $('#deleteButton').prop('title','You cannot delete the object that was created by another user.');
-    }
-  {% else %}
-    $('#deleteButton').prop('disabled',true);
-    $('#deleteButton').prop('title','You don\'t have enough privileges to remove the object.');
-  {% endif %}
-
-
-
-
-  $('#id_tabUrbanobject').show();
-  $('#myTab a[href="#id_urbanobject"]').tab('show'); // Select tab by name
-
-
-
-
-
-  //Show_Inspections_Actions_Table('EditTree', geojson.properties.id);
-  OpenSidebar();
-}*/
 
 
 
@@ -1421,15 +1110,6 @@ function onMapZoom(e) {
 
 
 
-
-
-
-
-
-
-
-
-
 function Slideshow_Inspection_show(row) {
     let photo1 = "";
     let photo2 = "";
@@ -1439,14 +1119,6 @@ function Slideshow_Inspection_show(row) {
     if (row.photo3 !== "") { photo3 = "{% get_media_prefix %}" + row.photo3 }
     ShowSlideShow(photo1, photo2, photo3, "Modal")
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -1471,36 +1143,7 @@ input_photo3.onchange = function() {
 
 
 //=== UTILS ============================================================================================================
-//var circle_geolocation = L.circle();
-/*
-var circle_geolocation = L.circle([0, 0], {radius: 0}) // нужно указать параметры, иначе почему то плагин geoman ругается
 
-var setView_nTimes_gps = 4; // чтобы только N раз установить центр карты по GPS локации, иначе карта будет двигаться переодически за gps координатами
-function onLocationFound(e) {
-    let radius = e.accuracy / 2;
-
-    if (setView_nTimes_gps > 0) {
-        mymap.setView(e.latlng, 20);
-        setView_nTimes_gps = setView_nTimes_gps - 1;
-    }
-
-    if (mymap.hasLayer(circle_geolocation)) {
-        circle_geolocation.setLatLng(e.latlng);
-        circle_geolocation.setRadius(radius);
-    } else {
-        circle_geolocation = L.circle(e.latlng, radius).addTo(mymap);
-    }
-}
-
-function onLocationError(e) {
-    but_geolocation.state('off');
-    but_geolocation.button.style.backgroundColor = 'white';
-    alert(e.message);
-}
-mymap.on('locationfound', onLocationFound);
-mymap.on('locationerror', onLocationError);
-
-*/
 
 
 function formatDate(date) {

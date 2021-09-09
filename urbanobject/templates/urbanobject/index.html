@@ -25,8 +25,8 @@
 {% block cssfiles %}
 <link href="{% static 'plugins/bootstrap-star-rating/star-rating.min.css' %}" media="all" rel="stylesheet" type="text/css" />
 <link href="{% static 'plugins/bootstrap-star-rating/themes/krajee-svg/theme.css' %}" media="all" rel="stylesheet" type="text/css" />
-
-<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+<!--<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />-->
+<link rel="stylesheet" href="{% static 'script/leaflet.geoman_2.11.2/leaflet-geoman.css' %}" />
 {% endblock %}
 
 
@@ -41,12 +41,15 @@
 <script src="{% static 'script/resize_photos.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/jstree.min.js" integrity="sha512-bU6dl4fd2XN3Do3aWypPP2DcKywDyR3YlyszV+rOw9OpglrGyBs6TyTsbglf9umgE+sy+dKm1UHhi07Lv+Vtfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+<!-- <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script> -->
+<script src="{% static 'script/leaflet.geoman_2.11.2/leaflet-geoman.min.js' %}"></script>
 
-<script>
+<script type="module">
     {% include 'urbanobject/includes/index.js' %}
 </script>
 {% endblock %}
+
+
 
 
 

@@ -1,4 +1,5 @@
 {% load static %}
+import {NewMap} from '{% static 'script/classLeafletMap.js' %}';
 
 var markers;
 var markersCluster;
@@ -55,9 +56,15 @@ var heatmapLayer = new HeatmapOverlay(cfg);
 
 
 
+let mapName;
+{% if request.session.mapname %}
+    mapName = "{{ request.session.mapname }}";
+{% else %}
+    mapName = "Default";
+{% endif %}
 
 
-var mymap = L.map('mapid', { zoomControl: false }).setView(
+var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
     [
         {% if lat %}
             {{ lat }}
@@ -75,6 +82,154 @@ var mymap = L.map('mapid', { zoomControl: false }).setView(
 
 
 
+mymap.onButNewMarkerClick = function (control) {
+    if (control.state() === 'on') {
+
+        $('.leaflet-container').css('cursor','crosshair');
+
+        mymap.removeLayer(markersCluster);
+        mymap.addLayer(markers);
+
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','');
+
+    } else if (control.state() === 'off') {
+
+        mymap.removeLayer(newMarker);
+        $('.leaflet-container').css('cursor','');
+
+        mymap.removeLayer(markers);
+        {% if hide_cluster_zoomout %}
+            ZoomChangeCluster();
+        {% else %}
+            mymap.addLayer(markersCluster);
+        {% endif %}
+    }
+};
+
+
+
+mymap.onButHeatmapClick = function (control) {
+
+    if (control.state() === 'on') {
+        mymap.removeLayer(markersCluster);
+        mymap.removeLayer(markers);
+        //if (!mymap.hasLayer(tilesDark)) { tilesDark.addTo(mymap) } else { tilesDark.bringToFront(); }
+        mymap.addLayer(heatmapLayer);
+    } else if (control.state() === 'off') {
+        mymap.removeLayer(heatmapLayer);
+
+        {% if hide_cluster_zoomout %}
+            ZoomChangeCluster();
+        {% else %}
+            mymap.addLayer(markersCluster);
+        {% endif %}
+    }
+
+};
+
+
+
+// create button to create a new marker
+/*
+var but_heatmap = L.easyButton({
+    position: 'topright',
+    states:[
+        {
+            stateName: 'off',
+            icon: '<i class="fas fa-eye fa-lg"></i>',
+            onClick: function(control){
+                control.state('on');
+                but_heatmap.button.style.backgroundColor = 'red';
+
+                mymap.removeLayer(markersCluster);
+
+                mymap.removeLayer(markers);
+                if (!mymap.hasLayer(tilesDark)) { tilesDark.addTo(mymap) } else { tilesDark.bringToFront(); }
+                mymap.addLayer(heatmapLayer);
+
+            }
+        },
+
+        {
+            stateName: 'on',
+            icon: '<i class="fas fa-eye fa-lg"></i>',
+            onClick: function(control){
+                control.state('off');
+                but_heatmap.button.style.backgroundColor = 'white';
+
+                mymap.removeLayer(heatmapLayer);
+                mymap.removeLayer(tilesDark);
+
+                tilesDefault.addTo(mymap);
+                tilesDefault.bringToFront();
+
+                {% if hide_cluster_zoomout %}
+                    ZoomChangeCluster();
+                {% else %}
+                    mymap.addLayer(markersCluster);
+                {% endif %}
+
+            }
+        }]
+});
+
+but_heatmap.addTo(mymap);
+*/
+
+
+
+// create button to create a new marker
+/*
+var but_newmarker = L.easyButton({
+    position: 'topright',
+    states:[
+        {
+            stateName: 'off',
+            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
+            onClick: function(control){
+                control.state('on');
+                but_newmarker.button.style.backgroundColor = 'red';
+                //document.getElementById('wrapper').classList.remove("toggled");
+                //$('#myTab a[href="#accident"]').tab('show') // Select tab by name
+                $('.leaflet-container').css('cursor','crosshair');
+
+                mymap.removeLayer(markersCluster);
+                mymap.addLayer(markers);
+
+                $('#deleteButton').prop('disabled',true);
+                $('#deleteButton').prop('title','');
+
+            }
+        },
+
+        {
+            stateName: 'on',
+            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
+            onClick: function(control){
+                control.state('off');
+                but_newmarker.button.style.backgroundColor = 'white';
+
+                mymap.removeLayer(newMarker);
+                $('.leaflet-container').css('cursor','');
+
+                mymap.removeLayer(markers);
+                {% if hide_cluster_zoomout %}
+                    ZoomChangeCluster();
+                {% else %}
+                    mymap.addLayer(markersCluster);
+                {% endif %}
+
+            }
+        }]
+});
+
+but_newmarker.addTo(mymap);
+*/
+
+
+
+/*
 var tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 21,
@@ -155,13 +310,14 @@ var baseMaps = {
     "Sat2": tilesSat,
     "Sat3": tilesSat2
 };
+*/
 
-var overlayMaps = {
-    "Heatmap": heatmapLayer
-};
+//var overlayMaps = {
+//    "Heatmap": heatmapLayer
+//};
 
 
-L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(mymap);
+//L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(mymap);
 
 
 // save map tiles
@@ -272,98 +428,12 @@ var datefilter_Max = '1970-01-01';
 
 
 
-// create button to create a new marker
-var but_newmarker = L.easyButton({
-    position: 'topright',
-    states:[
-        {
-            stateName: 'off',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
-                control.state('on');
-                but_newmarker.button.style.backgroundColor = 'red';
-                //document.getElementById('wrapper').classList.remove("toggled");
-                //$('#myTab a[href="#accident"]').tab('show') // Select tab by name
-                $('.leaflet-container').css('cursor','crosshair');
-
-                mymap.removeLayer(markersCluster);
-                mymap.addLayer(markers);
-
-                $('#deleteButton').prop('disabled',true);
-                $('#deleteButton').prop('title','');
-
-            }
-        },
-
-        {
-            stateName: 'on',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
-                control.state('off');
-                but_newmarker.button.style.backgroundColor = 'white';
-                mymap.removeLayer(newMarker);
-                $('.leaflet-container').css('cursor','');
-
-                mymap.removeLayer(markers);
-                {% if hide_cluster_zoomout %}
-                    ZoomChangeCluster();
-                {% else %}
-                    mymap.addLayer(markersCluster);
-                {% endif %}
-
-            }
-        }]
-});
-
-but_newmarker.addTo(mymap);
 
 
 
 
-// create button to create a new marker
-var but_heatmap = L.easyButton({
-    position: 'topright',
-    states:[
-        {
-            stateName: 'off',
-            icon: '<i class="fas fa-eye fa-lg"></i>',
-            onClick: function(control){
-                control.state('on');
-                but_heatmap.button.style.backgroundColor = 'red';
 
-                mymap.removeLayer(markersCluster);
 
-                mymap.removeLayer(markers);
-                if (!mymap.hasLayer(tilesDark)) { tilesDark.addTo(mymap) } else { tilesDark.bringToFront(); }
-                mymap.addLayer(heatmapLayer);
-
-            }
-        },
-
-        {
-            stateName: 'on',
-            icon: '<i class="fas fa-eye fa-lg"></i>',
-            onClick: function(control){
-                control.state('off');
-                but_heatmap.button.style.backgroundColor = 'white';
-
-                mymap.removeLayer(heatmapLayer);
-                mymap.removeLayer(tilesDark);
-
-                tilesDefault.addTo(mymap);
-                tilesDefault.bringToFront();
-
-                {% if hide_cluster_zoomout %}
-                    ZoomChangeCluster();
-                {% else %}
-                    mymap.addLayer(markersCluster);
-                {% endif %}
-
-            }
-        }]
-});
-
-but_heatmap.addTo(mymap);
 
 
 
@@ -405,7 +475,7 @@ var redIcon = new L.Icon({ // https://github.com/pointhi/leaflet-color-markers
 // to create a new marker
 function onMapClick(e) {
 
-    if (but_newmarker.state() == 'on')
+    if (mymap.but_newmarker.state() == 'on')
     {
         $('#tabAccident').show();
 
@@ -459,8 +529,8 @@ function onMapClick(e) {
         document.getElementById("public_transport_involved").checked = 0;
 
 
-        but_newmarker.state('off');
-        but_newmarker.button.style.backgroundColor = 'white';
+        mymap.but_newmarker.state('off');
+        mymap.but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
     }
 }
@@ -563,7 +633,7 @@ function markerOnClick(e)
 // switch between markers and clusters if enabled option: hide_cluster_zoomout
 {% if hide_cluster_zoomout %}
     mymap.on('zoomend', function() {
-        if (but_newmarker.state() == 'off') {
+        if (mymap.but_newmarker.state() == 'off') {
             if (!mymap.hasLayer(heatmapLayer)) { ZoomChangeCluster(); }
         }
     });
@@ -725,7 +795,6 @@ document.onreadystatechange = function(){
 
         PermissionsApply();
         $('#tabAccident').hide();
-
 
         $.getJSON("{% url 'roadaccident_geojson_get' city_name=obj_city.sysname %}", function(json) {
             accidentData = json;
@@ -968,20 +1037,21 @@ function LoadAccidentsToMap(firsttime, filterEnabled) {
         },
     });
 
+
     //if (but_heatmap.state() == 'off') {
     //    markersCluster.addLayer(markers);
     //}
     markersCluster.addLayer(markers);
 
     {% if hide_cluster_zoomout %}
-        if (but_heatmap.state() == 'off') { ZoomChangeCluster(); }
+        if (mymap.but_heatmap.state() == 'off') { ZoomChangeCluster(); }
     {% else %}
         mymap.addLayer(markersCluster);
     {% endif %}
 }
 
 function PermissionsApply(){
-    {% if not perms.roadaccident.add_accident %} but_newmarker.disable(); {% endif %}
+    {% if not perms.roadaccident.add_accident %} mymap.but_newmarker.disable(); {% endif %}
 }
 
 

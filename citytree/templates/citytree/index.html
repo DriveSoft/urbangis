@@ -20,12 +20,17 @@
 
 
 
+{% block cssfiles %}
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css">
+{% endblock %}
+
 {% block scriptfiles %}
 <!-- client resize photos -->
 <script src="{% static 'script/image-blob-reduce.js' %}"></script>
 <script src="{% static 'script/citytree_resize_photos.js' %}"></script>
+<script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
 
-<script>
+<script type="module">
     {% include 'citytree/includes/index.js' %}
 </script>
 

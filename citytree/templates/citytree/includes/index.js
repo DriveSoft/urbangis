@@ -1,4 +1,6 @@
 {% load static %}
+import {NewMap} from '{% static 'script/classLeafletMap.js' %}';
+
 
 var IS_MOBILE = false;
 
@@ -73,7 +75,133 @@ var heatmapLayer = new HeatmapOverlay(cfgHeatMap);
 heatmapLayer.setData(HeatMapData);
 
 
-var mymap = L.map('mapid', { zoomControl: false }).setView(
+
+
+/*
+class NewMap extends L.map {
+
+    tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 21,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
+    })//.addTo(mymap);
+
+    tilesDark = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 21,
+    id: 'mapbox/dark-v10', //
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
+    });//.addTo(mymap);
+
+
+    tilesSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri',
+	maxZoom: 19
+    });//.addTo(mymap);
+
+
+    tilesSat2 = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 21,
+    id: 'mapbox/satellite-v9',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
+    });//.addTo(mymap);
+
+
+    titlesGoogle = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    attribution: 'Google',
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+    });
+
+    titlesGoogleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    attribution: 'Google',
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+    });
+
+    tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHhyKil9rD9dFK8536u8hTj1', {
+    maxZoom: 22
+    });//.addTo(mymap);
+
+
+
+    baseMaps = {
+    "Default": this.tilesDefault,
+    "Dark": this.tilesDark,
+    "Google": this.titlesGoogle,
+    "Sat1": this.tilesSatBing,
+    "Sat2": this.titlesGoogleSat,
+    "Sat3": this.tilesSat,
+    "Sat4": this.tilesSat2,
+    };
+
+
+    overlayMaps = {
+        //"Heatmap": heatmapLayer
+    };
+
+
+
+
+    constructor(htmlEl, options, mapName) {
+        super(htmlEl, options); // вызывает конструктор super класса и передаёт параметр name
+
+        if (mapName == "Default") {
+            this.tilesDefault.addTo(this);
+        } else if (mapName == "Dark") {
+            this.tilesDark.addTo(this);
+        } else if (mapName == "Google") {
+            this.titlesGoogle.addTo(this);
+        } else if (mapName == "Sat1") {
+            this.tilesSatBing.addTo(this);
+        } else if (mapName == "Sat2") {
+            this.titlesGoogleSat.addTo(this);
+        } else if (mapName == "Sat3") {
+            this.tilesSat.addTo(this);
+        } else if (mapName == "Sat4") {
+            this.tilesSat2.addTo(this);
+        } else {
+            this.tilesDefault.addTo(this);
+        }
+
+
+
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(this);
+
+        L.control.layers(this.baseMaps, this.overlayMaps, {position: 'topleft'}).addTo(this);
+
+    }
+
+    speak() {
+        console.log(`${this.name} лает.`);
+    }
+}
+*/
+
+
+
+
+let mapName;
+{% if request.session.mapname %}
+    mapName = "{{ request.session.mapname }}";
+{% else %}
+    mapName = "Default";
+{% endif %}
+
+
+
+
+var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
     [
         {% if lat %}
             {{ lat }}
@@ -91,6 +219,74 @@ var mymap = L.map('mapid', { zoomControl: false }).setView(
 
 
 
+
+
+
+mymap.onButNewMarkerClick = function (control) {
+    if (control.state() === 'on') {
+
+        mymap.removeLayer(newMarker);
+
+        if (IS_MOBILE) {
+            startNewMarkerMobile();
+        } else {
+           $('.leaflet-container').css('cursor','crosshair');
+        }
+
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','');
+
+
+    } else if (control.state() === 'off') {
+
+        $('.leaflet-container').css('cursor','');
+
+        if (IS_MOBILE) {
+            $('#doneMarkerMobile').hide();
+            $('#cancelMarkerMobile').hide();
+
+            // delete previous marker if exists
+            mymap.removeLayer(newMarker);
+        }
+    }
+};
+
+
+
+mymap.onButHeatmapClick = function (control) {
+
+    if (control.state() === 'on') {
+        mymap.removeLayer(markers);
+        mymap.addLayer(heatmapLayer);
+    } else if (control.state() === 'off') {
+        mymap.removeLayer(heatmapLayer);
+        mymap.addLayer(markers);
+    }
+
+};
+
+
+//console.log(mymap.activeBaseLayerName);
+
+/*
+var mymap = L.map('mapid', { zoomControl: false }).setView(
+    [
+        {% if lat %}
+            {{ lat }}
+        {% else %}
+            {{ obj_city.latitude }}
+        {% endif %}
+        ,
+        {% if lng %}
+            {{ lng }}
+        {% else %}
+            {{ obj_city.longitude }}
+        {% endif %}
+
+    ], {% if lat %} 17 {% else %} {{ obj_city.zoom }} {% endif %});
+*/
+
+/*
 var tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 21,
@@ -169,16 +365,18 @@ var tilesSatBing = L.tileLayer.bing('AniAD3xsGTaSbK1pa0_UkWS1CldG0nGI7r55MlVZqHh
     tilesDefault.addTo(mymap);
 {% endif %}
 
+*/
 
-
+/*
 L.control.zoom({
     position: 'topright'
 }).addTo(mymap);
-
+*/
 
 
 //mymap.addLayer(heatmapLayer);
 
+/*
 var baseMaps = {
     "Default": tilesDefault,
     "Dark": tilesDark,
@@ -194,13 +392,16 @@ var overlayMaps = {
 };
 
 L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(mymap);
+*/
 
 // save map tiles
 mymap.on('baselayerchange', function(e) {
+    console.log(e.name);
     $.ajax({
         url: "{% url 'set_mapname' %}",
         data: {'mapname': e.name}
     });
+
 });
 
 
@@ -279,6 +480,7 @@ var datefilter_Max = '1970-01-01';
 
 
 // create button to create a new marker
+/*
 var but_newmarker = L.easyButton({
     position: 'topright',
     states:[
@@ -325,10 +527,10 @@ var but_newmarker = L.easyButton({
 });
 
 but_newmarker.addTo(mymap);
+*/
 
 
-
-
+/*
 // create button to create a new marker
 var but_heatmap = L.easyButton({
     position: 'topright',
@@ -340,17 +542,13 @@ var but_heatmap = L.easyButton({
                 control.state('on');
                 but_heatmap.button.style.backgroundColor = 'red';
 
+                mymap.toggleMapForHeatmap(true);
                 mymap.removeLayer(markers);
-                mymap.removeLayer(tilesDefault);
+                //mymap.removeLayer(tilesDefault);
 
-                //if (!mymap.hasLayer(tilesDark)) {
-                //    tilesDark.addTo(mymap);
-                //} else {
-                //    tilesDark.bringToFront();
-                //}
 
-                tilesDark.addTo(mymap);
-                tilesDark.bringToFront();
+                //tilesDark.addTo(mymap);
+                //tilesDark.bringToFront();
                 mymap.addLayer(heatmapLayer);
 
             }
@@ -363,22 +561,32 @@ var but_heatmap = L.easyButton({
                 control.state('off');
                 but_heatmap.button.style.backgroundColor = 'white';
 
+                mymap.toggleMapForHeatmap(false);
+
                 mymap.removeLayer(heatmapLayer);
-                mymap.removeLayer(tilesDark);
+                //mymap.removeLayer(tilesDark);
 
 
-                tilesDefault.addTo(mymap);
-                tilesDefault.bringToFront();
+                //tilesDefault.addTo(mymap);
+                //tilesDefault.bringToFront();
 
                 mymap.addLayer(markers);
             }
         }]
 });
 
-but_heatmap.addTo(mymap);
+but_heatmap.addTo(mymap); */
+
+
+
+
+
+
+
 
 
 // create button for geolocation
+/*
 var but_geolocation = L.easyButton({
     position: 'topright',
     states:[
@@ -389,7 +597,7 @@ var but_geolocation = L.easyButton({
                 control.state('on');
                 setView_nTimes_gps = 4;
                 but_geolocation.button.style.backgroundColor = 'red';
-                mymap.locate({/*setView: true, */maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
+                mymap.locate({maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000}); //setView: true
             }
         },
 
@@ -406,7 +614,7 @@ var but_geolocation = L.easyButton({
         }]
 });
 
-but_geolocation.addTo(mymap);
+but_geolocation.addTo(mymap);*/
 
 
 
@@ -444,7 +652,8 @@ function onMapClick(e) {
     //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000"});
     //}
 
-    if (!IS_MOBILE && but_newmarker.state() == 'on')
+    if (!IS_MOBILE && mymap.but_newmarker.state() == 'on')
+    //if (!IS_MOBILE && NewMap.getNewMarkerButtonStatus() == 'on')
     {
         $('#tabTree').show();
 
@@ -496,8 +705,8 @@ function onMapClick(e) {
         document.getElementById("id_first_insp_photo3_new_name").value = '';
 
 
-        but_newmarker.state('off');
-        but_newmarker.button.style.backgroundColor = 'white';
+        mymap.but_newmarker.state('off');
+        mymap.but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
     }
 }
@@ -514,8 +723,8 @@ function startNewMarkerMobile() {
 
 function startEditMarkerMobile() {
     CloseSidebar();
-    but_newmarker.state('on');
-    but_newmarker.button.style.backgroundColor = 'red';
+    mymap.but_newmarker.state('on');
+    mymap.but_newmarker.button.style.backgroundColor = 'red';
 
     sleep(400).then(() => {
         $('#doneEditMarkerMobile').show();
@@ -567,8 +776,8 @@ function buttonDoneMarkerMobileOnClick(e) {
     document.getElementById("id_first_insp_photo3_new_name").value = '';
 
 
-    but_newmarker.state('off');
-    but_newmarker.button.style.backgroundColor = 'white';
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
     OpenSidebar();
 }
 
@@ -588,8 +797,8 @@ function buttonCancelMarkerMobileOnClick(e) {
 
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
-    but_newmarker.state('off');
-    but_newmarker.button.style.backgroundColor = 'white';
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
 }
 
 
@@ -1046,6 +1255,7 @@ function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
 
 
 function ZoomToRadius (zoom, crowndiameter) {
+    let r;
     if (zoom > 17) {
         r = Math.floor(crowndiameter / 2);
     } else if (zoom == 17){
@@ -1261,7 +1471,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
 
     heatmapLayer.setData(HeatMapData);
-    if (but_heatmap.state() == 'off') {
+    if (mymap.but_heatmap.state() == 'off') {
         mymap.addLayer(markers);
     }
 
@@ -1345,7 +1555,7 @@ button_closeTabAct.onclick = function() {
 
 function onMapDrag(e) {
     let center = mymap.getCenter();  //get map center
-    if (but_newmarker.state() == 'on') {
+    if (mymap.but_newmarker.state() == 'on') {
         newMarker.setLatLng(center);
     }
 
@@ -1353,7 +1563,7 @@ function onMapDrag(e) {
 
 function onMapZoom(e) {
     let center = mymap.getCenter();  //get map center
-    if (but_newmarker.state() == 'on') {
+    if (mymap.but_newmarker.state() == 'on') {
         newMarker.setLatLng(center);
     }
 }
@@ -1644,9 +1854,9 @@ mymap.on('click', onMapClick);
 
 
 //=== UTILS ============================================================================================================
-var circle_geolocation = L.circle();
-var setView_nTimes_gps = 4; // чтобы только N раз установить центр карты по GPS локации, иначе карта будет двигаться переодически за gps координатами
-function onLocationFound(e) {
+//var circle_geolocation = L.circle();
+//var setView_nTimes_gps = 4; // чтобы только N раз установить центр карты по GPS локации, иначе карта будет двигаться переодически за gps координатами
+/*function onLocationFound(e) {
     let radius = e.accuracy / 2;
 
     if (setView_nTimes_gps > 0) {
@@ -1669,7 +1879,7 @@ function onLocationError(e) {
 }
 mymap.on('locationfound', onLocationFound);
 mymap.on('locationerror', onLocationError);
-
+*/
 
 
 
@@ -2000,7 +2210,7 @@ function AjaxLoadJson(){
         ajax_geojson = {"type": "FeatureCollection", "features": []};
 
         // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
-        for (i in treeData.features) {
+        for (let i in treeData.features) {
             if (treeData.features[i].properties.is_deleted == 0) {
                 ajax_geojson.features.push(treeData.features[i]);
             }
@@ -2017,7 +2227,7 @@ function AjaxLoadJson(){
 
         // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
         // также в массив добавляем id деревьев, которые нужно отфильтровать из ajax json, т.к. могут присутствовать маркеры, которые были отредактированы, соотвественно они измененные и пришли из БД, а файл geojson обновляетне только переодически
-        for (i in treeData.features) {
+        for (let i in treeData.features) {
             if (treeData.features[i].properties.is_deleted == 0) {
                 ajax_geojson.features.push(treeData.features[i]);
             }
@@ -2069,7 +2279,7 @@ function AjaxLoadJson(){
 
 
 function PermissionsApply(){
-    {% if not perms.citytree.add_tree %} but_newmarker.disable(); {% endif %}
+    {% if not perms.citytree.add_tree %} mymap.but_newmarker.disable(); {% endif %}
     {% if not perms.citytree.add_inspection %} $('#id_button_NewInspection').prop('disabled',true); $('#id_button_NewInspection').prop('title','You don\'t have access to this action'); {% endif %}
     {% if not perms.citytree.add_careactivity %} $('#id_button_NewAction').prop('disabled',true); $('#id_button_NewAction').prop('title','You don\'t have access to this action'); {% endif %}
 }

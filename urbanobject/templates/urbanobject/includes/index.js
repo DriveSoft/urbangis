@@ -1,4 +1,8 @@
 {% load static %}
+import {NewMap} from '{% static 'script/classLeafletMap.js' %}';
+
+
+
 
 let IS_MOBILE = false;
 
@@ -20,9 +24,16 @@ let baseURL = '/urbanobject/{{obj_city.sysname}}/'; // for html5 history API
 
 
 
+let mapName;
+{% if request.session.mapname %}
+    mapName = "{{ request.session.mapname }}";
+{% else %}
+    mapName = "Default";
+{% endif %}
 
 
-let mymap = L.map('mapid', { zoomControl: false }).setView(
+
+var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
     [
         {% if lat %}
             {{ lat }}
@@ -40,6 +51,94 @@ let mymap = L.map('mapid', { zoomControl: false }).setView(
 
 
 
+mymap.onButNewMarkerClick = function (control) {
+    if (control.state() === 'on') {
+
+        VisibleOfPolygons(false);
+        mymap.removeLayer(newMarker);
+
+        if (IS_MOBILE) {
+            startNewMarkerMobile();
+        } else {
+           $('.leaflet-container').css('cursor','crosshair');
+        }
+
+        $('#deleteButton').prop('disabled',true);
+        $('#deleteButton').prop('title','');
+
+    } else if (control.state() === 'off') {
+
+        VisibleOfPolygons(true);
+
+        $('.leaflet-container').css('cursor','');
+
+        if (IS_MOBILE) {
+            $('#doneMarkerMobile').hide();
+            $('#cancelMarkerMobile').hide();
+
+            // delete previous marker if exists
+            mymap.removeLayer(newMarker);
+        }
+    }
+};
+
+
+
+// create button to create a new marker
+/*
+let but_newmarker = L.easyButton({
+    position: 'topright',
+    states:[
+        {
+            stateName: 'off',
+            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
+            onClick: function(control){
+
+                VisibleOfPolygons(false);
+                mymap.removeLayer(newMarker);
+                control.state('on');
+                but_newmarker.button.style.backgroundColor = 'red';
+                //document.getElementById('wrapper').classList.remove("toggled");
+                //$('#myTab a[href="#tree"]').tab('show') // Select tab by name
+
+                if (IS_MOBILE) {
+                    startNewMarkerMobile();
+                } else {
+                   $('.leaflet-container').css('cursor','crosshair');
+                }
+
+                $('#deleteButton').prop('disabled',true);
+                $('#deleteButton').prop('title','');
+
+            }
+        },
+
+        {
+            stateName: 'on',
+            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
+            onClick: function(control){
+                VisibleOfPolygons(true);
+                control.state('off');
+                but_newmarker.button.style.backgroundColor = 'white';
+                $('.leaflet-container').css('cursor','');
+
+                if (IS_MOBILE) {
+                    $('#doneMarkerMobile').hide();
+                    $('#cancelMarkerMobile').hide();
+
+                    // delete previous marker if exists
+                    mymap.removeLayer(newMarker);
+                }
+            }
+        }]
+});
+
+but_newmarker.addTo(mymap);
+*/
+
+
+
+/*
 var tilesDefault = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 21,
@@ -141,6 +240,8 @@ let overlayMaps = {
 };
 
 L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(mymap);
+*/
+
 
 // save map tiles
 mymap.on('baselayerchange', function(e) {
@@ -164,60 +265,13 @@ let myRenderer = L.canvas({ padding: 0.5 });
 
 
 
-// create button to create a new marker
-let but_newmarker = L.easyButton({
-    position: 'topright',
-    states:[
-        {
-            stateName: 'off',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
 
-                VisibleOfPolygons(false);
-                mymap.removeLayer(newMarker);
-                control.state('on');
-                but_newmarker.button.style.backgroundColor = 'red';
-                //document.getElementById('wrapper').classList.remove("toggled");
-                //$('#myTab a[href="#tree"]').tab('show') // Select tab by name
-
-                if (IS_MOBILE) {
-                    startNewMarkerMobile();
-                } else {
-                   $('.leaflet-container').css('cursor','crosshair');
-                }
-
-                $('#deleteButton').prop('disabled',true);
-                $('#deleteButton').prop('title','');
-
-            }
-        },
-
-        {
-            stateName: 'on',
-            icon: '<i class="fas fa-map-marker-alt fa-lg"></i>',
-            onClick: function(control){
-                VisibleOfPolygons(true);
-                control.state('off');
-                but_newmarker.button.style.backgroundColor = 'white';
-                $('.leaflet-container').css('cursor','');
-
-                if (IS_MOBILE) {
-                    $('#doneMarkerMobile').hide();
-                    $('#cancelMarkerMobile').hide();
-
-                    // delete previous marker if exists
-                    mymap.removeLayer(newMarker);
-                }
-            }
-        }]
-});
-
-but_newmarker.addTo(mymap);
 
 
 
 
 // create button for geolocation
+/*
 let but_geolocation = L.easyButton({
     position: 'topright',
     states:[
@@ -228,7 +282,7 @@ let but_geolocation = L.easyButton({
                 control.state('on');
                 setView_nTimes_gps = 4;
                 but_geolocation.button.style.backgroundColor = 'red';
-                mymap.locate({/*setView: true, */maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
+                mymap.locate(maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
             }
         },
 
@@ -246,7 +300,7 @@ let but_geolocation = L.easyButton({
 });
 
 but_geolocation.addTo(mymap);
-
+*/
 
 
 
@@ -301,7 +355,7 @@ function onMapClick(e) {
     //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000"});
     //}
 
-    if (!IS_MOBILE && but_newmarker.state() == 'on')
+    if (!IS_MOBILE && mymap.but_newmarker.state() == 'on')
     {
         $('#id_tabUrbanobject').show();
 
@@ -348,8 +402,8 @@ function onMapClick(e) {
 
         document.getElementById("id_polygonCoords").value = '';
 
-        but_newmarker.state('off');
-        but_newmarker.button.style.backgroundColor = 'white';
+        mymap.but_newmarker.state('off');
+        mymap.but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
     }
 }
@@ -366,8 +420,8 @@ function startNewMarkerMobile() {
 
 function startEditMarkerMobile() {
     CloseSidebar();
-    but_newmarker.state('on');
-    but_newmarker.button.style.backgroundColor = 'red';
+    mymap.but_newmarker.state('on');
+    mymap.but_newmarker.button.style.backgroundColor = 'red';
 
     sleep(400).then(() => {
         $('#doneEditMarkerMobile').show();
@@ -417,8 +471,8 @@ function buttonDoneMarkerMobileOnClick(e) {
     document.getElementById("id_polygonCoords").value = '';
 
 
-    but_newmarker.state('off');
-    but_newmarker.button.style.backgroundColor = 'white';
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
     OpenSidebar();
 }
 
@@ -438,8 +492,8 @@ function buttonCancelMarkerMobileOnClick(e) {
 
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
-    but_newmarker.state('off');
-    but_newmarker.button.style.backgroundColor = 'white';
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
 }
 
 
@@ -455,7 +509,7 @@ function markerOnClick(e)
   //console.log(geojson);
   // if object hsd polygon, calculate its area and send it to preview window
   let polygonArea;
-  for (item of geojson.geometry.geometries) {
+  for (let item of geojson.geometry.geometries) {
     let x=[];
     let y=[];
 
@@ -464,7 +518,7 @@ function markerOnClick(e)
 
     if (item.type == "Polygon") {
         if (item.coordinates[0].length >= 4) { // correct polygon must have at least 4 coordinates
-            for (coord of item.coordinates[0]) {
+            for (let coord of item.coordinates[0]) {
                 points.push([coord[1], coord[0]])
             }
             polygonArea = GetAreaPolygon(latlontocart(points)).toFixed(2);
@@ -1330,6 +1384,7 @@ button_closeTabUrbanObject.onclick = function() {
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
 
+
     mymap.pm.disableGlobalEditMode();
     mymap.pm.disableDraw();
     DeleteObjectPolygon(-1); // на всякий случай удаляем полигоны с карты без свойства urbanObjectId, если пользователь например нарисовал полигон для объекта, но потом нажал Изход
@@ -1350,7 +1405,7 @@ button_closeTabUrbanObject.onclick = function() {
 
 function onMapDrag(e) {
     let center = mymap.getCenter();  //get map center
-    if (but_newmarker.state() == 'on') {
+    if (mymap.but_newmarker.state() == 'on') {
         newMarker.setLatLng(center);
     }
 
@@ -1358,7 +1413,7 @@ function onMapDrag(e) {
 
 function onMapZoom(e) {
     let center = mymap.getCenter();  //get map center
-    if (but_newmarker.state() == 'on') {
+    if (mymap.but_newmarker.state() == 'on') {
         newMarker.setLatLng(center);
     }
 }
@@ -1417,6 +1472,7 @@ input_photo3.onchange = function() {
 
 //=== UTILS ============================================================================================================
 //var circle_geolocation = L.circle();
+/*
 var circle_geolocation = L.circle([0, 0], {radius: 0}) // нужно указать параметры, иначе почему то плагин geoman ругается
 
 var setView_nTimes_gps = 4; // чтобы только N раз установить центр карты по GPS локации, иначе карта будет двигаться переодически за gps координатами
@@ -1444,7 +1500,7 @@ function onLocationError(e) {
 mymap.on('locationfound', onLocationFound);
 mymap.on('locationerror', onLocationError);
 
-
+*/
 
 
 function formatDate(date) {
@@ -1741,7 +1797,7 @@ $('#id_filter_category')
 
 function PermissionsApply(){
     {% if not perms.coregis.add_coreurbanobject %}
-    but_newmarker.disable();
+    mymap.but_newmarker.disable();
     {% endif %}
 }
 
@@ -1754,7 +1810,7 @@ function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
   xhr.upload.onprogress = updateProgress;
 
   var postData = new FormData();
-  for(key in s3Data.fields){
+  for(let key in s3Data.fields){
     postData.append(key, s3Data.fields[key]);
   }
   postData.append('file', file);

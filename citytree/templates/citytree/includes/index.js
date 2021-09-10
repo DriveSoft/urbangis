@@ -14,6 +14,16 @@ var button_closeTabAct = document.getElementById('button_CloseTabAct');
 var button_NewInspection = document.getElementById('id_button_NewInspection');
 var button_NewAction = document.getElementById('id_button_NewAction');
 
+
+let input_first_insp_photo1 = document.getElementById('id_first_insp_photo1');
+let input_first_insp_photo2 = document.getElementById('id_first_insp_photo2');
+let input_first_insp_photo3 = document.getElementById('id_first_insp_photo3');
+
+let input_insp_photo1 = document.getElementById('id_insp_photo1');
+let input_insp_photo2 = document.getElementById('id_insp_photo2');
+let input_insp_photo3 = document.getElementById('id_insp_photo3');
+
+
 var markers;
 var ajax_geojson;
 var idsFromDB = []; // храним id маркеров деревьев, которые пришли из базы, чтобы исключитть эти маркеры из ajax_geojson
@@ -1292,14 +1302,35 @@ button_NewAction.onclick = function() {
 
 
 
-
-
-
-
-
-
-
 mymap.on('click', onMapClick);
+
+
+
+input_first_insp_photo1.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_first_insp_img_photo1', 'saveButton');
+}
+
+input_first_insp_photo2.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_first_insp_img_photo2', 'saveButton');
+}
+
+input_first_insp_photo3.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_first_insp_img_photo3', 'saveButton');
+}
+
+
+input_insp_photo1.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_insp_img_photo1', 'saveInspButton');
+}
+
+input_insp_photo2.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_insp_img_photo2', 'saveInspButton');
+}
+
+input_insp_photo3.onchange = function() {
+    OnChangeInputFileElementForResize(this, 1280, 'id_insp_img_photo3', 'saveInspButton');
+}
+
 
 
 //=== UTILS ============================================================================================================
@@ -1715,7 +1746,7 @@ function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
   xhr.upload.onprogress = updateProgress;
 
   var postData = new FormData();
-  for(key in s3Data.fields){
+  for(let key in s3Data.fields){
     postData.append(key, s3Data.fields[key]);
   }
   postData.append('file', file);

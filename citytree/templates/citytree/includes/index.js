@@ -307,28 +307,10 @@ function onMapClick(e) {
             document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
         });
 
+        clearNewTreeForm();
 
-
-
-        document.getElementById("treeId").value = '';
         document.getElementById("latitude").value = e.latlng.lat.toFixed(5);
         document.getElementById("longitude").value = e.latlng.lng.toFixed(5);
-
-        //document.getElementById("species").value = 0;
-        //$('#species').selectpicker('deselectAll');
-        $('#species').selectpicker('val', []);
-        document.getElementById("speciescomment").value = '';
-        document.getElementById("comment").value = '';
-        document.getElementById("placetype").value = 0;
-        document.getElementById("irrigationmethod").value = 1;
-        document.getElementById("dateplanted").value = '';
-        document.getElementById("googlestreeturl").value = '';
-        document.getElementById("status").value = 0;
-
-        document.getElementById("id_first_insp_photo1_new_name").value = '';
-        document.getElementById("id_first_insp_photo2_new_name").value = '';
-        document.getElementById("id_first_insp_photo3_new_name").value = '';
-
 
         mymap.but_newmarker.state('off');
         mymap.but_newmarker.button.style.backgroundColor = 'white';
@@ -336,6 +318,26 @@ function onMapClick(e) {
     }
 }
 
+
+function clearNewTreeForm() {
+    document.getElementById("treeId").value = '';
+    $('#species').selectpicker('val', []);
+    document.getElementById("speciescomment").value = '';
+    document.getElementById("comment").value = '';
+    document.getElementById("placetype").value = 0;
+    document.getElementById("irrigationmethod").value = 1;
+    document.getElementById("dateplanted").value = '';
+    document.getElementById("googlestreeturl").value = '';
+    document.getElementById("height").value = '';
+    document.getElementById("crowndiameter").value = '';
+    document.getElementById("trunkgirth").value = '';
+    document.getElementById("status").value = 0;
+    $('#id_remarks').selectpicker('val', []);
+    $('#id_recommendations').selectpicker('val', []);
+    document.getElementById("id_first_insp_photo1_new_name").value = '';
+    document.getElementById("id_first_insp_photo2_new_name").value = '';
+    document.getElementById("id_first_insp_photo3_new_name").value = '';
+}
 
 
 
@@ -358,8 +360,6 @@ function startEditMarkerMobile() {
         mymap.panTo(latlng);
         newMarker = new L.marker(latlng, {icon: redIcon, draggable: false}).addTo(mymap);
     });
-
-
 }
 
 
@@ -383,23 +383,10 @@ function buttonDoneMarkerMobileOnClick(e) {
     $("#saveButton").html('Запази');
     $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
 
+    clearNewTreeForm();
 
-    document.getElementById("treeId").value = '';
     document.getElementById('latitude').value = newMarker.getLatLng().lat.toFixed(5);
     document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
-
-    $('#species').selectpicker('val', []);
-    document.getElementById("speciescomment").value = '';
-    document.getElementById("comment").value = '';
-    document.getElementById("placetype").value = 0;
-    document.getElementById("irrigationmethod").value = 1;
-    document.getElementById("dateplanted").value = '';
-    document.getElementById("status").value = 0;
-
-    document.getElementById("id_first_insp_photo1_new_name").value = '';
-    document.getElementById("id_first_insp_photo2_new_name").value = '';
-    document.getElementById("id_first_insp_photo3_new_name").value = '';
-
 
     mymap.but_newmarker.state('off');
     mymap.but_newmarker.button.style.backgroundColor = 'white';

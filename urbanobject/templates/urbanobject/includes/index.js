@@ -182,34 +182,16 @@ function onMapClick(e) {
         });
 
 
+        clearObjectForm();
 
-
-        document.getElementById("id_urbanObjectId").value = '';
         document.getElementById("id_latitude").value = e.latlng.lat.toFixed(5);
         document.getElementById("id_longitude").value = e.latlng.lng.toFixed(5);
-
-
-        document.getElementById("id_category").value = 0;
-        $('#id_subcategories').selectpicker('val', []);
-        subcategoriesInputElementUpdate($('#id_category'), true); // чтобы скрыть items
-
-        document.getElementById("id_description").value = '';
-        document.getElementById("id_comment").value = '';
-        document.getElementById("id_googlestreeturl").value = '';
-        $('#id_rating').rating('clear');
-
-        document.getElementById("id_photo1_new_name").value = '';
-        document.getElementById("id_photo2_new_name").value = '';
-        document.getElementById("id_photo3_new_name").value = '';
-
-        document.getElementById("id_polygonCoords").value = '';
 
         mymap.but_newmarker.state('off');
         mymap.but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
     }
 }
-
 
 
 
@@ -252,26 +234,11 @@ function buttonDoneMarkerMobileOnClick(e) {
     $("#saveButton").html('Запази');
     $('#myTab a[href="#id_urbanobject"]').tab('show'); // Select tab by name
 
+    clearObjectForm();
 
-    document.getElementById("id_urbanObjectId").value = '';
+    //document.getElementById("id_urbanObjectId").value = '';
     document.getElementById('id_latitude').value = newMarker.getLatLng().lat.toFixed(5);
     document.getElementById('id_longitude').value = newMarker.getLatLng().lng.toFixed(5);
-
-
-    document.getElementById("id_category").value = 0;
-    $('#id_subcategories').selectpicker('val', []);
-    subcategoriesInputElementUpdate($('#id_category'), true); // чтобы скрыть items
-
-    document.getElementById("id_description").value = '';
-    document.getElementById("id_comment").value = '';
-    document.getElementById("id_googlestreeturl").value = '';
-
-    document.getElementById("id_photo1_new_name").value = '';
-    document.getElementById("id_photo2_new_name").value = '';
-    document.getElementById("id_photo3_new_name").value = '';
-
-    document.getElementById("id_polygonCoords").value = '';
-
 
     mymap.but_newmarker.state('off');
     mymap.but_newmarker.button.style.backgroundColor = 'white';
@@ -1212,50 +1179,24 @@ mymap.on('pm:create', e => {
 
 
 document.onreadystatechange = function(){
-   if(document.readyState === 'complete'){
-
+    if(document.readyState === 'complete'){
 
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
             IS_MOBILE = true;
-
-            //$('#id_filter_category').selectpicker('mobile');
-            //$('#id_subcategories').selectpicker('mobile');
-
 
             mymap.on('drag', onMapDrag);
             mymap.on('zoom', onMapZoom);
 
             $("#mapid").css("height", "calc(100vh - 113px)");
 
-            //$("#id_insp_img_photo1").css("max-width", "80px");
-            //$("#id_insp_img_photo2").css("max-width", "80px");
-            //$("#id_insp_img_photo3").css("max-width", "80px");
-
             $("#id_scrollbar_filter").css("height", "calc(100vh - 190px)");
             $("#id_scrollbar_urbanobject").css("height", "calc(100vh - 160px)");
-            //$("#id_scrollbar_inspection").css("height", "calc(100vh - 160px)");
-
-
-            //$('#id_recommendations').attr('data-mobile', true);
         }
 
 
-    $('#id_tabUrbanobject').hide();
-    //$('#tabInspection').hide();
-    //$('#tabAction').hide();
-    $('#doneMarkerMobile').hide();
-    $('#cancelMarkerMobile').hide();
-
-
-    //$("#id_insp_img_photo1").click(images_inspection_click);
-    //$("#id_insp_img_photo2").click(images_inspection_click);
-    //$("#id_insp_img_photo3").click(images_inspection_click);
-
-    //$("#id_insp_img_photo1").css('cursor','pointer');
-    //$("#id_insp_img_photo2").css('cursor','pointer');
-    //$("#id_insp_img_photo3").css('cursor','pointer');
-
-        //$('#id_urbanobject').hide();
+        $('#id_tabUrbanobject').hide();
+        $('#doneMarkerMobile').hide();
+        $('#cancelMarkerMobile').hide();
 
 
         PermissionsApply();
@@ -1267,7 +1208,7 @@ document.onreadystatechange = function(){
 
 
 
-    $('#saveButton').click(function(){
+        $('#saveButton').click(function(){
 
 
         let id = document.getElementById("id_urbanObjectId").value;
@@ -1580,6 +1521,21 @@ window.addEventListener('popstate', function(event) {
 
 });
 
+
+function clearObjectForm(){
+    document.getElementById("id_urbanObjectId").value = '';
+    document.getElementById("id_category").value = 0;
+    $('#id_subcategories').selectpicker('val', []);
+    subcategoriesInputElementUpdate($('#id_category'), true); // чтобы скрыть items
+    document.getElementById("id_description").value = '';
+    document.getElementById("id_comment").value = '';
+    document.getElementById("id_googlestreeturl").value = '';
+    $('#id_rating').rating('clear');
+    document.getElementById("id_photo1_new_name").value = '';
+    document.getElementById("id_photo2_new_name").value = '';
+    document.getElementById("id_photo3_new_name").value = '';
+    document.getElementById("id_polygonCoords").value = '';
+}
 
 
 function GetAreaPolygon(polygon) {

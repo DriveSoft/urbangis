@@ -3,9 +3,8 @@ import {NewMap} from '{% static 'script/classLeafletMap.js' %}';
 
 var markers;
 var markersCluster;
-
 var HeatMapData = {max: 8, data: []};
-
+let IS_MOBILE = false;
 
 
 
@@ -75,18 +74,34 @@ var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
 mymap.onButNewMarkerClick = function (control) {
     if (control.state() === 'on') {
 
-        $('.leaflet-container').css('cursor','crosshair');
-
         mymap.removeLayer(markersCluster);
         mymap.addLayer(markers);
+
+
+        if (IS_MOBILE) {
+            startNewMarkerMobile();
+        } else {
+           $('.leaflet-container').css('cursor','crosshair');
+        }
+
 
         $('#deleteButton').prop('disabled',true);
         $('#deleteButton').prop('title','');
 
     } else if (control.state() === 'off') {
 
-        mymap.removeLayer(newMarker);
+        //mymap.removeLayer(newMarker);
         $('.leaflet-container').css('cursor','');
+
+
+        if (IS_MOBILE) {
+            $('#doneMarkerMobile').hide();
+            $('#cancelMarkerMobile').hide();
+
+            // delete previous marker if exists
+            mymap.removeLayer(newMarker);
+        }
+
 
         mymap.removeLayer(markers);
         {% if hide_cluster_zoomout %}
@@ -251,8 +266,8 @@ heatmapLayer.on('remove',(e)=>{
 
 
 //var markerCircle = new L.circleMarker(); // global variable to able to remove previous marker
-var newMarker = new L.marker()
-var redIcon = new L.Icon({ // https://github.com/pointhi/leaflet-color-markers
+let newMarker = new L.marker()
+let redIcon = new L.Icon({ // https://github.com/pointhi/leaflet-color-markers
   iconUrl: '{% static 'markers/marker-red.png' %}',
   shadowUrl: '{% static 'markers/marker-shadow.png' %}',
   iconSize: [25, 41],
@@ -265,8 +280,9 @@ var redIcon = new L.Icon({ // https://github.com/pointhi/leaflet-color-markers
 
 // to create a new marker
 function onMapClick(e) {
+    $('.navbar-collapse').collapse('hide'); // устраняет баг, если меню раскрыто при клике по карте оно закрывается
 
-    if (mymap.but_newmarker.state() == 'on')
+    if (!IS_MOBILE && mymap.but_newmarker.state() == 'on')
     {
         $('#tabAccident').show();
 
@@ -288,43 +304,113 @@ function onMapClick(e) {
             document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
         });
 
+        clearAccidentForm();
 
-
-
-        document.getElementById("accidentId").value = '';
         document.getElementById("latitude").value = e.latlng.lat.toFixed(5);
         document.getElementById("longitude").value = e.latlng.lng.toFixed(5);
-        document.getElementById("datetime").value = '';
-        document.getElementById("description").value = '';
-        document.getElementById("maneuver").value = 0;
-
-        $('#accident_violations_type').selectpicker('deselectAll');
-        $('#accident_violations_type').selectpicker('val', []);
-
-        $('#accident_violators').selectpicker('deselectAll');
-        $('#accident_violators').selectpicker('val', []);
-
-        document.getElementById("drivers_injured").value = 0;
-        document.getElementById("motorcyclists_injured").value = 0;
-        document.getElementById("cyclists_injured").value = 0;
-        document.getElementById("ped_injured").value = 0;
-        document.getElementById("kids_injured").value = 0;
-        document.getElementById("pubtr_passengers_injured").value = 0;
-
-        document.getElementById("drivers_killed").value = 0;
-        document.getElementById("motorcyclists_killed").value = 0;
-        document.getElementById("cyclists_killed").value = 0;
-        document.getElementById("ped_killed").value = 0;
-        document.getElementById("kids_killed").value = 0;
-        document.getElementById("pubtr_passengers_killed").value = 0;
-        document.getElementById("public_transport_involved").checked = 0;
-
 
         mymap.but_newmarker.state('off');
         mymap.but_newmarker.button.style.backgroundColor = 'white';
         $('.leaflet-container').css('cursor','');
     }
 }
+
+
+
+function clearAccidentForm() {
+    document.getElementById("accidentId").value = '';
+    document.getElementById("datetime").value = '';
+    document.getElementById("description").value = '';
+    document.getElementById("maneuver").value = 0;
+    $('#accident_violations_type').selectpicker('deselectAll');
+    $('#accident_violations_type').selectpicker('val', []);
+    $('#accident_violators').selectpicker('deselectAll');
+    $('#accident_violators').selectpicker('val', []);
+    document.getElementById("drivers_injured").value = 0;
+    document.getElementById("motorcyclists_injured").value = 0;
+    document.getElementById("cyclists_injured").value = 0;
+    document.getElementById("ped_injured").value = 0;
+    document.getElementById("kids_injured").value = 0;
+    document.getElementById("pubtr_passengers_injured").value = 0;
+    document.getElementById("drivers_killed").value = 0;
+    document.getElementById("motorcyclists_killed").value = 0;
+    document.getElementById("cyclists_killed").value = 0;
+    document.getElementById("ped_killed").value = 0;
+    document.getElementById("kids_killed").value = 0;
+    document.getElementById("pubtr_passengers_killed").value = 0;
+    document.getElementById("public_transport_involved").checked = 0;
+}
+
+
+
+function startNewMarkerMobile() {
+    $('#doneMarkerMobile').show();
+    $('#cancelMarkerMobile').show();
+    let center = mymap.getCenter();
+    newMarker = new L.marker(center, {icon: redIcon, draggable: false}).addTo(mymap);
+}
+
+function startEditMarkerMobile() {
+    CloseSidebar();
+    mymap.but_newmarker.state('on');
+    mymap.but_newmarker.button.style.backgroundColor = 'red';
+
+    sleep(400).then(() => {
+        $('#doneEditMarkerMobile').show();
+        $('#cancelMarkerMobile').show();
+        let latlng = L.latLng(document.getElementById('latitude').value, document.getElementById('longitude').value);
+        mymap.panTo(latlng);
+        newMarker = new L.marker(latlng, {icon: redIcon, draggable: false}).addTo(mymap);
+    });
+}
+
+
+document.getElementById("doneMarkerMobile").onclick = buttonDoneMarkerMobileOnClick;
+document.getElementById("doneEditMarkerMobile").onclick = buttonDoneEditMarkerMobileOnClick;
+document.getElementById("cancelMarkerMobile").onclick = buttonCancelMarkerMobileOnClick;
+
+
+function buttonDoneMarkerMobileOnClick(e) {
+    $('#doneMarkerMobile').hide();
+    $('#cancelMarkerMobile').hide();
+    $('#tabAccident').show();
+
+    $("#saveButton").html('Запази');
+    $('#myTab a[href="#accident"]').tab('show'); // Select tab by name
+
+
+    document.getElementById('latitude').value = newMarker.getLatLng().lat.toFixed(5);
+    document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
+
+
+    clearAccidentForm();
+
+
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
+    OpenSidebar();
+}
+
+
+function buttonDoneEditMarkerMobileOnClick(e) {
+    $('#doneEditMarkerMobile').hide();
+    $('#cancelMarkerMobile').hide();
+    document.getElementById('latitude').value = newMarker.getLatLng().lat.toFixed(5);
+    document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
+    OpenSidebar();
+}
+
+function buttonCancelMarkerMobileOnClick(e) {
+    $('#doneMarkerMobile').hide();
+    $('#doneEditMarkerMobile').hide();
+    $('#cancelMarkerMobile').hide();
+
+    // delete previous marker if exists
+    mymap.removeLayer(newMarker);
+    mymap.but_newmarker.state('off');
+    mymap.but_newmarker.button.style.backgroundColor = 'white';
+}
+
 
 
 
@@ -507,9 +593,9 @@ function iEditCoordOnClick(e) {
     // если в режиме редактирования дерева
     if (document.getElementById("accidentId").value) {
 
-        //if (IS_MOBILE) {
-        //    startEditMarkerMobile();
-        //} else {
+        if (IS_MOBILE) {
+            startEditMarkerMobile();
+        } else {
 
             // delete previous marker if exists
             mymap.removeLayer(newMarker);
@@ -527,7 +613,7 @@ function iEditCoordOnClick(e) {
                 document.getElementById('latitude').value = newMarker.getLatLng().lat.toFixed(5);
                 document.getElementById('longitude').value = newMarker.getLatLng().lng.toFixed(5);
             });
-        //}
+        }
 
     }
 
@@ -576,13 +662,51 @@ function OpenSidebar(){
     }
 }
 
+
+function CloseSidebar(){
+    if ($("#sidebar-wrapper").css("margin-left") == "0px" ) {
+        $("#wrapper").toggleClass("toggled");
+    }
+}
+
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
+function onMapDrag(e) {
+    let center = mymap.getCenter();  //get map center
+    if (mymap.but_newmarker.state() == 'on') {
+        newMarker.setLatLng(center);
+    }
+
+}
+
+function onMapZoom(e) {
+    let center = mymap.getCenter();  //get map center
+    if (mymap.but_newmarker.state() == 'on') {
+        newMarker.setLatLng(center);
+    }
+}
+
+
+
+
 document.onreadystatechange = function(){
    if(document.readyState === 'complete'){
+
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+            IS_MOBILE = true;
+
+            mymap.on('drag', onMapDrag);
+            mymap.on('zoom', onMapZoom);
+
+            $("#mapid").css("height", "calc(100vh - 113px)");
+
+            //$("#id_scrollbar_filter").css("height", "calc(100vh - 190px)");
+            $("#id_scrollbar_roadaccident").css("height", "calc(100vh - 160px)");
+        }
 
         PermissionsApply();
         $('#tabAccident').hide();
@@ -858,6 +982,10 @@ function inputHandlerSlider() {
   }
 
 }
+
+
+
+
 
 const sliderRangeDate = document.getElementById("id_dateRange");
 sliderRangeDate.addEventListener("input", inputHandlerSlider);

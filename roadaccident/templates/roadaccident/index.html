@@ -286,7 +286,7 @@
 
 
         <div class="tab-pane fade m-3" id="accident" role="tabpanel" aria-labelledby="accident-tab">
-            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 130px);">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 130px);" id="id_scrollbar_roadaccident">
                 <form action="{{ obj_city.get_absolute_url }}" method="post" >
                     {% csrf_token %}
 
@@ -500,6 +500,9 @@
 
 <div id="mapid" style="width: 100%; height: calc(100vh - 60px);"></div>
 
+<button id="doneMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
+<button id="doneEditMarkerMobile" class="btn btn-success" style="display: none">Готово</button>
+<button id="cancelMarkerMobile" class="btn btn-secondary" style="display: none">&#x2715;</button>
 
 
 {% endblock %}

@@ -827,8 +827,8 @@ def statUpdate(obj_city):
             if iTrees > 0:
                 alldied += 1
 
-        planted = 0
-        tree_data.filter(dateplanted__year=iYear).count()  # !!! если посадят новое дерево на этом же месте вместо умершего, тогда в поле dateplanted перезапишут дату посадки и в отчете уже не будет учтено, что данное дерево когда то было посажено в каком то году
+
+        planted = tree_data.filter(dateplanted__year=iYear).count()  # !!! если посадят новое дерево на этом же месте вместо умершего, тогда в поле dateplanted перезапишут дату посадки и в отчете уже не будет учтено, что данное дерево когда то было посажено в каком то году
 
         if (newdied != 0 or alldied != 0 or planted != 0):
             stat_year = {

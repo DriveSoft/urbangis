@@ -162,16 +162,21 @@ mymap.onButHeatmapClick = function (control) {
 
 
 mymap.OnButInfoClick = function (control) {
+    $("#id_spinner_stat").show();
+    $('#id_Stat_Modal').modal('show');
+
     $.ajax({
         url: "{% url 'citytree_ajax_getstat' city_name=obj_city.sysname %}",
         //data: {'idtree': id},
         dataType: 'json',
         success: function (jsonResult) {
             FillStatForm(jsonResult);
+            $("#id_spinner_stat").hide();
         }
   });
 }
 function FillStatForm(obj_stat) {
+
     $("#id_statform_count").text(obj_stat.count);
     $("#id_statform_died").text(obj_stat.died);
     $("#id_statform_absent").text(obj_stat.absent);
@@ -190,7 +195,7 @@ function FillStatForm(obj_stat) {
     let dateUpdated = new Date(obj_stat.updated);
     $('#id_stat_updated').html('Създадено: ' + dateUpdated.toLocaleDateString() + ' ' + dateUpdated.toLocaleTimeString() + '  ('+obj_stat.execution_time+' sec)');
 
-    $('#id_Stat_Modal').modal('show');
+
 }
 
 function itemYearStat(year, alldied, newdied, planted, show) {

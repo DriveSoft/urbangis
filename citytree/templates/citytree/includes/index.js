@@ -96,7 +96,7 @@ let mapName;
 
 
 
-var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
+var mymap = new NewMap('mapid', { zoomControl: false }, mapName, {visible_ButtonInfo: true}).setView(
     [
         {% if lat %}
             {{ lat }}
@@ -159,6 +159,71 @@ mymap.onButHeatmapClick = function (control) {
     }
 
 };
+
+
+mymap.OnButInfoClick = function (control) {
+    $.ajax({
+        url: "{% url 'citytree_ajax_getstat' city_name=obj_city.sysname %}",
+        //data: {'idtree': id},
+        dataType: 'json',
+        success: function (jsonResult) {
+            FillStatForm(jsonResult);
+        }
+  });
+}
+function FillStatForm(obj_stat) {
+    $("#id_statform_count").text(obj_stat.count);
+    $("#id_statform_died").text(obj_stat.died);
+    $("#id_statform_absent").text(obj_stat.absent);
+
+
+    let yearsStatHTML = '';
+    let show = 'show';
+    for (const yearStat of obj_stat.statYear) {
+        yearsStatHTML += itemYearStat(yearStat.year, yearStat.alldied, yearStat.newdied, yearStat.planted, show);
+        show = '';
+    }
+
+    $('#accordionYearStat').html(yearsStatHTML);
+    $('[data-toggle="tooltip"]').tooltip();
+
+    let dateUpdated = new Date(obj_stat.updated);
+    $('#id_stat_updated').html('Създадено: ' + dateUpdated.toLocaleDateString() + ' ' + dateUpdated.toLocaleTimeString() + '  ('+obj_stat.execution_time+' sec)');
+
+    $('#id_Stat_Modal').modal('show');
+}
+
+function itemYearStat(year, alldied, newdied, planted, show) {
+    return `
+    <div class="card">
+        <div class="card-header" id="heading${year}">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse${year}" aria-expanded="true" aria-controls="collapse${year}">
+                    ${year}
+                </button>
+            </h2>
+        </div>
+
+        <div id="collapse${year}" class="collapse ${show}" aria-labelledby="heading${year}" data-parent="#accordionYearStat">
+            <div class="card-body">
+                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                    <div class="col-10 pl-1">Загинали дървета <i class="fa fa-question-circle" style="color: #56abb2" data-toggle="tooltip" data-original-title="Включва само дърветата, който преди са имали статус на здраво дърво."></i></div>
+                    <div class="col-2 pr-1">${alldied}</div>
+                </div>
+                <div class="row pb-2 pt-2" style="border-bottom: 1px solid #dddddd">
+                    <div class="col-10 pl-1">Загинали новозасадени <i class="fa fa-question-circle" style="color: #56abb2" data-toggle="tooltip" data-original-title="Включва само дърветата, който са загинали в рамки на 3 години след инспекция със статус 'Новозасадено'"></i></div>
+                    <div class="col-2 pr-1">${newdied}</div>
+                </div>
+                <div class="row pb-2 pt-2">
+                    <div class="col-10 pl-1">Засадени дървета</div>
+                    <div class="col-2 pr-1">${planted}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `
+}
+
 
 
 // save map tiles to session
@@ -1862,4 +1927,7 @@ window.addEventListener('popstate', function(event) {
 
 });
 
-
+//Enable tooltips everywhere
+//$(function () {
+//  $('[data-toggle="tooltip"]').tooltip()
+//})

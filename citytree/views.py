@@ -19,7 +19,11 @@ from datetime import *
 import gzip
 import shutil
 import datetime
+import time
 
+from django.db.models import Q
+from django.db.models import OuterRef, Subquery, Count, Value, Min
+from django.db.models.fields import CharField
 
 
 
@@ -38,7 +42,7 @@ class Map(View):
         placetype = PlaceType.objects.all()
         irrigationmethod = IrrigationMethod.objects.all()
         caretype = CareType.objects.all()
-        status = Status.objects.all()
+        status = Status.objects.all().order_by('id')
         remark = Remark.objects.all()
 
         # делаем список (list) QuerySet-ов отдельно для каждой группы вида деревьев (Часто встречаемые, средневстречаемые, другие)
@@ -745,6 +749,103 @@ def citydataToGeoJson2(obj_city):
     # return HttpResponse("Updated")
     tree_data.update(is_geojsoned=True)
     # return redirect(obj_city)
+
+
+
+
+def statGet(request, city_name):
+    obj_city = get_object_or_404(City, sysname__iexact=city_name)
+    statUpdate(obj_city)
+    json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '_stat.json')
+
+    with open(json_file, 'r') as myfile:
+        data = myfile.read()
+
+    response = HttpResponse(content=data)
+    response['Content-Type'] = 'application/json'
+    return response
+
+
+
+def statUpdate(obj_city):
+    start_time = time.time()
+
+    tree_data = Tree.objects.filter(city=obj_city).filter(is_deleted=False)
+
+    stat_data = {
+            "count": tree_data.filter(Q(lastinsp_status_id=1) | Q(lastinsp_status_id=2) | Q(lastinsp_status_id=3) | Q(lastinsp_status_id=4) | Q(lastinsp_status_id=5)).count(),
+            "died": tree_data.filter(lastinsp_status_id=6).count(),
+            "absent": tree_data.filter(Q(lastinsp_status_id=8) | Q(lastinsp_status_id=7)).count(), #stumps and absent trees
+            "statYear": [],
+            "updated": datetime.datetime.now().isoformat()
+    }
+
+    today = datetime.datetime.now()
+
+    # finds min year for reports
+    first_year = today.year
+    first_year_planted = tree_data.aggregate(Min('dateplanted')) #finds min value for dateplanted
+    if first_year_planted:
+        if first_year_planted['dateplanted__min'].year < first_year:
+            first_year = first_year_planted['dateplanted__min'].year
+
+
+    first_year_inspection = tree_data.aggregate(Min('inspection__datetime'))  # finds min value for inspection datetime
+    if first_year_inspection:
+        if first_year_inspection['inspection__datetime__min'].year < first_year:
+            first_year = first_year_inspection['inspection__datetime__min'].year
+
+    last_year = today.year
+
+    for iYear in reversed(range(first_year, last_year+1)):
+
+        # How to find count of died trees which was a new before 3 years
+        # 1. finds all trees where last status in specified year are: dry(6), stump(7) or absent(8). Also add to queryset latest date of die status
+        # 2. if we can find status "New tree(1)" before last status in section #1 in period at least 3 year, hence this tree is newdied.
+
+        #1
+        tree_data_died_year = Tree.objects.filter(city=obj_city).filter(is_deleted=False).filter((Q(inspection__status_id=6) | Q(inspection__status_id=7) | Q(inspection__status_id=8)) & Q(inspection__datetime__year=iYear)).distinct().annotate(
+            date_died_status=Subquery( # add field to queryset with data of last status of die
+                Inspection.objects.filter(tree_id=OuterRef('pk')).filter(Q(status_id=6) | Q(status_id=7) | Q(status_id=8) & Q(datetime__year=iYear)).order_by('-datetime').values('datetime')[:1]
+            )
+            #number_of_entries=Value('some string', output_field=CharField())
+        )
+
+
+        #2
+        #!!! дата посадки считается датой инспекции, что может вызвать неточность при отчетах. Лучше добавить в модель инспекции поле dateplanted, которое можно будет заполнить только при присвоении статуса Новозасадено дърво
+        newdied = 0 # New tree is considered dead, if the tree had the status New no more that 3 years ago (1095 days).
+        for tree in tree_data_died_year:
+            iNewTree = Inspection.objects.filter( tree_id=tree.id, datetime__lte = tree.date_died_status, datetime__gt = tree.date_died_status - datetime.timedelta(days=1095), status_id=1 ).count()
+            if iNewTree > 0:
+                newdied += 1
+
+        # all died tree including new trees. Tree is considered dead in a year, if tree has previous status of live, otherwise we can't include the tree in this report, because maybe the tree is dead 10 years ago for the example.
+        alldied = 0
+        for tree in tree_data_died_year:
+            iTrees = Inspection.objects.filter( Q(tree_id=tree.id) & Q(datetime__lte = tree.date_died_status) & (Q(status_id=1) | Q(status_id=2) | Q(status_id=3) | Q(status_id=4) | Q(status_id=5)) ).count()
+            if iTrees > 0:
+                alldied += 1
+
+        stat_year = {
+                        "year": iYear,
+                        "newdied": newdied,
+                        "alldied": alldied,
+                        "planted": tree_data.filter(dateplanted__year = iYear).count() #!!! если посадят новое дерево на этом же месте вместо умершего, тогда в поле dateplanted перезапишут дату посадки и в отчете уже не будет учтено, что данное дерево когда то было посажено в каком то году
+                    }
+
+        stat_data["statYear"].append(stat_year)
+
+
+    stat_data["execution_time"] = round(time.time() - start_time, 2)
+
+    with open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', obj_city.sysname + '_stat.json'), 'w', encoding='utf8') as f:
+        f.write(json.dumps(stat_data, ensure_ascii=False))
+
+
+
+
+
 
 
 

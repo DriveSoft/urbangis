@@ -86,10 +86,13 @@ export class NewMap extends L.map {
     but_geolocation
     OnButGeolocationClick
 
+    but_info
+    OnButInfoClick
 
 
 
-    constructor(htmlEl, options, mapName) {
+
+    constructor(htmlEl, options, mapName, myOptions) {
         super(htmlEl, options); // вызывает конструктор super класса и передаёт параметр name
 
 
@@ -260,6 +263,19 @@ export class NewMap extends L.map {
             that.but_geolocation.button.style.backgroundColor = 'white';
             alert(e.message);
         });
+
+
+
+
+
+        if (myOptions && myOptions.visible_ButtonInfo) {
+            this.but_info = L.easyButton('fa-info-circle fa-lg', function(btn, map){
+                if (that.OnButInfoClick) {
+                    that.OnButInfoClick(btn);
+                }
+            }, {position: 'bottomleft'});
+            this.but_info.addTo(this);
+        }
 
 
     }

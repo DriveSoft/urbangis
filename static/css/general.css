@@ -132,8 +132,6 @@ label.required:after
 }
 
 
-
-
-
-
-
+.tooltip {
+	z-index: 1000000;
+}

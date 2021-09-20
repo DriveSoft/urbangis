@@ -6,6 +6,8 @@ urlpatterns = [
     path('<str:city_name>/', Map.as_view(), name='citytree_map_url'),
     path('<str:city_name>/opendata/', OpenData, name='open_data'),
     path('<str:city_name>/geojson/', getGeojson.as_view(), name='citytree_geojson_get'),
+    path('<str:city_name>/updatestat/', statUpdate, name='citytree_stat_update'),
+    path('<str:city_name>/ajaxgetstat/', statGet, name='citytree_ajax_getstat'),
 
     path('<str:city_name>/tree/<int:tree_id>/', Map.as_view(), name='citytree_map_url'),
 

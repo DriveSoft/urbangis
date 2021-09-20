@@ -166,7 +166,7 @@ mymap.OnButInfoClick = function (control) {
     $("#id_statform_died").text('');
     $("#id_statform_absent").text('');
     $('#accordionYearStat').html('');
-    
+
     $("#id_spinner_stat").show();
     $('#id_Stat_Modal').modal('show');
 
@@ -225,7 +225,7 @@ function itemYearStat(year, alldied, newdied, planted, show) {
                     <div class="col-2 pr-1">${newdied}</div>
                 </div>
                 <div class="row pb-2 pt-2">
-                    <div class="col-10 pl-1">Засадени дървета</div>
+                    <div class="col-10 pl-1">Засадени дървета <i class="fa fa-question-circle" style="color: #56abb2" data-toggle="tooltip" data-original-title="Включва само дърветата, за който е известна дата на засаждане."></i></div>
                     <div class="col-2 pr-1">${planted}</div>
                 </div>
             </div>

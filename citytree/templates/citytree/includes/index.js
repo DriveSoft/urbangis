@@ -162,6 +162,11 @@ mymap.onButHeatmapClick = function (control) {
 
 
 mymap.OnButInfoClick = function (control) {
+    $("#id_statform_count").text('');
+    $("#id_statform_died").text('');
+    $("#id_statform_absent").text('');
+    $('#accordionYearStat').html('');
+    
     $("#id_spinner_stat").show();
     $('#id_Stat_Modal').modal('show');
 

@@ -36,6 +36,7 @@ def citydataToGeoJson(obj_city):
             else:
                 description = ""
 
+            '''
             violations_type = []
             if accidentItem.violations_type:
                 violations_type_Q = accidentItem.violations_type.values_list('id', flat=True)
@@ -47,7 +48,7 @@ def citydataToGeoJson(obj_city):
                 violators_Q = accidentItem.violators.values_list('id', flat=True)
                 for item in violators_Q:
                     violators.append(str(item))
-
+            '''
 
 
             accidentJson = {
@@ -64,8 +65,8 @@ def citydataToGeoJson(obj_city):
                     "datetime": datetime,
                     "maneuver": accidentItem.maneuver_id,
                     "description": description,
-                    "violations_type": violations_type,
-                    "violators": violators,
+                    #"violations_type": violations_type,
+                    #"violators": violators,
                     "drivers_injured": accidentItem.drivers_injured,
                     "motorcyclists_injured": accidentItem.motorcyclists_injured,
                     "cyclists_injured": accidentItem.cyclists_injured,

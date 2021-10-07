@@ -35,6 +35,8 @@ urlpatterns = [
     path('citytree/', include('citytree.urls')),
     path('urbanobject/', include('urbanobject.urls')),
 
+    path('api/', include('api.urls')),
+
 ]
 
 #if settings.DEBUG:

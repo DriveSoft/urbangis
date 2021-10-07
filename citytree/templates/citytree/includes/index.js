@@ -1743,10 +1743,10 @@ function AjaxLoadJson(){
         // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
         // также в массив добавляем id деревьев, которые нужно отфильтровать из ajax json, т.к. могут присутствовать маркеры, которые были отредактированы, соотвественно они измененные и пришли из БД, а файл geojson обновляетне только переодически
         for (let i in treeData.features) {
-            if (treeData.features[i].properties.is_deleted == 0) {
+            if (treeData.features[i].properties.is_deleted == 0) { // если дерево не удалено, добавляем его в ajax_geojson
                 ajax_geojson.features.push(treeData.features[i]);
             }
-            idsFromDB.push(treeData.features[i].properties.id);
+            idsFromDB.push(treeData.features[i].properties.id); // добавляются все id пришедшие из БД, в том числе удаленные деревья, чтобы игнорировать их в ajax_geojson
         }
 
         //LoadTreesToMap(true);

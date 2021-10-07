@@ -1,6 +1,11 @@
 #from rest_framework import serializers
 from roadaccident.models import Accident
 
+import json
+import os
+from django.conf import settings as djangoSettings
+from django.core.files import File
+
 #class AccidentSerializer(serializers.ModelSerializer):
 #    class Meta:
 #        model = Accident
@@ -8,6 +13,38 @@ from roadaccident.models import Accident
 
 
 def citydataToGeoJson(obj_city):
+
+
+    json_file = obj_city.sysname + '.json'
+    json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', 'roadaccident', json_file)
+
+    with open(json_file , 'r') as myfile:
+        data=json.load(myfile)
+
+
+
+    accidentJson = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [str(555555), str(55544444)]
+        },
+
+        "properties": {
+            "coordinates": [str(555555), str(55544444)],
+            "id": 1,
+            "user_id": 1
+        }
+    }
+
+
+  
+    data["features"].append(accidentJson)     
+    data["features"].append(accidentJson)
+
+    return data
+    '''
+
 
     accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
                                                                 #.values_list('id', 'latitude', 'longitude', 'datetime',
@@ -36,7 +73,7 @@ def citydataToGeoJson(obj_city):
             else:
                 description = ""
 
-            '''
+         
             violations_type = []
             if accidentItem.violations_type:
                 violations_type_Q = accidentItem.violations_type.values_list('id', flat=True)
@@ -48,8 +85,6 @@ def citydataToGeoJson(obj_city):
                 violators_Q = accidentItem.violators.values_list('id', flat=True)
                 for item in violators_Q:
                     violators.append(str(item))
-            '''
-
 
             accidentJson = {
                 "type": "Feature",
@@ -65,8 +100,8 @@ def citydataToGeoJson(obj_city):
                     "datetime": datetime,
                     "maneuver": accidentItem.maneuver_id,
                     "description": description,
-                    #"violations_type": violations_type,
-                    #"violators": violators,
+                    "violations_type": violations_type,
+                    "violators": violators,
                     "drivers_injured": accidentItem.drivers_injured,
                     "motorcyclists_injured": accidentItem.motorcyclists_injured,
                     "cyclists_injured": accidentItem.cyclists_injured,
@@ -91,3 +126,4 @@ def citydataToGeoJson(obj_city):
 
 
     return accidentJsonData
+    '''

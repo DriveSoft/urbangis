@@ -43,4 +43,16 @@ def accidentData2(request, city):
     serializer = AccidentSerializer(accidents, many=True)
     return Response(serializer.data)   
 
+
+
+@gzip_page
+@api_view(['GET'])
+def accidentData3(request, city):
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    #accidents = Accident.objects.filter(city=obj_city).filter(is_deleted=False)
+    #serializer = AccidentSerializer(accidents, many=True)
+    #return Response(serializer.data)
+
+    return Response(citydataToGeoJson3(obj_city))    
+
   

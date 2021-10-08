@@ -1,4 +1,4 @@
-#from rest_framework import serializers
+from rest_framework import serializers
 from roadaccident.models import Accident
 
 import json
@@ -6,14 +6,24 @@ import os
 from django.conf import settings as djangoSettings
 from django.core.files import File
 
-#class AccidentSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = Accident
-#        fields = '__all__'
+
+
+
+class AccidentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accident
+        #fields = '__all__'
+        fields = ['id', 'latitude', 'longitude', 'datetime', 'maneuver_id', 'description', 
+            'drivers_injured', 'motorcyclists_injured', 'cyclists_injured', 'ped_injured', 'kids_injured', 'pubtr_passengers_injured',
+            'drivers_killed', 'motorcyclists_killed', 'cyclists_killed', 'ped_killed', 'kids_killed', 'pubtr_passengers_killed',
+            'public_transport_involved']
+
+
+
+
 
 
 def citydataToGeoJson(obj_city):
-
 
     json_file = obj_city.sysname + '.json'
     json_file = os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', 'roadaccident', json_file)

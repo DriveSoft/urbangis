@@ -2,6 +2,9 @@ from django.db import models
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
 
+from django.dispatch import receiver
+from django.db.models.signals import m2m_changed
+
 from coregis.models import coreCity
 
 
@@ -79,9 +82,47 @@ class Accident(models.Model):
     useradded = models.ForeignKey(User, on_delete=models.PROTECT, related_name='accidents')  # тот кто добавил запись
     is_deleted = models.BooleanField(default=False)
 
+    # для оптимизации, чтобы быстро выдавать geojson объект
+    violations_type_list = models.CharField(max_length=100, blank=True, null=True)    
+    violators_list = models.CharField(max_length=100, blank=True, null=True) 
+
 
     def __str__(self):
         return str(self.latitude)
 
 
 
+
+
+@receiver(m2m_changed)
+def Signal_m2m(sender, **kwargs):
+    instance = kwargs.get('instance') # gets Accident instance
+    model = kwargs.get('model')
+    #pk_set = kwargs.get('pk_set')
+    action = kwargs.get('action')  
+
+    if model == Violator and sender == Accident.violators.through and (action == 'post_add' or action == 'post_remove'):
+        obj_violators = instance.violators.all()
+        s = ''
+        for item in obj_violators:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        instance.violators_list = s        
+        instance.save()     
+
+
+    if model == TypeViolation and sender == Accident.violations_type.through and (action == 'post_add' or action == 'post_remove'):
+        obj_violations_type = instance.violations_type.all()
+        s = ''
+        for item in obj_violations_type:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        instance.violations_type_list = s        
+        instance.save()          
+
+  
+
+
+  

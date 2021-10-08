@@ -24,6 +24,40 @@ def apiOverview(request):
     }
     return Response(api_urls)
 
+
+
+@gzip_page
+@api_view(['GET'])
+def accidentData(request, city):
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    return Response(roadaccidentDataToGeoJson(obj_city))  
+
+
+def update(request):
+    accidents = Accident.objects.all()
+    for ac_item in accidents:
+        obj_violators = ac_item.violators.all()
+        s = ''
+        for item in obj_violators:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        ac_item.violators_list = s        
+        ac_item.save()       
+
+        obj_violations_type = ac_item.violations_type.all()
+        s = ''
+        for item in obj_violations_type:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        ac_item.violations_type_list = s        
+        ac_item.save() 
+
+
+
+
+'''
 @gzip_page
 @api_view(['GET'])
 def accidentData(request, city):
@@ -42,17 +76,9 @@ def accidentData2(request, city):
     accidents = Accident.objects.filter(city=obj_city).filter(is_deleted=False)
     serializer = AccidentSerializer(accidents, many=True)
     return Response(serializer.data)   
+'''
 
 
-
-@gzip_page
-@api_view(['GET'])
-def accidentData3(request, city):
-    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-    #accidents = Accident.objects.filter(city=obj_city).filter(is_deleted=False)
-    #serializer = AccidentSerializer(accidents, many=True)
-    #return Response(serializer.data)
-
-    return Response(citydataToGeoJson3(obj_city))    
+  
 
   

@@ -1,13 +1,115 @@
-from rest_framework import serializers
+#from rest_framework import serializers
 from roadaccident.models import Accident
 
 import json
 import os
-from django.conf import settings as djangoSettings
-from django.core.files import File
+#from django.conf import settings as djangoSettings
+#from django.core.files import File
 
 
 
+
+def roadaccidentDataToGeoJson(obj_city):
+
+
+    accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
+                                                                #.values_list('id', 'latitude', 'longitude', 'datetime',
+                                                                #     'maneuver_id', 'description', 'violations_type', 'violators',
+                                                                #     'drivers_injured', 'motorcyclists_injured', 'cyclists_injured', 'ped_injured', 'kids_injured', 'pubtr_passengers_injured',
+                                                                #     'drivers_killed', 'motorcyclists_killed', 'cyclists_killed', 'ped_killed', 'kids_killed', 'pubtr_passengers_killed',
+                                                                #     'public_transport_involved'
+                                                                #     , named=True)
+
+
+    accidentJsonData = {
+        "type": "FeatureCollection",
+        "features": []  # сюда будем добавлять данные
+    }
+
+    if accident_data:
+        for accidentItem in accident_data:
+
+            if accidentItem.datetime:
+                datetime = accidentItem.datetime.strftime("%Y-%m-%dT%H:%M")
+            else:
+                datetime = ""
+
+            if accidentItem.description:
+                description = accidentItem.description
+            else:
+                description = ""
+
+         
+            #violations_type = []
+            #if accidentItem.violations_type:
+            #    violations_type_Q = accidentItem.violations_type.values_list('id', flat=True)
+            #    for item in violations_type_Q:
+            #        violations_type.append(str(item))
+
+            #violators = []
+            #if accidentItem.violators:
+            #    violators_Q = accidentItem.violators.values_list('id', flat=True)
+            #    for item in violators_Q:
+            #        violators.append(str(item))
+
+            if accidentItem.violations_type_list:
+                violations_type = str(accidentItem.violations_type_list).replace('"', '').split(',')
+            else:
+                violations_type = []
+
+            if accidentItem.violators_list:
+                violators = str(accidentItem.violators_list).replace('"', '').split(',')
+            else:
+                violators = []                
+
+
+            accidentJson = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [str(accidentItem.longitude), str(accidentItem.latitude)]
+                },
+
+                "properties": {
+                    "coordinates": [str(accidentItem.longitude), str(accidentItem.latitude)],
+                    "id": accidentItem.id,
+                    "user_id": accidentItem.useradded_id,
+                    "datetime": datetime,
+                    "maneuver": accidentItem.maneuver_id,
+                    "description": description,
+                    "violations_type": violations_type,
+                    "violators": violators,
+                    "drivers_injured": accidentItem.drivers_injured,
+                    "motorcyclists_injured": accidentItem.motorcyclists_injured,
+                    "cyclists_injured": accidentItem.cyclists_injured,
+                    "ped_injured": accidentItem.ped_injured,
+                    "kids_injured": accidentItem.kids_injured,
+                    "pubtr_passengers_injured": accidentItem.pubtr_passengers_injured,
+                    "drivers_killed": accidentItem.drivers_killed,
+                    "motorcyclists_killed": accidentItem.motorcyclists_killed,
+                    "cyclists_killed": accidentItem.cyclists_killed,
+                    "ped_killed": accidentItem.ped_killed,
+                    "kids_killed": accidentItem.kids_killed,
+                    "pubtr_passengers_killed": accidentItem.pubtr_passengers_killed,
+                    "public_transport_involved": accidentItem.public_transport_involved
+
+                }
+            }
+
+            accidentJsonData["features"].append(accidentJson)
+
+
+    return accidentJsonData
+
+
+
+
+
+
+
+
+
+'''
 
 class AccidentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,11 +120,9 @@ class AccidentSerializer(serializers.ModelSerializer):
             'drivers_killed', 'motorcyclists_killed', 'cyclists_killed', 'ped_killed', 'kids_killed', 'pubtr_passengers_killed',
             'public_transport_involved']
 
+'''
 
-
-
-
-
+'''
 def citydataToGeoJson(obj_city):
 
     json_file = obj_city.sysname + '.json'
@@ -55,7 +155,8 @@ def citydataToGeoJson(obj_city):
     return data
     '''
 
-
+'''
+def citydataToGeoJson2(obj_city):
     accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
                                                                 #.values_list('id', 'latitude', 'longitude', 'datetime',
                                                                 #     'maneuver_id', 'description', 'violations_type', 'violators',
@@ -142,87 +243,4 @@ def citydataToGeoJson(obj_city):
 
 
 
-def citydataToGeoJson3(obj_city):
-
-
-    accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
-                                                                #.values_list('id', 'latitude', 'longitude', 'datetime',
-                                                                #     'maneuver_id', 'description', 'violations_type', 'violators',
-                                                                #     'drivers_injured', 'motorcyclists_injured', 'cyclists_injured', 'ped_injured', 'kids_injured', 'pubtr_passengers_injured',
-                                                                #     'drivers_killed', 'motorcyclists_killed', 'cyclists_killed', 'ped_killed', 'kids_killed', 'pubtr_passengers_killed',
-                                                                #     'public_transport_involved'
-                                                                #     , named=True)
-
-
-    accidentJsonData = {
-        "type": "FeatureCollection",
-        "features": []  # сюда будем добавлять данные
-    }
-
-    if accident_data:
-        for accidentItem in accident_data:
-
-            if accidentItem.datetime:
-                datetime = accidentItem.datetime.strftime("%Y-%m-%dT%H:%M")
-            else:
-                datetime = ""
-
-            if accidentItem.description:
-                description = accidentItem.description
-            else:
-                description = ""
-
-         
-            #violations_type = []
-            #if accidentItem.violations_type:
-            #    violations_type_Q = accidentItem.violations_type.values_list('id', flat=True)
-            #    for item in violations_type_Q:
-            #        violations_type.append(str(item))
-
-            #violators = []
-            #if accidentItem.violators:
-            #    violators_Q = accidentItem.violators.values_list('id', flat=True)
-            #    for item in violators_Q:
-            #        violators.append(str(item))
-
-            accidentJson = {
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [str(accidentItem.longitude), str(accidentItem.latitude)]
-                },
-
-                "properties": {
-                    "coordinates": [str(accidentItem.longitude), str(accidentItem.latitude)],
-                    "id": accidentItem.id,
-                    "user_id": accidentItem.useradded_id,
-                    "datetime": datetime,
-                    "maneuver": accidentItem.maneuver_id,
-                    "description": description,
-                    #"violations_type": violations_type,
-                    #"violators": violators,
-                    "drivers_injured": accidentItem.drivers_injured,
-                    "motorcyclists_injured": accidentItem.motorcyclists_injured,
-                    "cyclists_injured": accidentItem.cyclists_injured,
-                    "ped_injured": accidentItem.ped_injured,
-                    "kids_injured": accidentItem.kids_injured,
-                    "pubtr_passengers_injured": accidentItem.pubtr_passengers_injured,
-                    "drivers_killed": accidentItem.drivers_killed,
-                    "motorcyclists_killed": accidentItem.motorcyclists_killed,
-                    "cyclists_killed": accidentItem.cyclists_killed,
-                    "ped_killed": accidentItem.ped_killed,
-                    "kids_killed": accidentItem.kids_killed,
-                    "pubtr_passengers_killed": accidentItem.pubtr_passengers_killed,
-                    "public_transport_involved": accidentItem.public_transport_involved
-
-                }
-            }
-
-
-            # print(treeJson)
-            # print(str(treeItem.lastinsp_recommendations_list).split(', '))
-            accidentJsonData["features"].append(accidentJson)
-
-
-    return accidentJsonData
     

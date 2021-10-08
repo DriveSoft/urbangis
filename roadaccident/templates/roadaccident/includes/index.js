@@ -711,7 +711,8 @@ document.onreadystatechange = function(){
         PermissionsApply();
         $('#tabAccident').hide();
 
-        $.getJSON("{% url 'roadaccident_geojson_get' city_name=obj_city.sysname %}", function(json) {
+        //$.getJSON("{% url 'roadaccident_geojson_get' city_name=obj_city.sysname %}", function(json) {
+        $.getJSON("{% url 'roadaccident-restapi-getdata' city=obj_city.sysname %}", function(json) {
             accidentData = json;
             LoadAccidentsToMap(true, false);
         });

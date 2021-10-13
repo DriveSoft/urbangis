@@ -287,7 +287,7 @@
 
         <div class="tab-pane fade m-3" id="accident" role="tabpanel" aria-labelledby="accident-tab">
             <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 130px);" id="id_scrollbar_roadaccident">
-                <form action="{{ obj_city.get_absolute_url }}" method="post" >
+                <form action="{{ obj_city.get_absolute_url }}" method="post" id="id_form_accident">
                     {% csrf_token %}
 
                     <p> {{ form.errors }}</p>
@@ -447,7 +447,7 @@
 
                     <div class="float-lg-right">
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton" disabled>Изтрий</button>
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#deleteModal" id="deleteButton">Изтрий</button>
                         <button type="button" class="btn btn-secondary" id="button_CloseTabAccident">Изход</button>
                         <button style="min-width: 105px;" type="submit" class="btn btn-primary" name="send" value="save" id="saveButton">Запази</button>
                     </div>
@@ -466,7 +466,7 @@
                                     Наистина ли искате да изтриете този инцидент?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                    <button type="button" class="btn btn-light" data-dismiss="modal" name="send" value="delete" id="id_delete_accident">Изтрий</button>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>

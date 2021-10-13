@@ -496,12 +496,12 @@ function markerOnClick(e)
     let marker = e.target;
     let geojson = marker.toGeoJSON();
 
-    if (selectedMarker) { // снимаем выделение с предыдущего
-        selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
-    }
-
-    marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
-    selectedMarker = marker;
+    selectMarker(marker);
+    //if (selectedMarker) { // снимаем выделение с предыдущего
+    //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+    //}
+    //marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+    //selectedMarker = marker;
 
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
@@ -513,20 +513,38 @@ function markerOnClick(e)
 }
 
 
-function selectMarker (id) {
-    markers.eachLayer(function (marker) {
-        let geojson = marker.toGeoJSON();
+function selectMarker (markerOrID) {
 
-        if (geojson.properties.id == id) {
-            if (selectedMarker) { // снимаем выделение с предыдущего
-                selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+    if (typeof markerOrID === 'undefined' ) {
+        if (selectedMarker) { // снимаем выделение с предыдущего
+            selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});            
+        }    
+        return    
+    }
+
+    if (typeof markerOrID === 'number') {
+
+        markers.eachLayer(function (marker) {
+            let geojson = marker.toGeoJSON();
+
+            if (geojson.properties.id == markerOrID) {
+                if (selectedMarker) { // снимаем выделение с предыдущего
+                    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+                }
+
+                marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+                selectedMarker = marker;
             }
+        });
+    } else {
 
-            marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
-            selectedMarker = marker;
+        if (selectedMarker) { // снимаем выделение с предыдущего
+            selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
         }
-
-    });
+    
+        markerOrID.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+        selectedMarker = markerOrID;        
+    }
 }
 
 
@@ -816,9 +834,10 @@ mymap.on('zoomend', function() {
   });
 
   // снимаем выделение с выбранного маркера
-  if (selectedMarker) {
-    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
-  }
+  selectMarker();
+  //if (selectedMarker) {
+  //  selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+  //}
 
 });
 

@@ -71,6 +71,15 @@ var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
 
 
 
+
+{% if not user.is_authenticated %}
+    $('#deleteButton').hide();
+    $('#saveButton').hide();
+{% endif %}
+
+
+
+
 mymap.onButNewMarkerClick = function (control) {
     if (control.state() === 'on') {
 
@@ -147,6 +156,9 @@ mymap.on('baselayerchange', function(e) {
 
 
 
+
+let accidentData;
+/*
 // create a geoJson data from database
 var accidentData = {
   "type": "FeatureCollection",
@@ -191,6 +203,7 @@ var accidentData = {
 {% endif %}
 
 ]};
+*/
 
 
 
@@ -214,33 +227,6 @@ var geojsonMarkerOptions = {
 // loads geoJSON and finds max and min dates in geoJson to use it on filter form
 var datefilter_Min = '2100-01-01';
 var datefilter_Max = '1970-01-01';
-
-// create circleMarker from geoJson
-//var markers = L.geoJSON(accidentData, {
-//    pointToLayer: function (feature, latlng) {
-//        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
-//    },
-
-//    filter: function(feature, layer) {
-//        if (feature.properties.datetime > datefilter_Max ) { datefilter_Max = feature.properties.datetime }
-//        if (feature.properties.datetime < datefilter_Min ) { datefilter_Min = feature.properties.datetime }
-//        return true;
-//    }
-//});//.addTo(mymap);
-
-//document.getElementById("dateFrom").value = formatDate(datefilter_Min);
-//document.getElementById("dateTo").value = formatDate(datefilter_Max);
-
-
-
-
-
-
-
-//mymap.fitBounds(markers.getBounds());
-
-
-
 
 
 
@@ -415,11 +401,19 @@ function buttonCancelMarkerMobileOnClick(e) {
 
 
 
-
+let selectedMarker;
 function markerOnClick(e)
 {
-  let marker = e.target;
-  let geojson = marker.toGeoJSON();
+    let marker = e.target;
+    let geojson = marker.toGeoJSON();
+    $('#deleteButton').prop('disabled',false);
+
+    selectMarker(marker);
+    //if (selectedMarker) { // снимаем выделение с предыдущего
+    //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+    //}
+    //marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+    //selectedMarker = marker;
 
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
@@ -461,35 +455,35 @@ function markerOnClick(e)
   $("#saveButton").html('Актуализиране');
 
   {% if perms.roadaccident.change_accident and perms.roadaccident.can_change_not_own_accident_record %}
-    $('#saveButton').prop('disabled',false);
+    //$('#saveButton').prop('disabled',false);
     $('#saveButton').prop('title','');
   {% elif perms.roadaccident.change_accident and not perms.roadaccident.can_change_not_own_accident_record %}
     if (geojson.properties.user_id=={{user.id}}) {
-        $('#saveButton').prop('disabled',false);
+        //$('#saveButton').prop('disabled',false);
         $('#saveButton').prop('title','');
     } else {
-        $('#saveButton').prop('disabled',true);
+        //$('#saveButton').prop('disabled',true);
         $('#saveButton').prop('title','You cannot change information about the accident that was created by another user.');
     }
   {% else %}
-    $('#saveButton').prop('disabled',true);
+    //$('#saveButton').prop('disabled',true);
     $('#saveButton').prop('title','You do not have enough privileges to change the accident information.');
   {% endif %}
 
 
   {% if perms.roadaccident.delete_accident and perms.roadaccident.can_delete_not_own_accident_record %}
-    $('#deleteButton').prop('disabled',false);
+    //$('#deleteButton').prop('disabled',false);
     $('#deleteButton').prop('title','');
   {% elif perms.roadaccident.delete_accident and not perms.roadaccident.can_delete_not_own_accident_record %}
     if (geojson.properties.user_id=={{user.id}}) {
-        $('#deleteButton').prop('disabled',false);
+        //$('#deleteButton').prop('disabled',false);
         $('#deleteButton').prop('title','');
     } else {
-        $('#deleteButton').prop('disabled',true);
+        //$('#deleteButton').prop('disabled',true);
         $('#deleteButton').prop('title','You cannot delete the accident that was created by another user.');
     }
   {% else %}
-    $('#deleteButton').prop('disabled',true);
+    //$('#deleteButton').prop('disabled',true);
     $('#deleteButton').prop('title','You don\'t have enough privileges to remove the accident.');
   {% endif %}
 
@@ -502,6 +496,43 @@ function markerOnClick(e)
 
   OpenSidebar();
 }
+
+
+
+function selectMarker (markerOrID) {
+
+    if (typeof markerOrID === 'undefined' ) {
+        if (selectedMarker) { // снимаем выделение с предыдущего
+            selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});            
+        }    
+        return    
+    }
+
+    if (typeof markerOrID === 'number') {
+
+        markers.eachLayer(function (marker) {
+            let geojson = marker.toGeoJSON();
+
+            if (geojson.properties.id == markerOrID) {
+                if (selectedMarker) { // снимаем выделение с предыдущего
+                    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+                }
+
+                marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+                selectedMarker = marker;
+            }
+        });
+    } else {
+
+        if (selectedMarker) { // снимаем выделение с предыдущего
+            selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+        }
+    
+        markerOrID.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
+        selectedMarker = markerOrID;        
+    }
+}
+
 
 
 
@@ -528,6 +559,14 @@ var button_reset = document.getElementById('reset_Filter');
 var button_closeTabAccident = document.getElementById('button_CloseTabAccident');
 
 button_closeTabAccident.onclick = function() {
+    closeTabAccident();
+    selectMarker();
+    //if (selectedMarker) { // снимаем выделение с предыдущего
+    //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
+    //}    
+}
+
+function closeTabAccident() {
     // delete previous marker if exists
     //mymap.removeLayer(markerCircle);
     mymap.removeLayer(newMarker);
@@ -711,14 +750,23 @@ document.onreadystatechange = function(){
         PermissionsApply();
         $('#tabAccident').hide();
 
-        //$.getJSON("{% url 'roadaccident_geojson_get' city_name=obj_city.sysname %}", function(json) {
-        $.getJSON("{% url 'roadaccident-restapi-getdata' city=obj_city.sysname %}", function(json) {
-            accidentData = json;
-            LoadAccidentsToMap(true, false);
-        });
+        LoadGeoJsonData(true, false);
 
    }
 }
+
+
+function LoadGeoJsonData(firsttime, filterEnabled, idMarkerWillBeSelected){
+    //$.getJSON("{# url 'roadaccident_geojson_get' city_name=obj_city.sysname #}", function(json) {
+    $.getJSON("{% url 'roadaccident-restapi-getdata' city=obj_city.sysname %}", function(json) {
+        accidentData = json;
+        LoadAccidentsToMap(firsttime, filterEnabled);
+        if (idMarkerWillBeSelected) {
+            selectMarker(idMarkerWillBeSelected)
+        }    
+    });    
+}
+
 
 
 function LoadAccidentsToMap(firsttime, filterEnabled) {
@@ -990,5 +1038,146 @@ function inputHandlerSlider() {
 
 const sliderRangeDate = document.getElementById("id_dateRange");
 sliderRangeDate.addEventListener("input", inputHandlerSlider);
+
+
+
+
+
+// REST API
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+
+let formAccidentWrapper = document.getElementById('id_scrollbar_roadaccident')
+//let formAccident = document.getElementById('id_form_accident')
+
+formAccidentWrapper.addEventListener('submit', function(e){
+    e.preventDefault()
+    let idAccident = document.getElementById("accidentId").value
+    let url
+
+    if (idAccident) {
+        //let url = `http://127.0.0.1:8000/api/roadaccident/${accidentData.city.name}/update/${idAccident}/`
+        url = "{% url 'roadaccident-restapi-update' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());  
+    } else {
+        //let url = `http://127.0.0.1:8000/api/roadaccident/${accidentData.city.name}/create/`
+        url = "{% url 'roadaccident-restapi-create' city=obj_city.sysname %}"
+    }
+    
+  
+    let object = {}
+
+    const dataForm = new FormData(e.target);  
+
+    dataForm.forEach((value, key) => {
+        // Reflect.has in favor of: object.hasOwnProperty(key)
+        if(!Reflect.has(object, key)){
+            object[key] = value;
+            return;
+        }
+        if(!Array.isArray(object[key])){
+            object[key] = [object[key]];    
+        }
+        object[key].push(value);
+    });
+    
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually
+    if(!Reflect.has(object, 'violations_type')){
+        object['violations_type'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['violations_type'])){
+            object['violations_type'] = [object['violations_type']]    
+        }
+          
+    }
+
+    if(!Reflect.has(object, 'violators')){
+        object['violators'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['violators'])){
+            object['violators'] = [object['violators']]    
+        }
+    }   
+    
+
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        },
+        body: JSON.stringify(object)
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });
+        
+        } else {
+            closeTabAccident();  
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }                      
+            
+            // select the new/edited accident marker
+            response.json().then(data => {
+                console.log(data);
+                LoadGeoJsonData(false, false, data.id);
+            });
+        }
+    })
+
+
+})
+
+
+
+
+let button_deleteAccident = document.getElementById('id_delete_accident');
+button_deleteAccident.onclick = function() {
+    let idAccident = document.getElementById("accidentId").value
+    let url = "{% url 'roadaccident-restapi-delete' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());   
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        }
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });            
+
+        } else {
+            closeTabAccident();
+            LoadGeoJsonData(false, false);            
+        }
+    })
+
+}
 
 

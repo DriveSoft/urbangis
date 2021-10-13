@@ -52,7 +52,7 @@ class Map(View):
 
         return render(request, 'roadaccident/index.html', context)
 
-
+    '''
     def post(self, request, city_name):
         if not request.user.is_authenticated:
             return redirect('%s?next=%s' % (reverse('login'), request.path))
@@ -108,9 +108,11 @@ class Map(View):
                 obj_accident.is_deleted = True
                 obj_accident.save()
                 return redirect(obj_city)
+'''
 
 
-        """    
+
+'''
         if request.user.is_authenticated:
             CityObj = get_object_or_404(city, sysname = city_name)
             isAllow = UserCity.objects.filter(city_id=CityObj.id, user_id=request.user.id).count() # проверяем есть ли у пользователя разрешение для данного города
@@ -141,14 +143,14 @@ class Map(View):
                 return HttpResponse("Access denied")
         else:
             return HttpResponseRedirect(reverse('login'))
-        """
+        '''
 
 
 
 
 
 
-
+'''
 def citydataToGeoJson(obj_city):
 
     accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
@@ -243,10 +245,10 @@ def citydataToGeoJson(obj_city):
     #чтобы удаленные записи также поменить как is_geojsoned=True, чтобы они больше не приходили из базы в view Map get
     #tree_data = Tree.objects.filter(city_id=obj_city.id).filter(is_deleted=True)
     #tree_data.update(is_geojsoned=True)
+'''
 
 
-
-
+'''
 class getGeojson(View):
     def get(self, request, city_name):
         #print(request.headers['Accept-encoding'])
@@ -282,7 +284,7 @@ class getGeojson(View):
         response['Content-Type'] = 'application/json'
 
         return response
-
+'''
 
 
 

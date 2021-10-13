@@ -1,10 +1,18 @@
-#from rest_framework import serializers
+from rest_framework import serializers
 from roadaccident.models import Accident
 
 import json
 import os
 #from django.conf import settings as djangoSettings
 #from django.core.files import File
+
+
+
+class AccidentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accident
+        fields = '__all__'
+        read_only_fields = ['city', 'useradded', 'is_deleted', 'violations_type_list', 'violators_list'] #set this fields on backend in a view or like signals
 
 
 
@@ -23,6 +31,10 @@ def roadaccidentDataToGeoJson(obj_city):
 
     accidentJsonData = {
         "type": "FeatureCollection",
+        "city": {
+            "name": obj_city.sysname,
+            "coordinates": [str(obj_city.longitude), str(obj_city.latitude)]
+        },
         "features": []  # сюда будем добавлять данные
     }
 

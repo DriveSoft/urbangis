@@ -370,9 +370,9 @@ def urbanobjectToGeoJson(obj_city):
             urbanobject_PolygonCoords = []
 
             # добавляемв массив координаты полигона
-            if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
-                for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
-                    urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
+            #if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
+            #    for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
+            #        urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
 
             # добавляем координаты полигона
             urbanobject_Polygon["coordinates"].append(urbanobject_PolygonCoords)

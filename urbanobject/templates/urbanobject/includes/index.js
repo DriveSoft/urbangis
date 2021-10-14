@@ -1201,7 +1201,8 @@ document.onreadystatechange = function(){
 
         PermissionsApply();
 
-        $.getJSON("{% url 'urbanobject_geojson_get' city_name=obj_city.sysname %}", function(json) {
+        //$.getJSON("{# url 'urbanobject_geojson_get' city_name=obj_city.sysname #}", function(json) {
+        $.getJSON("{% url 'urbanobject-restapi-getdata' city=obj_city.sysname %}", function(json) {            
             urbanObjectsData = json;
             LoadUrbanObjectsToMap(true, true);
         });

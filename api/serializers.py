@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from roadaccident.models import Accident
+from coregis.models import coreUrbanObject
+
 
 import json
 import os
@@ -18,7 +20,6 @@ class AccidentSerializer(serializers.ModelSerializer):
 
 
 def roadaccidentDataToGeoJson(obj_city):
-
 
     accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
                                                                 #.values_list('id', 'latitude', 'longitude', 'datetime',
@@ -256,3 +257,132 @@ def citydataToGeoJson2(obj_city):
 
 
     
+
+
+
+def urbanobjectToGeoJson(obj_city):
+
+    urbanobject_data = coreUrbanObject.objects.filter(city=obj_city).filter(is_deleted=False)
+
+
+    urbanobjectJsonData = {
+        "type": "FeatureCollection",
+        "features": []  # сюда будем добавлять данные
+    }
+
+    if urbanobject_data:
+        for urbanobjectItem in urbanobject_data:
+
+            '''
+            subcategories = [] # содержит подкатегории объекта
+            if urbanobjectItem.subcategories:
+                subcategories_Q = urbanobjectItem.subcategories.values_list('id', flat=True)
+                for item in subcategories_Q:
+                    subcategories.append(str(item))
+
+
+            catsubcategories = [] # содержит категорию объекта и подкатегории с префиксом _, нужно, чтобы искать объекты на фронтенде
+            if urbanobjectItem.subcategories:
+                subcategories_Q = urbanobjectItem.subcategories.values_list('id', flat=True)
+                for item in subcategories_Q:
+                    catsubcategories.append('_'+str(item))
+            '''
+
+            if urbanobjectItem.subcategories_list:
+                subcategories = str(urbanobjectItem.subcategories_list).replace('"', '').split(',')
+            else:
+                subcategories = []
+
+
+            if urbanobjectItem.subcategories_list:
+                catsubcategories_ = str(urbanobjectItem.subcategories_list).replace('"', '').split(',')                
+                catsubcategories = []
+                for arItem in catsubcategories_:
+                    catsubcategories.append('_'+str(arItem))    
+            else:
+                catsubcategories = []
+
+            if urbanobjectItem.category_id:
+                catsubcategories.append(str(urbanobjectItem.category_id)) # добавляет категорию объекта к catsubcategories
+
+
+            if urbanobjectItem.description:
+                description = urbanobjectItem.description
+            else:
+                description = ""
+
+            if urbanobjectItem.comment:
+                comment = urbanobjectItem.comment
+            else:
+                comment = ""
+
+            if urbanobjectItem.googlestreeturl:
+                googlestreeturl = urbanobjectItem.googlestreeturl
+            else:
+                googlestreeturl = ""
+
+
+            urbanobjectJson = {
+                "type": "Feature",
+
+                "properties": {
+                    "coordinates": [str(urbanobjectItem.longitude), str(urbanobjectItem.latitude)],
+                    "id": urbanobjectItem.id,
+                    "user_id": urbanobjectItem.useradded_id,
+                    "category": urbanobjectItem.category_id,
+                    "icon": urbanobjectItem.category.icon,
+                    "subcategories": subcategories,
+                    "catsubcategories": catsubcategories,
+                    "description": description,
+                    "comment": comment,
+                    "googlestreeturl": googlestreeturl,
+                    "rating": urbanobjectItem.rating,
+                    "photo1": '{}'.format(urbanobjectItem.photo1),
+                    "photo2": '{}'.format(urbanobjectItem.photo2),
+                    "photo3": '{}'.format(urbanobjectItem.photo3),
+                },
+
+
+                "geometry": {
+                    "type": "GeometryCollection",
+                    "geometries": [
+                        {
+                            "type": "Point",
+                            "coordinates": [
+                                str(urbanobjectItem.longitude),
+                                str(urbanobjectItem.latitude)
+                            ]
+                        }
+                    ]
+                }
+
+
+            }
+
+
+            # для добавления в geometries[]
+            urbanobject_Polygon = {
+                "type": "Polygon",
+                "coordinates": []
+            }
+
+            # будут содержаться координаты полигона
+            urbanobject_PolygonCoords = []
+
+            # добавляемв массив координаты полигона
+            if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
+                for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
+                    urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
+
+            # добавляем координаты полигона
+            urbanobject_Polygon["coordinates"].append(urbanobject_PolygonCoords)
+
+            # добавляем геометрию полигона в geoJson
+            urbanobjectJson["geometry"]["geometries"].append(urbanobject_Polygon)
+
+
+            # print(treeJson)
+            # print(str(treeItem.lastinsp_recommendations_list).split(', '))
+            urbanobjectJsonData["features"].append(urbanobjectJson)
+
+    return urbanobjectJsonData

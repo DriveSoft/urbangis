@@ -9,13 +9,13 @@ from rest_framework.exceptions import PermissionDenied
 from .serializers import *
 
 from roadaccident.models import Accident
-from coregis.models import coreCity
+from coregis.models import coreCity, coreUrbanObject
 
 from django.views.decorators.gzip import gzip_page
 
 
 @api_view(['GET'])
-def apiOverview(request):
+def apiOverviewRoadaccident(request):
     api_urls = {
         'Road accident data':'/roadaccident/<str:city>/getdata/',
         'List': '/task-list/',
@@ -164,3 +164,40 @@ def accidentData2(request, city):
   
 
   
+
+
+
+
+@api_view(['GET'])
+def apiOverviewUrbanobject(request):
+    api_urls = {
+        'Road accident data':'/roadaccident/<str:city>/getdata/',
+        'List': '/task-list/',
+        'Detail View':'/task-detail/<str:pk>/',
+        'Create':'/task-create',
+        'Update':'/task_update/<str:pk>/',
+        'Delete':'/task-delete/<str:pk>/',
+    }
+    return Response(api_urls)
+
+
+@gzip_page
+@api_view(['GET'])
+def urbanobjectData(request, city):
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    return Response(urbanobjectToGeoJson(obj_city))  
+
+
+def update(request):
+    urbanobjects = coreUrbanObject.objects.all()
+    for uo_item in urbanobjects:
+        obj_subcats = uo_item.subcategories.all()
+        s = ''
+        for item in obj_subcats:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        uo_item.subcategories_list = s        
+        uo_item.save()       
+
+    

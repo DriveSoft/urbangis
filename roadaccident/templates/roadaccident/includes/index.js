@@ -72,10 +72,7 @@ var mymap = new NewMap('mapid', { zoomControl: false }, mapName).setView(
 
 
 
-{% if not user.is_authenticated %}
-    $('#deleteButton').hide();
-    $('#saveButton').hide();
-{% endif %}
+
 
 
 
@@ -1015,6 +1012,11 @@ function LoadAccidentsToMap(firsttime, filterEnabled) {
 }
 
 function PermissionsApply(){
+    {% if not user.is_authenticated %}
+        $('#deleteButton').hide();
+        $('#saveButton').hide();
+    {% endif %}
+
     {% if not perms.roadaccident.add_accident %} mymap.but_newmarker.disable(); {% endif %}
 }
 

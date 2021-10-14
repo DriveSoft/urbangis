@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.dispatch import receiver
+from django.db.models.signals import m2m_changed
+
+
+
 class coreCity(models.Model):
     cityname = models.CharField(max_length=50, unique=True)
     sysname = models.CharField(max_length=50, unique=True)
@@ -61,8 +66,32 @@ class coreUrbanObject(models.Model):
     useradded = models.ForeignKey(User, on_delete=models.PROTECT, related_name='urbanobjects')  # тот кто добавил запись
     datetimeadded = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
+    
+    # для оптимизации, чтобы быстро выдавать geojson объект
+    subcategories_list = models.CharField(max_length=100, blank=True, null=True)       
+
 
 class coreUrbanObjectPolygon(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     object = models.ForeignKey(coreUrbanObject, on_delete=models.CASCADE)
+
+
+
+
+@receiver(m2m_changed)
+def Signal_m2m(sender, **kwargs):
+    instance = kwargs.get('instance') # gets coreUrbanObject instance
+    model = kwargs.get('model')
+    #pk_set = kwargs.get('pk_set')
+    action = kwargs.get('action')  
+
+    if model == coreSubcatObject and sender == coreUrbanObject.subcategories.through and (action == 'post_add' or action == 'post_remove'):
+        obj_subcategories = instance.subcategories.all()
+        s = ''
+        for item in obj_subcategories:
+            s = s + '"' + str(item.id) + '",'
+        
+        s = s.rstrip(',')
+        instance.subcategories_list = s        
+        instance.save()  

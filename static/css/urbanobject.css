@@ -45,6 +45,21 @@
     display: inline-block;
 }
 
+.marker-selected {
+    border:2px solid #00000088;
+    margin: -15px 0 0 -15px;
+    
+}
+
+.marker-selected::after {
+    margin: 1px 0 0 1px; /* 2px if border enabled */
+    
+}
+
+.dot-selected {
+    border:2px solid #00000088;    
+}
+
 
 
 

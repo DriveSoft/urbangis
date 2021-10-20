@@ -52,7 +52,7 @@ def accidentCreate(request, city):
         raise PermissionDenied('You do not have enough permissions to create an entry.')
 
     obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-    serializer = AccidentSerializer(data=request.data)
+    serializer = roadaccidentSerializer(data=request.data)
 
     if serializer.is_valid(raise_exception=True):
         serializer.save(city=obj_city, useradded=request.user)
@@ -73,7 +73,7 @@ def accidentUpdate(request, city, pk):
     if obj_accident.useradded != request.user and not request.user.has_perm('roadaccident.can_change_not_own_accident_record'):
         raise PermissionDenied ('You cannot change information about the accident if this accident was added by another user.')
 
-    serializer = AccidentSerializer(instance=obj_accident, data=request.data)
+    serializer = roadaccidentSerializer(instance=obj_accident, data=request.data)
 
     if serializer.is_valid(raise_exception=True):
         serializer.save()
@@ -188,6 +188,145 @@ def urbanobjectData(request, city):
     return Response(urbanobjectToGeoJson(obj_city))  
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def urbanobjectCreate(request, city):
+    if not request.user.has_perm('coreurbanobject.add_coreurbanobject'):
+        raise PermissionDenied('You do not have enough permissions to create an entry.')
+
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    serializer = coreurbanobjectSerializer(data=request.data)
+
+    if serializer.is_valid(raise_exception=True):
+
+        photo1_newname = request.data['photo1_newname']
+        if photo1_newname:
+            serializer.validated_data['photo1'] = user_directory_path(request, photo1_newname)
+
+        photo2_newname = request.data['photo2_newname']
+        if photo2_newname:
+            serializer.validated_data['photo2'] = user_directory_path(request, photo2_newname)
+
+        photo3_newname = request.data['photo3_newname']
+        if photo3_newname:
+            serializer.validated_data['photo3'] = user_directory_path(request, photo3_newname)
+
+        
+        serializer.save(city=obj_city, useradded=request.user)
+        
+        # save polygon of the object if present
+        idObject = serializer.data['id']
+        if (idObject):
+            if 'polygon' in request.data:
+                arPolygon = request.data['polygon']
+                if len(arPolygon) >= 3: # if there is 3 coords or more
+                    for coord in arPolygon:
+                        coreUrbanObjectPolygon.objects.create(latitude=coord['latitude'], longitude=coord['longitude'], object_id=idObject)
+                    coord = arPolygon[0]
+                    coreUrbanObjectPolygon.objects.create(latitude=coord['latitude'], longitude=coord['longitude'], object_id=idObject)
+                
+
+    return Response(serializer.data)
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def urbanobjectUpdate(request, city, pk):
+    if not request.user.has_perm('coreurbanobject.change_coreurbanobject'):
+        raise PermissionDenied("You do not have sufficient permissions to change this data.")
+        
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    obj_urbanobject = get_object_or_404(coreUrbanObject, pk=pk)
+
+    if obj_urbanobject.useradded != request.user and not request.user.has_perm('coreurbanobject.can_change_not_own_object_record'):
+        raise PermissionDenied ('You cannot change information about the object if this object was added by another user.')
+
+    serializer = coreurbanobjectSerializer(instance=obj_urbanobject, data=request.data)
+
+
+    if serializer.is_valid(raise_exception=True):
+
+        photo1_newname = request.data["photo1_newname"]
+        if photo1_newname:
+            if photo1_newname == '*will_be_deleted*':
+                serializer.validated_data['photo1'] = ''
+            else:
+                serializer.validated_data['photo1'] = user_directory_path(request, photo1_newname)
+
+        photo2_newname = request.data["photo2_newname"]
+        if photo2_newname:
+            if photo2_newname == '*will_be_deleted*':
+                serializer.validated_data['photo2'] = ''
+            else:
+                serializer.validated_data['photo2'] = user_directory_path(request, photo2_newname)
+
+        photo3_newname = request.data["photo3_newname"]
+        if photo3_newname:
+            if photo3_newname == '*will_be_deleted*':
+                serializer.validated_data['photo3'] = ''
+            else:
+                serializer.validated_data['photo3'] = user_directory_path(request, photo3_newname)                                
+
+
+        serializer.save()
+
+
+        # save polygon of the object if present
+        idObject = serializer.data['id']
+        if (idObject):
+            if request.data['polygonCoords'] == 'delete':
+                coreUrbanObjectPolygon.objects.filter(object=obj_urbanobject).delete() 
+
+            if 'polygon' in request.data:
+                arPolygon = request.data['polygon']
+                if len(arPolygon) >= 3: # if there is 3 coords or more
+                    coreUrbanObjectPolygon.objects.filter(object=obj_urbanobject).delete() 
+                    for coord in arPolygon:
+                        coreUrbanObjectPolygon.objects.create(latitude=coord['latitude'], longitude=coord['longitude'], object_id=idObject)
+                    coord = arPolygon[0]
+                    coreUrbanObjectPolygon.objects.create(latitude=coord['latitude'], longitude=coord['longitude'], object_id=idObject)
+
+
+    return Response(serializer.data)
+
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'urbanobject/images_object/user_{0}/{1}'.format(instance.user.id, filename)
+
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def urbanobjectDelete(request, city, pk):
+    if not request.user.has_perm('coreurbanobject.delete_coreurbanobject'):
+        raise PermissionDenied('You do not have enough permissions to delete the entry.')    
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    
+    obj_urbanobject = get_object_or_404(coreUrbanObject, pk=pk)
+    if obj_urbanobject.useradded != request.user and not request.user.has_perm('coreurbanobject.can_delete_not_own_object_record'):# and not request.user.is_staff and not request.user.is_superuser:
+        raise PermissionDenied('You do not have enough permissions to delete the entry that was created by another user.')    
+    
+    obj_urbanobject.is_deleted=True
+    obj_urbanobject.save() 
+    return Response('Item marked as deleted')
+
+
+
+@api_view(['GET'])
+def urbanobjectGetObject(request, city, pk):
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    obj_urbanobject = get_object_or_404(coreUrbanObject, pk=pk)
+    serializer = coreurbanobjectSerializerGetObject(obj_urbanobject, many=False)
+    return Response(serializer.data)
+
+
+
+
+'''
 def update(request):
     urbanobjects = coreUrbanObject.objects.all()
     for uo_item in urbanobjects:
@@ -199,5 +338,5 @@ def update(request):
         s = s.rstrip(',')
         uo_item.subcategories_list = s        
         uo_item.save()       
-
+'''
     

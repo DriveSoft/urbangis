@@ -230,15 +230,15 @@
                 <div class="form-row">
                     <div class="form-group col-4 align-self-end">
                         <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo1" onclick="document.getElementById('id_photo1').click();">
-                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo1_new_name').value='*will_be_deleted*'; $('#id_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo1_new_name').value='*will_be_deleted*'; $('#id_img_photo1').attr('src', '{% static 'images/no-photo.png' %}'); document.getElementById('id_photo1_browse_button').innerText = 'Browse';"></i></a>
                     </div>
                     <div class="form-group col-4 align-self-end">
                         <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo2" onclick="document.getElementById('id_photo2').click();">
-                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo2_new_name').value='*will_be_deleted*'; $('#id_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo2_new_name').value='*will_be_deleted*'; $('#id_img_photo2').attr('src', '{% static 'images/no-photo.png' %}'); document.getElementById('id_photo2_browse_button').innerText = 'Browse';"></i></a>
                     </div>
                     <div class="form-group col-4 align-self-end">
                         <img src="{% static 'images/take-photo.png' %}" class="img-fluid rounded" id="id_img_photo3" onclick="document.getElementById('id_photo3').click();">
-                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo3_new_name').value='*will_be_deleted*'; $('#id_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                        <a href="#"><i class="far fa-times-circle iconDeletePhoto" onclick="document.getElementById('id_photo3_new_name').value='*will_be_deleted*'; $('#id_img_photo3').attr('src', '{% static 'images/no-photo.png' %}'); document.getElementById('id_photo3_browse_button').innerText = 'Browse';"></i></a>
                     </div>
                 </div>
 
@@ -325,7 +325,7 @@
                                 Наистина ли искате да изтриете този обект?
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                <button type="button" class="btn btn-light" data-dismiss="modal" name="send" value="delete" id="id_delete_urbanobject">Изтрий</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                             </div>
                         </div>

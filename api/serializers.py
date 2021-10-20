@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from roadaccident.models import Accident
-from coregis.models import coreUrbanObject
+from coregis.models import coreUrbanObject, coreUrbanObjectPolygon
 
 
 import json
@@ -10,11 +10,41 @@ import os
 
 
 
-class AccidentSerializer(serializers.ModelSerializer):
+class roadaccidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Accident
         fields = '__all__'
         read_only_fields = ['city', 'useradded', 'is_deleted', 'violations_type_list', 'violators_list'] #set this fields on backend in a view or like signals
+
+
+
+class coreurbanobjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = coreUrbanObject
+        fields = '__all__'
+        read_only_fields = ['city', 'useradded', 'is_deleted', 'subcategories_list'] #set this fields on backend in a view or like signals
+
+
+
+
+class coreurbanobjectSerializerGetObject(serializers.ModelSerializer):
+    class Meta:
+        model = coreUrbanObject
+        fields = '__all__'
+
+    def to_representation(self, instance): #modify json output
+        data = super(coreurbanobjectSerializerGetObject, self).to_representation(instance)
+        if instance.coreurbanobjectpolygon_set.count() >= 4: 
+            data['polygon_exists'] = True
+        else:
+            data['polygon_exists'] = False    
+
+        data['category_id'] = data['category']
+        data['category'] = instance.category.catname
+        data['subcategories_text'] = ', '.join(instance.subcategories.values_list('subcatname', flat=True))
+        
+        return data
+
 
 
 
@@ -370,9 +400,10 @@ def urbanobjectToGeoJson(obj_city):
             urbanobject_PolygonCoords = []
 
             # добавляемв массив координаты полигона
-            #if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
-            #    for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
-            #        urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
+            # !!! если переделать в сигнал, чтобы сохранялась копия полигонов в отдельном поле главной таблицы, то будет загружаться еще почти в 2 раза быстрей
+            if urbanobjectItem.coreurbanobjectpolygon_set.count() >=4:
+                for polygonItem in urbanobjectItem.coreurbanobjectpolygon_set.all():
+                    urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])
 
             # добавляем координаты полигона
             urbanobject_Polygon["coordinates"].append(urbanobject_PolygonCoords)

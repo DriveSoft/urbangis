@@ -274,7 +274,6 @@ function markerOnClick(e)
   let marker = e.target;
   let geojson = marker.toGeoJSON();
 
-
   //console.log(geojson);
   // if object hsd polygon, calculate its area and send it to preview window
   let polygonArea;
@@ -308,48 +307,44 @@ function markerOnClick(e)
 } // function markerOnClick(e)
 
 
+
+
 function getAsyncUrbanObject(id, callback, polygonArea){
-    $.ajax({
-        url: "{% url 'get_urban_object' %}",
-        data: {'idUrbanObject': id},
-        dataType: 'json',
-        success: function (jsonResult) {
-            let urban_object = jQuery.parseJSON(jsonResult);
-            callback(urban_object, polygonArea);
-        }
-  });
+    $.getJSON("{% url 'urbanobject-restapi-getobject' city=obj_city.sysname pk=12345 %}".replace(/12345/, id.toString()), function(json) {
+        callback(json, polygonArea);
+    });     
 }
 
 
 
 function ShowUrbanObjectPreview (obj_UrbanObject, polygonArea) {
 
-    $("#id_objectpreview_title_category").text(obj_UrbanObject.fields.category);
-    $("#id_objectpreview_cat").text(obj_UrbanObject.fields.category);
+    $("#id_objectpreview_title_category").text(obj_UrbanObject.category);
+    $("#id_objectpreview_cat").text(obj_UrbanObject.category);
 
-    $("#id_objectpreview_subcats").text(obj_UrbanObject.fields.subcategories_text);
-    if (obj_UrbanObject.fields.subcategories_text) {
+    $("#id_objectpreview_subcats").text(obj_UrbanObject.subcategories_text);
+    if (obj_UrbanObject.subcategories_text) {
         $("#id_div_objectpreview_subcats").show();
     } else {
         $("#id_div_objectpreview_subcats").hide();
     }
 
-    $("#id_objectpreview_description").text(obj_UrbanObject.fields.description);
-    if (obj_UrbanObject.fields.description) {
+    $("#id_objectpreview_description").text(obj_UrbanObject.description);
+    if (obj_UrbanObject.description) {
         $("#id_div_objectpreview_description").show();
     } else {
         $("#id_div_objectpreview_description").hide();
     }
 
-    $("#id_objectpreview_comment").text(obj_UrbanObject.fields.comment);
-    if (obj_UrbanObject.fields.comment) {
+    $("#id_objectpreview_comment").text(obj_UrbanObject.comment);
+    if (obj_UrbanObject.comment) {
         $("#id_div_objectpreview_comment").show();
     } else {
         $("#id_div_objectpreview_comment").hide();
     }
 
-    if (obj_UrbanObject.fields.googlestreeturl) {
-        $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+    if (obj_UrbanObject.googlestreeturl) {
+        $("#id_objectpreview_googlestreetview").html('<a href="'+obj_UrbanObject.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
         $("#id_div_objectpreview_googlestreetview").show();
     } else {
         $("#id_objectpreview_googlestreetview").html('');
@@ -365,20 +360,20 @@ function ShowUrbanObjectPreview (obj_UrbanObject, polygonArea) {
     }
 
 
-    if (obj_UrbanObject.fields.rating == 0) { // чтобы показывать надпись not rated
+    if (obj_UrbanObject.rating == 0) { // чтобы показывать надпись not rated
         $('#id_rating_preview').rating('refresh', {showCaption: true});
     } else {
         $('#id_rating_preview').rating('refresh', {showCaption: false});
     }
 
-    $('#id_rating_preview').rating('update', obj_UrbanObject.fields.rating);
+    $('#id_rating_preview').rating('update', obj_UrbanObject.rating);
 
 
     $('#id_modalObjectInfo').modal('show');
 
 
-    document.getElementById("id_urbanObjectId").value = obj_UrbanObject.fields.id;
-    //Show_Inspections_Actions_Table('PreviewTree', geojson.properties.id);
+    document.getElementById("id_urbanObjectId").value = obj_UrbanObject.id;
+
 
 
     let photo1 = "";
@@ -388,9 +383,9 @@ function ShowUrbanObjectPreview (obj_UrbanObject, polygonArea) {
     //if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
     //if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
     //if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
-    if (obj_UrbanObject.fields.photo1) { photo1 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo1 }
-    if (obj_UrbanObject.fields.photo2) { photo2 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo2 }
-    if (obj_UrbanObject.fields.photo3) { photo3 = "{% get_media_prefix %}" + obj_UrbanObject.fields.photo3 }
+    if (obj_UrbanObject.photo1) { photo1 =  obj_UrbanObject.photo1 }
+    if (obj_UrbanObject.photo2) { photo2 =  obj_UrbanObject.photo2 }
+    if (obj_UrbanObject.photo3) { photo3 =  obj_UrbanObject.photo3 }
 
 
     if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
@@ -496,11 +491,11 @@ function GetChangedObjectPolygonShape(id) {
             if(layer._latlngs[0].length >= 3){ // если у полигона есть как минимум 3 вершины, значит существует
                 if (id > 0) {
                     if (layer.urbanObjectId == id && layer.isChanged) {
-                        layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
+                        layer._latlngs[0].forEach(element => polygon_coords += element.lat.toFixed(5) + ',' + element.lng.toFixed(5) + ',');
                     }
                 } else if (id == -1) {
                     if (!layer.urbanObjectId) {
-                        layer._latlngs[0].forEach(element => polygon_coords += element.lat + ',' + element.lng + ',');
+                        layer._latlngs[0].forEach(element => polygon_coords += element.lat.toFixed(5) + ',' + element.lng.toFixed(5) + ',');
                     }
                 }
             }
@@ -564,58 +559,55 @@ function VisibleOfPolygons(visible) {
 function EditUrbanObject (obj_UrbanObject) {
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
-  document.getElementById("id_latitude").value = obj_UrbanObject.fields.latitude;
-  document.getElementById("id_longitude").value = obj_UrbanObject.fields.longitude;
+  document.getElementById("id_latitude").value = obj_UrbanObject.latitude;
+  document.getElementById("id_longitude").value = obj_UrbanObject.longitude;
 
 
   //$('#id_category').selectpicker('val', geojson.properties.category);
-  console.log(obj_UrbanObject.fields.category_id);
-  document.getElementById("id_category").value = obj_UrbanObject.fields.category_id;
-  $('#id_subcategories').selectpicker('val', obj_UrbanObject.fields.subcategories);
+  console.log(obj_UrbanObject.category_id);
+  document.getElementById("id_category").value = obj_UrbanObject.category_id;
+  $('#id_subcategories').selectpicker('val', obj_UrbanObject.subcategories);
   subcategoriesInputElementUpdate($('#id_category'), false);
 
 
-  document.getElementById("id_description").value = obj_UrbanObject.fields.description;
-  document.getElementById("id_comment").value = obj_UrbanObject.fields.comment.replace(/<br\s*[\/]?>/gi, "\n");
-  document.getElementById("id_googlestreeturl").value = obj_UrbanObject.fields.googlestreeturl;
-  $('#id_rating').rating('update', obj_UrbanObject.fields.rating);
+  document.getElementById("id_description").value = obj_UrbanObject.description;
+  document.getElementById("id_comment").value = obj_UrbanObject.comment.replace(/<br\s*[\/]?>/gi, "\n");
+  document.getElementById("id_googlestreeturl").value = obj_UrbanObject.googlestreeturl;
+  $('#id_rating').rating('update', obj_UrbanObject.rating);
 
-  document.getElementById("id_polygonCoords").value = obj_UrbanObject.fields.polygon_exists;
+  document.getElementById("id_polygonCoords").value = obj_UrbanObject.polygon_exists;
 
-  document.getElementById("id_urbanObjectId").value = obj_UrbanObject.fields.id;
+  document.getElementById("id_urbanObjectId").value = obj_UrbanObject.id;
 
   $("#saveButton").html('Актуализиране');
 
 
 
-    if (obj_UrbanObject.fields.photo1) {
-        $("#id_img_photo1").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo1);
-        //document.getElementById("id_photo1_filename").value = "{% get_media_prefix %}"+geojson.properties.photo1;
+    if (obj_UrbanObject.photo1) {
+        $("#id_img_photo1").attr("src", obj_UrbanObject.photo1);
     } else {
         $("#id_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo1_filename").value = "";
         document.getElementById("id_photo1_new_name").value = "";
     }
 
-    if (obj_UrbanObject.fields.photo2) {
-        $("#id_img_photo2").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo2);
-        //document.getElementById("id_photo2_filename").value = "{% get_media_prefix %}"+geojson.properties.photo2;
+    if (obj_UrbanObject.photo2) {
+        $("#id_img_photo2").attr("src", obj_UrbanObject.photo2);
     } else {
         $("#id_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo2_filename").value = "";
         document.getElementById("id_photo2_new_name").value = "";
     }
 
-    if (obj_UrbanObject.fields.photo3) {
-        $("#id_img_photo3").attr("src", "{% get_media_prefix%}"+obj_UrbanObject.fields.photo3);
-        //document.getElementById("id_photo3_filename").value = "{% get_media_prefix %}"+geojson.properties.photo3;
+    if (obj_UrbanObject.photo3) {
+        $("#id_img_photo3").attr("src", obj_UrbanObject.photo3);
     } else {
         $("#id_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-        //document.getElementById("id_photo3_filename").value = "";
         document.getElementById("id_photo3_new_name").value = "";
     }
 
 
+    document.getElementById("id_photo1_browse_button").innerText = "Browse";
+    document.getElementById("id_photo2_browse_button").innerText = "Browse";
+    document.getElementById("id_photo3_browse_button").innerText = "Browse";
 
 
 
@@ -877,28 +869,7 @@ function LoadUrbanObjectsToMap(firsttime, filterEnabled) {
 
     markers = L.geoJSON(urbanObjectsData, {
 
-        //pointToLayer: function (feature, latlng) {
-            //return L.marker(latlng, {icon: MarkersObject[feature.properties.icon]}).on('click', markerOnClick);
-
-            //let just_marker = L.marker(latlng).on('click', markerOnClick);
-            //just_marker.feature = feature; // вручную присваиваем маркеру его данные, т.к. при использовании в GeoJSON GeometryCollection, properties у маркера почему то отстуствуют в событии markerOnClick
-            //return just_marker;
-        //},
-
         onEachFeature: function (feature, layer) {
-
-                //доступ до geometries, например присвоить событие только point (маркеру), но тогда данные properties опять пропадают
-                /*
-                if(feature.geometry.type == 'GeometryCollection'){
-                    layer.eachLayer(function(layer_GeometryCollection) {
-                        if(layer_GeometryCollection._latlng){
-                            console.log("point");
-                        } else if (layer_GeometryCollection._latlngs) {
-                            console.log("polygon");
-                            layer_GeometryCollection.on('click', markerOnClick);
-                        }
-                    })
-                } */
 
                 // присваиваем полигонам id объекта
                 if(feature.geometry.type == 'GeometryCollection'){
@@ -1037,21 +1008,22 @@ button_reset.onclick = function() {
 
 
 button_closeTabUrbanObject.onclick = function() {
+    closeTabUrbanObject();
+}
+
+
+function closeTabUrbanObject() {
     // delete previous marker if exists
     mymap.removeLayer(newMarker);
-
 
     mymap.pm.disableGlobalEditMode();
     mymap.pm.disableDraw();
     DeleteObjectPolygon(-1); // на всякий случай удаляем полигоны с карты без свойства urbanObjectId, если пользователь например нарисовал полигон для объекта, но потом нажал Изход
-    VisibleOfPolygons(true); // restore visibility of polygons, because we hide them when create a new object
+    VisibleOfPolygons(true); // restore visibility of polygons, because we hide them when create a new object    
 
     $('#myTab a[href="#id_filter"]').tab('show'); // Select tab by name
     $('#id_tabUrbanobject').hide();
 }
-
-
-
 
 
 
@@ -1178,6 +1150,14 @@ mymap.on('pm:create', e => {
 });
 
 
+function LoadGeoJsonData(firsttime, filterEnabled){
+    //$.getJSON("{# url 'urbanobject_geojson_get' city_name=obj_city.sysname #}", function(json) {
+    $.getJSON("{% url 'urbanobject-restapi-getdata' city=obj_city.sysname %}", function(json) {            
+        urbanObjectsData = json;
+        LoadUrbanObjectsToMap(firsttime, filterEnabled);
+    });
+}
+
 document.onreadystatechange = function(){
     if(document.readyState === 'complete'){
 
@@ -1201,11 +1181,7 @@ document.onreadystatechange = function(){
 
         PermissionsApply();
 
-        //$.getJSON("{# url 'urbanobject_geojson_get' city_name=obj_city.sysname #}", function(json) {
-        $.getJSON("{% url 'urbanobject-restapi-getdata' city=obj_city.sysname %}", function(json) {            
-            urbanObjectsData = json;
-            LoadUrbanObjectsToMap(true, true);
-        });
+        LoadGeoJsonData(true, true)
 
 
 
@@ -1536,6 +1512,13 @@ function clearObjectForm(){
     document.getElementById("id_photo2_new_name").value = '';
     document.getElementById("id_photo3_new_name").value = '';
     document.getElementById("id_polygonCoords").value = '';
+    $('#id_img_photo1').attr("src", "{% static 'images/no-photo.png' %}");
+    $('#id_img_photo2').attr("src", "{% static 'images/no-photo.png' %}");
+    $('#id_img_photo3').attr("src", "{% static 'images/no-photo.png' %}");
+
+    document.getElementById("id_photo1_browse_button").innerText = "Browse";
+    document.getElementById("id_photo2_browse_button").innerText = "Browse";
+    document.getElementById("id_photo3_browse_button").innerText = "Browse";
 }
 
 
@@ -1572,4 +1555,162 @@ function latlontocart(latlon) {
 
 function ConvertToRadian(input) {
     return (input * Math.PI) / 180;
+}
+
+
+
+
+
+// REST API
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+let formUrbanObjecttWrapper = document.getElementById('id_scrollbar_urbanobject')
+
+
+formUrbanObjecttWrapper.addEventListener('submit', function(e){
+    e.preventDefault()
+    let idObject = document.getElementById("id_urbanObjectId").value
+    let url
+
+    if (idObject) {
+        url = "{% url 'urbanobject-restapi-update' city=obj_city.sysname pk=12345 %}".replace(/12345/, idObject.toString());  
+    } else {
+        url = "{% url 'urbanobject-restapi-create' city=obj_city.sysname %}"
+    }
+
+
+    let object = {}
+
+    const dataForm = new FormData(e.target);  
+
+    dataForm.forEach((value, key) => {
+        // Reflect.has in favor of: object.hasOwnProperty(key)
+        if(!Reflect.has(object, key)){
+            object[key] = value;
+            return;
+        }
+        if(!Array.isArray(object[key])){
+            object[key] = [object[key]];    
+        }
+        object[key].push(value);
+    });
+
+    const parsed = parseInt(object['rating']);
+    if (isNaN(parsed)) { 
+        object['rating'] = 0; 
+    } else {
+        object['rating'] = parsed;    
+    }
+
+
+
+
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually
+    if(!Reflect.has(object, 'subcategories')){
+        object['subcategories'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['subcategories'])){
+            object['subcategories'] = [object['subcategories']]    
+        }
+          
+    }
+
+
+    let polygonCoords = document.getElementById("id_polygonCoords").value //may contain 'delete' value
+    if (polygonCoords) {
+        polygonCoords = polygonCoords.substring(0, polygonCoords.length - 1); // remove latest comma symbol
+        let arCoords = polygonCoords.split(',');
+        if (arCoords.length % 2 === 0) { // if an even number of coordinates
+            object['polygon'] = [];
+            for (let i=0; i<arCoords.length; i+=2) {
+                let coordObj= {};
+                coordObj.latitude = String(arCoords[i])
+                coordObj.longitude = String(arCoords[i+1])
+                object['polygon'].push(coordObj)
+            }
+        }
+    }
+
+
+    console.log(object);
+
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        },
+        body: JSON.stringify(object)
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });
+        
+        } else {
+            closeTabUrbanObject();  
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }                      
+            
+            // select the new/edited accident marker
+            response.json().then(data => {
+                console.log(data);
+                LoadGeoJsonData(false, false);
+            });
+        }
+    })
+
+
+})    
+
+
+let button_deleteUrbanObject = document.getElementById('id_delete_urbanobject');
+button_deleteUrbanObject.onclick = function() {
+    let idUrbanObject = document.getElementById("id_urbanObjectId").value
+    let url = "{% url 'urbanobject-restapi-delete' city=obj_city.sysname pk=12345 %}".replace(/12345/, idUrbanObject.toString());   
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        }
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });            
+
+        } else {
+            LoadGeoJsonData(false, false);
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }  
+            closeTabUrbanObject();                        
+        }
+    })
+
 }

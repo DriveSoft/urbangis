@@ -155,57 +155,6 @@ mymap.on('baselayerchange', function(e) {
 
 
 let accidentData;
-/*
-// create a geoJson data from database
-var accidentData = {
-  "type": "FeatureCollection",
-  "features": [
-
-{% if accident_data %}
-    {% for accident in accident_data %}
-        {
-            "type": "Feature",
-            "properties": {
-                "coordinates": [{{accident.longitude}}, {{accident.latitude}}], // сохраняем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
-                "id": {{accident.id}},
-                "city": {{ accident.city_id }},
-                "datetime": "{{accident.datetime|date:"Y-m-d\TH:i"}}",
-                "description": "{{ accident.description|linebreaksbr }}",
-                "maneuver": {% if not accident.maneuver_id %} 0 {% else %} {{ accident.maneuver_id }} {% endif %},
-
-                "violations_type":[{% for rec in accident.violations_type.values_list %}"{{rec.0}}",{% endfor %}],
-                "violators":[{% for rec in accident.violators.values_list %}"{{rec.0}}",{% endfor %}],
-
-                "drivers_injured": {{ accident.drivers_injured }},
-                "motorcyclists_injured": {{ accident.motorcyclists_injured }},
-                "cyclists_injured": {{ accident.cyclists_injured }},
-                "ped_injured": {{ accident.ped_injured }},
-                "kids_injured": {{ accident.kids_injured }},
-                "pubtr_passengers_injured": {{ accident.pubtr_passengers_injured }},
-                "drivers_killed": {{ accident.drivers_killed }},
-                "motorcyclists_killed": {{ accident.motorcyclists_killed }},
-                "cyclists_killed": {{ accident.cyclists_killed }},
-                "ped_killed": {{ accident.ped_killed }},
-                "kids_killed": {{ accident.kids_killed}},
-                "pubtr_passengers_killed": {{ accident.pubtr_passengers_killed }},
-
-                "public_transport_involved": {{ accident.public_transport_involved|yesno:"1,0" }},
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [{{accident.longitude}}, {{accident.latitude}}]
-            }
-        },
-    {% endfor %}
-{% endif %}
-
-]};
-*/
-
-
-
-
-
 
 var myRenderer = L.canvas({ padding: 0.5 });
 
@@ -406,12 +355,6 @@ function markerOnClick(e)
     $('#deleteButton').prop('disabled',false);
 
     selectMarker(marker);
-    //if (selectedMarker) { // снимаем выделение с предыдущего
-    //    selectedMarker.setStyle({stroke: false, weight: 0, color: "#008000", opacity: 1});
-    //}
-    //marker.setStyle({stroke: true, weight: 3, color: "#FFFFFF", opacity: 0.7}); // выделяем выбранный маркер
-    //selectedMarker = marker;
-
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
   document.getElementById("latitude").value = geojson.properties.coordinates[1];
@@ -442,12 +385,6 @@ function markerOnClick(e)
   document.getElementById("accidentId").value = geojson.properties.id;
 
 
-  //if ($("#sidebar-wrapper").css("margin-left") != "0px" ) { $("#wrapper").toggleClass("toggled"); }
-
-  //document.getElementById('wrapper').classList.remove("toggled");
-  //$("#wrapper").toggleClass("toggled");
-  //$("#wrapper").addClass( "toggled" );
-  //$("#wrapper").removeClass( "toggled" );
 
   $("#saveButton").html('Актуализиране');
 
@@ -1119,7 +1056,6 @@ formAccidentWrapper.addEventListener('submit', function(e){
     }   
     
 
-
     fetch(url, {
         method: 'POST',
         headers: {
@@ -1174,9 +1110,12 @@ button_deleteAccident.onclick = function() {
                 alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
               });            
 
-        } else {
-            closeTabAccident();
-            LoadGeoJsonData(false, false);            
+        } else {            
+            LoadGeoJsonData(false, false);
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }  
+            closeTabAccident();                        
         }
     })
 

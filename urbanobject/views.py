@@ -42,7 +42,7 @@ class Map(View):
         return render(request, 'urbanobject/index.html', context)
 
 
-
+'''
     def post(self, request, city_name):
         if not request.user.is_authenticated:
             return redirect('%s?next=%s' % (reverse('login'), request.path))
@@ -206,7 +206,7 @@ class Map(View):
                 obj_urbanobject.is_deleted = True
                 obj_urbanobject.save()
                 return redirect(obj_city)
-
+'''
 
 
 
@@ -220,7 +220,7 @@ class ajaxSetMapName(View):
 
 
 
-
+'''
 def citydataToGeoJson(obj_city):
 
     urbanobject_data = urbanObject.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
@@ -338,11 +338,11 @@ def citydataToGeoJson(obj_city):
     with open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', 'urbanobject', obj_city.sysname + '.json'), 'rb') as f_in:
         with gzip.open(os.path.join(djangoSettings.BASE_DIR, 'data', 'geojson', 'urbanobject', obj_city.sysname + '.json.gz'), 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+'''
 
 
 
-
-
+'''
 class getGeojson(View):
     def get(self, request, city_name):
         #print(request.headers['Accept-encoding'])
@@ -378,10 +378,10 @@ class getGeojson(View):
         response['Content-Type'] = 'application/json'
 
         return response
+'''
 
 
-
-
+'''
 class getUrbanObject(View):
     def get(self, request):
 
@@ -411,7 +411,7 @@ class getUrbanObject(View):
 
             json_send = json.dumps(struct[0], ensure_ascii=False)
             return JsonResponse(json_send, safe=False, status=200) #, json_dumps_params={'ensure_ascii': False}
-
+'''
 
 
 

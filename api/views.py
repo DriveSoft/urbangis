@@ -28,11 +28,27 @@ def apiOverviewRoadaccident(request):
 
 
 
+
 @gzip_page
 @api_view(['GET'])
 def accidentData(request, city):
     obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-    return Response(roadaccidentDataToGeoJson(obj_city))  
+    accidents = Accident.objects.filter(city=obj_city).filter(is_deleted=False)
+    serializer = roadaccidentSerializerList(accidents, many=True)
+
+    json = {
+    "type": "FeatureCollection",
+    "city": {
+        "name": obj_city.sysname,
+        "coordinates": [
+            str(obj_city.longitude),
+            str(obj_city.latitude)
+        ]
+    },
+    "features": serializer.data        
+    }
+
+    return Response(json) 
 
 
 
@@ -40,9 +56,7 @@ def accidentData(request, city):
 #@api_view(['GET'])
 #def accidentData2(request, city):
 #    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-#    accidents = Accident.objects.filter(city=obj_city).filter(is_deleted=False)
-#    serializer = AccidentSerializer(accidents, many=True)
-#    return Response(serializer.data) 
+#    return Response(roadaccidentDataToGeoJson(obj_city))  
 
 
 @api_view(['POST'])

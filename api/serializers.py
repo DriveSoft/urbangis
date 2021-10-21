@@ -17,6 +17,51 @@ class roadaccidentSerializer(serializers.ModelSerializer):
         read_only_fields = ['city', 'useradded', 'is_deleted', 'violations_type_list', 'violators_list'] #set this fields on backend in a view or like signals
 
 
+class roadaccidentSerializerList(serializers.ModelSerializer):
+    class Meta:
+        model = Accident
+        exclude = ['city', 'violators', 'violations_type', 'violations_type_list', 'violators_list', 'is_deleted']
+
+    def to_representation(self, instance): #modify json output
+        data = {
+            'properties': super(roadaccidentSerializerList, self).to_representation(instance)
+        }
+
+
+        data['properties']['coordinates'] = [
+                str(instance.longitude),
+                str(instance.latitude)
+            ]
+        
+        data['properties']['datetime'] = instance.datetime.strftime("%Y-%m-%dT%H:%M")
+
+        if instance.violations_type_list:
+            data['properties']['violations_type'] = str(instance.violations_type_list).replace('"', '').split(',')
+        else:
+            data['properties']['violations_type'] = []
+
+        if instance.violators_list:
+            data['properties']['violators'] = str(instance.violators_list).replace('"', '').split(',')
+        else:
+            data['properties']['violators'] = []   
+
+        
+        data['type'] = 'Feature'
+
+        data['geometry'] = {
+            'type': 'Point',
+            'coordinates': [
+                str(instance.longitude),
+                str(instance.latitude)
+            ]
+        }
+
+        return data
+
+
+
+
+
 
 class coreurbanobjectSerializer(serializers.ModelSerializer):
     class Meta:

@@ -392,7 +392,7 @@ function markerOnClick(e)
     //$('#saveButton').prop('disabled',false);
     $('#saveButton').prop('title','');
   {% elif perms.roadaccident.change_accident and not perms.roadaccident.can_change_not_own_accident_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (geojson.properties.useradded=={{user.id}}) {
         //$('#saveButton').prop('disabled',false);
         $('#saveButton').prop('title','');
     } else {
@@ -409,7 +409,7 @@ function markerOnClick(e)
     //$('#deleteButton').prop('disabled',false);
     $('#deleteButton').prop('title','');
   {% elif perms.roadaccident.delete_accident and not perms.roadaccident.can_delete_not_own_accident_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (geojson.properties.useradded=={{user.id}}) {
         //$('#deleteButton').prop('disabled',false);
         $('#deleteButton').prop('title','');
     } else {
@@ -823,7 +823,7 @@ function LoadAccidentsToMap(firsttime, filterEnabled) {
                     }
 
                     if (showOnlyMyAccidents_value) {
-                        showOnlyMyAccidents_Filter = feature.properties.user_id == {{user.id}};
+                        showOnlyMyAccidents_Filter = feature.properties.useradded == {{user.id}};
                     }
 
 

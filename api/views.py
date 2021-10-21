@@ -195,11 +195,27 @@ def apiOverviewUrbanobject(request):
     return Response(api_urls)
 
 
+
 @gzip_page
 @api_view(['GET'])
 def urbanobjectData(request, city):
     obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-    return Response(urbanobjectToGeoJson(obj_city))  
+    urbanObjects = coreUrbanObject.objects.filter(city=obj_city).filter(is_deleted=False)
+    serializer = coreurbanobjectSerializerList(urbanObjects, many=True)
+
+    json = {
+    "type": "FeatureCollection",
+    "features": serializer.data        
+    }
+
+    return Response(json) 
+
+
+#@gzip_page
+#@api_view(['GET'])
+#def urbanobjectData2(request, city):
+#    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+#    return Response(urbanobjectToGeoJson(obj_city))  
 
 
 @api_view(['POST'])

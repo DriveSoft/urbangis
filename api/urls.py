@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('urbanobject/', views.apiOverviewUrbanobject, name="api-overview-urbanobject"),
     path('urbanobject/<str:city>/getdata/', views.urbanobjectData, name="urbanobject-restapi-getdata"),
+    #path('urbanobject/<str:city>/getdata2/', views.urbanobjectData, name="urbanobject-restapi-getdata2"),
     path('urbanobject/<str:city>/create/', views.urbanobjectCreate, name="urbanobject-restapi-create"),
     path('urbanobject/<str:city>/update/<str:pk>/', views.urbanobjectUpdate, name="urbanobject-restapi-update"),
     path('urbanobject/<str:city>/delete/<str:pk>/', views.urbanobjectDelete, name="urbanobject-restapi-delete"),

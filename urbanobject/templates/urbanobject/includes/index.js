@@ -615,7 +615,7 @@ function EditUrbanObject (obj_UrbanObject) {
     $('#saveButton').prop('disabled',false);
     $('#saveButton').prop('title','');
   {% elif perms.coregis.change_coreurbanobject and not perms.coregis.can_change_not_own_object_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (geojson.properties.useradded=={{user.id}}) {
         $('#saveButton').prop('disabled',false);
         $('#saveButton').prop('title','');
     } else {
@@ -632,7 +632,7 @@ function EditUrbanObject (obj_UrbanObject) {
     $('#deleteButton').prop('disabled',false);
     $('#deleteButton').prop('title','');
   {% elif perms.coregis.delete_object and not perms.coregis.can_delete_not_own_object_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (geojson.properties.useradded=={{user.id}}) {
         $('#deleteButton').prop('disabled',false);
         $('#deleteButton').prop('title','');
     } else {
@@ -1053,9 +1053,9 @@ function Slideshow_Inspection_show(row) {
     let photo1 = "";
     let photo2 = "";
     let photo3 = "";
-    if (row.photo1 !== "") { photo1 = "{% get_media_prefix %}" + row.photo1 }
-    if (row.photo2 !== "") { photo2 = "{% get_media_prefix %}" + row.photo2 }
-    if (row.photo3 !== "") { photo3 = "{% get_media_prefix %}" + row.photo3 }
+    if (row.photo1 !== "") { photo1 = row.photo1 }
+    if (row.photo2 !== "") { photo2 = row.photo2 }
+    if (row.photo3 !== "") { photo3 = row.photo3 }
     ShowSlideShow(photo1, photo2, photo3, "Modal")
 }
 
@@ -1340,7 +1340,7 @@ $('#id_filter_category')
 
         function callback_UrbanObject(urban_object) {
             ShowUrbanObjectPreview(urban_object);
-            let latlng = L.latLng(urban_object.fields.latitude, urban_object.fields.longitude);
+            let latlng = L.latLng(urban_object.latitude, urban_object.longitude);
             mymap.setView(latlng, 20);
             //selectMarker({{object_id}});
         }

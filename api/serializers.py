@@ -71,6 +71,81 @@ class coreurbanobjectSerializer(serializers.ModelSerializer):
 
 
 
+class coreurbanobjectSerializerList(serializers.ModelSerializer):
+    class Meta:
+        model = coreUrbanObject
+        exclude = ['city', 'is_deleted', 'subcategories']
+
+    def to_representation(self, instance): #modify json output
+        data = {
+            'properties': super(coreurbanobjectSerializerList, self).to_representation(instance)
+        }
+
+
+        data['properties']['coordinates'] = [
+                str(instance.longitude),
+                str(instance.latitude)
+            ]
+
+        if instance.subcategories_list:
+            data['properties']['subcategories'] = str(instance.subcategories_list).replace('"', '').split(',')
+        else:
+            data['properties']['subcategories'] = []
+
+
+        if instance.subcategories_list:
+            catsubcategories_ = str(instance.subcategories_list).replace('"', '').split(',')                
+            data['properties']['catsubcategories'] = []
+            for arItem in catsubcategories_:
+                data['properties']['catsubcategories'].append('_'+str(arItem))    
+        else:
+            data['properties']['catsubcategories'] = []
+
+        if instance.category_id:
+            data['properties']['catsubcategories'].append(str(instance.category_id)) # добавляет категорию объекта к catsubcategories
+ 
+        data['properties']['icon'] = instance.category.icon
+
+        
+        data['type'] = 'Feature'
+
+        data['geometry'] = {
+            'type': 'GeometryCollection',
+            'geometries': [
+                {
+                    'type': 'Point',
+                    'coordinates': [
+                        str(instance.longitude),
+                        str(instance.latitude)
+                    ]
+                }
+            ]
+        }
+
+
+        # будут содержаться координаты полигона
+        urbanobject_PolygonCoords = []
+
+        # добавляемв массив координаты полигона
+        # !!! если переделать в сигнал, чтобы сохранялась копия полигонов в отдельном поле главной таблицы, то будет загружаться еще почти в 2 раза быстрей
+        if instance.coreurbanobjectpolygon_set.count() >=4:
+            for polygonItem in instance.coreurbanobjectpolygon_set.all():
+                urbanobject_PolygonCoords.append([str(polygonItem.longitude), str(polygonItem.latitude)])        
+
+        # добавляем координаты полигона
+        urbanobject_Polygon = {
+            "type": "Polygon",
+            "coordinates": []
+        }
+        urbanobject_Polygon["coordinates"].append(urbanobject_PolygonCoords)
+
+        data['geometry']['geometries'].append(urbanobject_Polygon)
+
+
+        return data
+
+
+
 
 class coreurbanobjectSerializerGetObject(serializers.ModelSerializer):
     class Meta:

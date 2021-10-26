@@ -563,8 +563,6 @@ function getAsyncObjectTree(id, callback){
 
 
 function ShowTreePreview(obj_tree) {
-
-
             $("#id_treepreview_title_local_name").text(obj_tree.fields.localname);
             $("#id_treepreview_title_species_name").text(obj_tree.fields.species);
             $("#id_treepreview_status").text(obj_tree.fields.lastinsp_status);
@@ -626,7 +624,7 @@ function ShowTreePreview(obj_tree) {
             editButton_TreePreview.onclick = function() {
                 history.pushState(null, null, baseURL);
                 $('#modalTreeInfo').modal('hide');
-                EditTree (obj_tree);
+                EditTree(obj_tree);
             }
 
             let closeButton_TreePreview = document.getElementById('id_closeButton_TreePreview');
@@ -639,7 +637,9 @@ function ShowTreePreview(obj_tree) {
 
 
 
-function EditTree (obj_tree) {
+function EditTree(obj_tree) {
+
+    console.log(obj_tree)
 
   let $table_InspActData = $('#table_InspActData');
   $table_InspActData.bootstrapTable('destroy');
@@ -672,7 +672,7 @@ function EditTree (obj_tree) {
     $('#saveButton').prop('disabled',false);
     $('#saveButton').prop('title','');
   {% elif perms.citytree.change_tree and not perms.citytree.can_change_not_own_tree_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (obj_tree.fields.useradded=={{user.id}}) {
         $('#saveButton').prop('disabled',false);
         $('#saveButton').prop('title','');
     } else {
@@ -689,7 +689,7 @@ function EditTree (obj_tree) {
     $('#deleteButton').prop('disabled',false);
     $('#deleteButton').prop('title','');
   {% elif perms.citytree.delete_tree and not perms.citytree.can_delete_not_own_tree_record %}
-    if (geojson.properties.user_id=={{user.id}}) {
+    if (obj_tree.fields.useradde=={{user.id}}) {
         $('#deleteButton').prop('disabled',false);
         $('#deleteButton').prop('title','');
     } else {

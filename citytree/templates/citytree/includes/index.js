@@ -826,7 +826,7 @@ mymap.on('zoomend', function() {
   markers.eachLayer(function (marker) {
     if (zoom > 17) {
         let geojson = marker.toGeoJSON();
-        marker.setRadius( ZoomToRadius(zoom, geojson.properties.crowndiameter) );
+        marker.setRadius( ZoomToRadius(zoom, geojson.properties.lastinsp_crowndiameter) );
     } else {
         marker.setRadius( ZoomToRadius(zoom, 0) );
     }
@@ -858,7 +858,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
     markers = L.geoJSON(ajax_geojson, {
         pointToLayer: function (feature, latlng) {
 
-            geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.crowndiameter);
+            geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.lastinsp_crowndiameter);
 
             if (geojsonMarkerOptions.radius < 2) {
                 geojsonMarkerOptions.radius = 2;
@@ -866,7 +866,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
             {% if status %}
                 {% for statusItem in status %}
-                    if (feature.properties.status == "{{statusItem.id}}")
+                    if (feature.properties.lastinsp_status == "{{statusItem.id}}")
                     {
                         geojsonMarkerOptions.fillColor = "#{{statusItem.hexcolor}}";
                         geojsonMarkerOptions.color = "#{{statusItem.hexcolor}}";
@@ -924,7 +924,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
                 }
 
                 if (status_values.length>0) {
-                    status_Filter = status_values.includes(feature.properties.status.toString());
+                    status_Filter = status_values.includes(feature.properties.lastinsp_status.toString());
                 }
 
                 if (recommendations_values.length>0) {
@@ -969,7 +969,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
 
                 if (showOnlyMyTrees_value == true) {
-                    showOnlyMyTrees_Filter = feature.properties.user_id == {{user.id}};
+                    showOnlyMyTrees_Filter = feature.properties.useradded == {{user.id}};
                 }
 
 
@@ -982,11 +982,11 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
 
                 // update dataset for heatmap, в heatmap не попадают деревья со статусом, Отсутствует, Сухое или пень
-                if (result && (feature.properties.status != '6' && feature.properties.status != '7' && feature.properties.status != '8') ) {
+                if (result && (feature.properties.lastinsp_status != '6' && feature.properties.lastinsp_status != '7' && feature.properties.lastinsp_status != '8') ) {
                     heatItem = {}
                     heatItem.lat = feature.properties.coordinates[1];
                     heatItem.lng = feature.properties.coordinates[0];
-                    heatItem.count = feature.properties.crowndiameter;
+                    heatItem.count = feature.properties.lastinsp_crowndiameter;
                     HeatMapData.data.push(heatItem);
                  }
 
@@ -994,11 +994,11 @@ function LoadTreesToMap(firsttime, filterEnabled) {
 
             } else {
                 //в heatmap не попадают деревья со статусом, Отсутствует, Сухое или пень
-                if (feature.properties.status != '6' && feature.properties.status != '7' && feature.properties.status != '8') {
+                if (feature.properties.lastinsp_status != '6' && feature.properties.lastinsp_status != '7' && feature.properties.lastinsp_status != '8') {
                     heatItem = {}
                     heatItem.lat = feature.properties.coordinates[1];
                     heatItem.lng = feature.properties.coordinates[0];
-                    heatItem.count = feature.properties.crowndiameter;
+                    heatItem.count = feature.properties.lastinsp_crowndiameter;
                     HeatMapData.data.push(heatItem);
                 }
 
@@ -1201,7 +1201,7 @@ function Edit_Inspection_or_Action_show(row) {
             document.getElementById("inspTreeId").value = row.tree;
 
             document.getElementById("insp_height").value = row.height;
-            document.getElementById("insp_crowndiameter").value = row.crowndiameter;
+            document.getElementById("insp_crowndiameter").value = row.lastinsp_crowndiameter;
             document.getElementById("insp_trunkgirth").value = row.trunkgirth;
             $('#id_insp_remarks').selectpicker('val', row.remarks);
             document.getElementById("insp_status").value = row.status;

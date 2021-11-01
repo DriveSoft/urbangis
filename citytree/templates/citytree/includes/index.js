@@ -252,7 +252,7 @@ mymap.on('baselayerchange', function(e) {
 var treeData = {
   "type": "FeatureCollection",
   "features": [
-
+{% comment %}
 {% if tree_data %}
     {% for tree in tree_data %}
         {
@@ -290,7 +290,7 @@ var treeData = {
         },
     {% endfor %}
 {% endif %}
-
+{% endcomment %}
 ]};
 
 
@@ -1733,7 +1733,7 @@ function AjaxLoadJson(){
     let treedata_ajax = $.ajax({
       //url:"{% static 'varna.json' %}",
       //url:"{% get_static_prefix %}citytree/geojson/{{obj_city.sysname}}.json",
-      url: "{% url 'citytree_geojson_get' city_name=obj_city.sysname %}",
+      url: "{% url 'citytree-restapi-getdata' city=obj_city.sysname %}",
 
 
       dataType: "json",
@@ -1761,47 +1761,15 @@ function AjaxLoadJson(){
 
         // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
         // также в массив добавляем id деревьев, которые нужно отфильтровать из ajax json, т.к. могут присутствовать маркеры, которые были отредактированы, соотвественно они измененные и пришли из БД, а файл geojson обновляетне только переодически
-        for (let i in treeData.features) {
-            if (treeData.features[i].properties.is_deleted == 0) { // если дерево не удалено, добавляем его в ajax_geojson
-                ajax_geojson.features.push(treeData.features[i]);
-            }
-            idsFromDB.push(treeData.features[i].properties.id); // добавляются все id пришедшие из БД, в том числе удаленные деревья, чтобы игнорировать их в ajax_geojson
-        }
+        //for (let i in treeData.features) {
+        //    if (treeData.features[i].properties.is_deleted == 0) { // если дерево не удалено, добавляем его в ajax_geojson
+        //        ajax_geojson.features.push(treeData.features[i]);
+        //    }
+        //    idsFromDB.push(treeData.features[i].properties.id); // добавляются все id пришедшие из БД, в том числе удаленные деревья, чтобы игнорировать их в ajax_geojson
+        //}
 
-        //LoadTreesToMap(true);
+  
         LoadTreesToMap(true, false); // нпервоначальная загрузка, фильтр отключен
-
-        //console.log(treeData)
-
-        /*
-        // create circleMarker from geoJson
-        markers = L.geoJSON(ajax_geojson, {
-            pointToLayer: function (feature, latlng) {
-                //geojsonMarkerOptions.radius = ZoomToRadius(mymap.getZoom(), feature.properties.trunkgirth);
-                geojsonMarkerOptions.radius = feature.properties.crowndiameter;
-                return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);//.addTo(mymap);
-            },
-            filter: function(feature, layer) {
-
-                //console.log(feature.properties.ajax)
-
-                if (feature.properties.ajax == 1 && idsFromDB.includes(feature.properties.id)) {
-                    return false
-                } else {
-                    return true;
-                }
-                //return true;
-
-            }
-
-        });
-
-        //document.getElementById("dateFrom").value = formatDate(datefilter_Min);
-        //document.getElementById("dateTo").value = formatDate(datefilter_Max);
-
-
-
-        mymap.addLayer(markers);*/
 
     });
 

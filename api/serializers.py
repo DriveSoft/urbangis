@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from roadaccident.models import Accident
 from coregis.models import coreUrbanObject, coreUrbanObjectPolygon
-
+from citytree.models import Tree
 
 import json
 import os
@@ -169,6 +169,65 @@ class coreurbanobjectSerializerGetObject(serializers.ModelSerializer):
 
 
 
+
+
+class citytreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tree
+        fields = '__all__'
+        read_only_fields = ['city', 'useradded', 'is_deleted', 'lastinsp_datetime', 'lastinsp_comment', 'lastinsp_crowndiameter', 'lastinsp_trunkgirth',
+                            'lastinsp_height', 'lastinsp_status', 'lastinsp_photo1', 'lastinsp_photo2', 'lastinsp_photo3', 
+                            'lastinsp_remarks_list', 'lastinsp_recommendations_list', 'lastinsp_remarks_text', 'lastinsp_recommendations_text', 'is_geojsoned']
+
+
+class citytreeSerializerList(serializers.ModelSerializer):
+    class Meta:
+        model = Tree
+        exclude = ['city', 'datetimeadded', 'googlestreeturl', 'is_reservedplace', 'lastinsp_comment', 'lastinsp_photo1', 'lastinsp_photo2', 'lastinsp_photo3', 
+                    'lastinsp_remarks', 'lastinsp_recommendations', 'lastinsp_remarks_list', 'lastinsp_recommendations_list', 
+                    'lastinsp_remarks_text', 'lastinsp_recommendations_text', 'lastinsp_datetime', 'speciescomment', 
+                    'usermoderated', 'is_geojsoned', 'is_deleted', 'is_moderated']
+
+    def to_representation(self, instance): #modify json output
+        data = {
+            'properties': super(citytreeSerializerList, self).to_representation(instance)
+        }
+
+
+        data['properties']['coordinates'] = [
+                str(instance.longitude),
+                str(instance.latitude)
+            ]
+        
+        data['properties']['datetimeadded'] = instance.datetimeadded.strftime("%Y-%m-%d")
+
+        if instance.lastinsp_remarks_list:
+            data['properties']['remarks'] = str(instance.lastinsp_remarks_list).replace('"', '').split(',')
+        else:
+            data['properties']['remarks'] = []
+
+        if instance.lastinsp_recommendations_list:
+            data['properties']['recommendations'] = str(instance.lastinsp_recommendations_list).replace('"', '').split(',')
+        else:
+            data['properties']['recommendations'] = []   
+
+        
+        data['type'] = 'Feature'
+
+        data['geometry'] = {
+            'type': 'Point',
+            'coordinates': [
+                str(instance.longitude),
+                str(instance.latitude)
+            ]
+        }
+
+        return data
+
+
+
+
+'''
 def roadaccidentDataToGeoJson(obj_city):
 
     accident_data = Accident.objects.filter(city_id=obj_city.id).filter(is_deleted=False)
@@ -264,7 +323,7 @@ def roadaccidentDataToGeoJson(obj_city):
 
     return accidentJsonData
 
-
+'''
 
 
 

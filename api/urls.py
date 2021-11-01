@@ -19,4 +19,6 @@ urlpatterns = [
     path('urbanobject/<str:city>/object/<str:pk>/', views.urbanobjectGetObject, name="urbanobject-restapi-getobject"),
     #path('urbanobject/update/', views.update),
 
+    path('citytree/<str:city>/getdata/', views.citytreeData, name="citytree-restapi-getdata"),
+
 ]

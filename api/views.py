@@ -370,3 +370,20 @@ def update(request):
         uo_item.save()       
 '''
     
+
+
+
+
+@gzip_page
+@api_view(['GET'])
+def citytreeData(request, city):
+    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+    treeObjects = Tree.objects.filter(city=obj_city).filter(is_deleted=False)
+    serializer = citytreeSerializerList(treeObjects, many=True)
+
+    json = {
+    "type": "FeatureCollection",
+    "features": serializer.data        
+    }
+
+    return Response(json) 

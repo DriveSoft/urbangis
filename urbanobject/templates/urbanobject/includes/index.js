@@ -95,7 +95,7 @@ mymap.on('baselayerchange', function(e) {
 
 
 
-// create a geoJson data from database
+// geoJson data
 let urbanObjectsData = {
   "type": "FeatureCollection",
   "features": []

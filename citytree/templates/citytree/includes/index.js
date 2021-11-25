@@ -31,19 +31,17 @@ var idsFromDB = []; // храним id маркеров деревьев, кот
 let baseURL = '/citytree/{{obj_city.sysname}}/'; // for html5 history API
 
 
+// geoJson data
+let cityTreesData = {
+    "type": "FeatureCollection",
+    "features": []
+  };
 
 
 
-
-var HeatMapData = {
+let HeatMapData = {
   max: 20,
-  data: [
-    {% if tree_data %}
-        {% for tree in tree_data %}
-            {lat: {{tree.latitude}}, lng: {{tree.longitude}}, count: {{ tree.crowndiameter|add:"1" }} },
-        {% endfor %}
-    {% endif %}
-  ]
+  data: []
 };
 
 
@@ -249,9 +247,9 @@ mymap.on('baselayerchange', function(e) {
 
 
 // create a geoJson data from database
-var treeData = {
-  "type": "FeatureCollection",
-  "features": [
+//var treeData = {
+//  "type": "FeatureCollection",
+//  "features": [
 {% comment %}
 {% if tree_data %}
     {% for tree in tree_data %}
@@ -291,7 +289,7 @@ var treeData = {
     {% endfor %}
 {% endif %}
 {% endcomment %}
-]};
+//]};
 
 
 
@@ -548,46 +546,54 @@ function selectMarker (markerOrID) {
 }
 
 
+
 function getAsyncObjectTree(id, callback){
-    $.ajax({
-        url: "{% url 'get_tree' %}",
-        data: {'idtree': id},
-        dataType: 'json',
-        success: function (jsonResult) {
-            let obj_tree = jQuery.parseJSON(jsonResult);
-            callback(obj_tree);
-        }
-  });
+    $.getJSON("{% url 'citytree-restapi-treeitem' city=obj_city.sysname pk=12345 %}".replace(/12345/, id.toString()), function(json) {
+        callback(json);
+    });     
 }
+
+//function getAsyncObjectTree(id, callback){
+//    $.ajax({
+//        url: "{% url 'get_tree' %}",
+//        data: {'idtree': id},
+//        dataType: 'json',
+//        success: function (jsonResult) {
+//            let obj_tree = jQuery.parseJSON(jsonResult);
+//            console.log(obj_tree)
+//            callback(obj_tree);
+//        }
+//  });
+//}
 
 
 
 function ShowTreePreview(obj_tree) {
-            $("#id_treepreview_title_local_name").text(obj_tree.fields.localname);
-            $("#id_treepreview_title_species_name").text(obj_tree.fields.species);
-            $("#id_treepreview_status").text(obj_tree.fields.lastinsp_status);
+            $("#id_treepreview_title_local_name").text(obj_tree.localname);
+            $("#id_treepreview_title_species_name").text(obj_tree.species);
+            $("#id_treepreview_status").text(obj_tree.lastinsp_status);
 
-            $("#id_treepreview_height").text(obj_tree.fields.lastinsp_height);
-            $("#id_treepreview_crown").text(obj_tree.fields.lastinsp_crowndiameter);
-            $("#id_treepreview_trunk").text(obj_tree.fields.lastinsp_trunkgirth);
+            $("#id_treepreview_height").text(obj_tree.lastinsp_height);
+            $("#id_treepreview_crown").text(obj_tree.lastinsp_crowndiameter);
+            $("#id_treepreview_trunk").text(obj_tree.lastinsp_trunkgirth);
 
 
-            $("#id_treepreview_remarks").text(obj_tree.fields.lastinsp_remarks);
-            if (obj_tree.fields.lastinsp_remarks) {
+            $("#id_treepreview_remarks").text(obj_tree.lastinsp_remarks);
+            if (obj_tree.lastinsp_remarks) {
                 $("#id_div_treepreview_remarks").show();
             } else {
                 $("#id_div_treepreview_remarks").hide();
             }
 
-            $("#id_treepreview_recommends").text(obj_tree.fields.lastinsp_recommendations);
-            if (obj_tree.fields.lastinsp_recommendations) {
+            $("#id_treepreview_recommends").text(obj_tree.lastinsp_recommendations);
+            if (obj_tree.lastinsp_recommendations) {
                 $("#id_div_treepreview_recommends").show();
             } else {
                 $("#id_div_treepreview_recommends").hide();
             }
 
-            if (obj_tree.fields.googlestreeturl) {
-                $("#id_treepreview_googlestreetview").html('<a href="'+obj_tree.fields.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
+            if (obj_tree.googlestreeturl) {
+                $("#id_treepreview_googlestreetview").html('<a href="'+obj_tree.googlestreeturl+'" target="_blank"><i class="fas fa-external-link-alt"></i>');
                 $("#id_div_treepreview_googlestreetview").show();
             } else {
                 $("#id_treepreview_googlestreetview").html('');
@@ -600,8 +606,8 @@ function ShowTreePreview(obj_tree) {
             $('#modalTreeInfo').modal('show');
 
 
-            document.getElementById("treeId").value = obj_tree.fields.id;
-            Show_Inspections_Actions_Table('PreviewTree', obj_tree.fields.id);
+            document.getElementById("treeId").value = obj_tree.id;
+            Show_Inspections_Actions_Table('PreviewTree', obj_tree.id);
 
 
             let photo1 = "";
@@ -611,9 +617,9 @@ function ShowTreePreview(obj_tree) {
             //if (geojson.properties.photo1 !== "") { photo1 = "{% get_media_prefix %}" + geojson.properties.photo1 }
             //if (geojson.properties.photo2 !== "") { photo2 = "{% get_media_prefix %}" + geojson.properties.photo2 }
             //if (geojson.properties.photo3 !== "") { photo3 = "{% get_media_prefix %}" + geojson.properties.photo3 }
-            if (obj_tree.fields.lastinsp_photo1) { photo1 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo1 }
-            if (obj_tree.fields.lastinsp_photo2) { photo2 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo2 }
-            if (obj_tree.fields.lastinsp_photo3) { photo3 = "{% get_media_prefix %}" + obj_tree.fields.lastinsp_photo3 }
+            if (obj_tree.lastinsp_photo1) { photo1 = obj_tree.lastinsp_photo1 }
+            if (obj_tree.lastinsp_photo2) { photo2 = obj_tree.lastinsp_photo2 }
+            if (obj_tree.lastinsp_photo3) { photo3 = obj_tree.lastinsp_photo3 }
 
             if (photo1 == "" && photo2 == "" && photo3 == "") { photo1 = "{% static 'images/no-photo.png' %}"}
 
@@ -648,18 +654,18 @@ function EditTree(obj_tree) {
 
 
   // читаем координаты в properties, т.к. в geometry они почему то меняются из за того, видимо из за того, что маркеры смещаются когда кластер раскрывается
-  document.getElementById("latitude").value = obj_tree.fields.latitude;
-  document.getElementById("longitude").value = obj_tree.fields.longitude;
+  document.getElementById("latitude").value = obj_tree.latitude;
+  document.getElementById("longitude").value = obj_tree.longitude;
   //document.getElementById("species").value = geojson.properties.species;
-  $('#species').selectpicker('val', obj_tree.fields.species_id);
+  $('#species').selectpicker('val', obj_tree.species_id);
 
-  document.getElementById("speciescomment").value = obj_tree.fields.speciescomment;
-  document.getElementById("comment").value = obj_tree.fields.comment.replace(/<br\s*[\/]?>/gi, "\n");
-  document.getElementById("placetype").value = obj_tree.fields.placetype;
-  document.getElementById("irrigationmethod").value = obj_tree.fields.irrigationmethod;
-  document.getElementById("dateplanted").value = obj_tree.fields.dateplanted;
-  document.getElementById("googlestreeturl").value = obj_tree.fields.googlestreeturl;
-  document.getElementById("treeId").value = obj_tree.fields.id;
+  document.getElementById("speciescomment").value = obj_tree.speciescomment;
+  document.getElementById("comment").value = obj_tree.comment.replace(/<br\s*[\/]?>/gi, "\n");
+  document.getElementById("placetype").value = obj_tree.placetype;
+  document.getElementById("irrigationmethod").value = obj_tree.irrigationmethod;
+  document.getElementById("dateplanted").value = obj_tree.dateplanted;
+  document.getElementById("googlestreeturl").value = obj_tree.googlestreeturl;
+  document.getElementById("treeId").value = obj_tree.id;
 
 
   //document.getElementById('wrapper').classList.remove("toggled");
@@ -672,7 +678,7 @@ function EditTree(obj_tree) {
     $('#saveButton').prop('disabled',false);
     $('#saveButton').prop('title','');
   {% elif perms.citytree.change_tree and not perms.citytree.can_change_not_own_tree_record %}
-    if (obj_tree.fields.useradded=={{user.id}}) {
+    if (obj_tree.useradded=={{user.id}}) {
         $('#saveButton').prop('disabled',false);
         $('#saveButton').prop('title','');
     } else {
@@ -689,7 +695,7 @@ function EditTree(obj_tree) {
     $('#deleteButton').prop('disabled',false);
     $('#deleteButton').prop('title','');
   {% elif perms.citytree.delete_tree and not perms.citytree.can_delete_not_own_tree_record %}
-    if (obj_tree.fields.useradde=={{user.id}}) {
+    if (obj_tree.useradde=={{user.id}}) {
         $('#deleteButton').prop('disabled',false);
         $('#deleteButton').prop('title','');
     } else {
@@ -712,7 +718,7 @@ function EditTree(obj_tree) {
   $('#myTab a[href="#tree"]').tab('show'); // Select tab by name
 
 
-  Show_Inspections_Actions_Table('EditTree', obj_tree.fields.id);
+  Show_Inspections_Actions_Table('EditTree', obj_tree.id);
   OpenSidebar();
 }
 
@@ -747,6 +753,7 @@ function iEditCoordOnClick(e) {
 
 
 function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
+
     // clear then populate slider
     $('#id_container_'+id_carousel_suffix+' .carousel-inner').html('');
     $('#id_container_'+id_carousel_suffix+' .carousel-indicators').html('');
@@ -754,21 +761,21 @@ function ShowSlideShow(photo1, photo2, photo3, id_carousel_suffix) {
     let i = 0;
     let result = false;
 
-    if (photo1 != "") {
+    if (photo1) {
         $('<div class="carousel-item"><img style="background: transparent url({% static 'images/loader_white.gif' %}) no-repeat scroll center center; min-height: 64px" class="d-block w-100" src="'+ photo1 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
         $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
     }
     i = i + 1;
 
-    if (photo2 != "") {
+    if (photo2) {
         $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo2 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
         $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
     }
     i = i + 1;
 
-    if (photo3 != "") {
+    if (photo3) {
         $('<div class="carousel-item"><img class="d-block w-100" src="'+ photo3 +'"></div>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-inner');
         $('<li data-target="#id_carousel_Modal" data-slide-to="'+i+'"></li>').appendTo('#id_container_'+id_carousel_suffix+' .carousel-indicators');
         result = true;
@@ -855,7 +862,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
     let heatItem = {};
     let zoom = mymap.getZoom();
 
-    markers = L.geoJSON(ajax_geojson, {
+    markers = L.geoJSON(cityTreesData, {
         pointToLayer: function (feature, latlng) {
 
             geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.lastinsp_crowndiameter);
@@ -923,7 +930,7 @@ function LoadTreesToMap(firsttime, filterEnabled) {
                     species_Filter = species_values.includes(feature.properties.species.toString());
                 }
 
-                if (status_values.length>0) {
+                if (status_values.length>0 && feature.properties.lastinsp_status) {
                     status_Filter = status_values.includes(feature.properties.lastinsp_status.toString());
                 }
 
@@ -1060,10 +1067,11 @@ button_reset.onclick = function() {
 
 button_closeTabTree.onclick = function() {
     // delete previous marker if exists
-    mymap.removeLayer(newMarker);
+    //mymap.removeLayer(newMarker);
 
-    $('#myTab a[href="#filter"]').tab('show'); // Select tab by name
-    $('#tabTree').hide();
+    //$('#myTab a[href="#filter"]').tab('show'); // Select tab by name
+    //$('#tabTree').hide();
+    closeTabTree();
 }
 
 button_closeTabInsp.onclick = function() {
@@ -1117,24 +1125,115 @@ function Show_Inspections_Actions_Table(id_suffix, idTree)
 {
     let $table_InspActData = $('#table_InspActData_'+id_suffix)
     let $table_InspActDataPreview = $('#table_InspActData_'+id_suffix)
+    let table_is_empty = true
     $table_InspActData.bootstrapTable('destroy')
+
+
+
+    let urlInsp = "{% url 'citytree-restapi-inspections' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());
+    let urlsAct = "{% url 'citytree-restapi-actions' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());
+
+    console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
+    DataToTable(urlInsp, true)
+    sleep(100)
+    DataToTable(urlsAct, false)
+    console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
+
+
+
+    function DataToTable(url, insp) {
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-type':'application/json',
+                'X-CSRFToken':csrftoken,
+            }
+        }
+        ).then(function(response){
+            if (response.status >= 400) {
+
+                response.json().then(data => {
+                    alert(response.statusText+' ('+response.status+')\n\n'+data.errors);
+                });
+            
+            } else {
+
+                response.json().then(data => {
+
+                    if (insp) {
+                        data.forEach(element => element.type='Inspection');
+                    } else {
+                        data.forEach(element => element.type='Action');
+                        data.forEach(element => element.datetime=element.date);
+                    }
+
+
+                    if (table_is_empty) {
+                        console.log(data)
+                        if (data.length > 0) { 
+                            table_is_empty = false;
+                            $table_InspActData.bootstrapTable({data: data}) 
+                        }
+                           
+                    } else {
+                        console.log(data)
+                        $table_InspActData.bootstrapTable('append', data) 
+                    }
+
+                    /*
+                    if ($table_InspActData.bootstrapTable('getData').length === 1) {  // if the table is empty                     
+                        console.log(data)
+                        console.log('empty1',  $table_InspActData.bootstrapTable('getData').length  ) 
+                        $table_InspActData.bootstrapTable({data: data})
+                        console.log('empty2',   $table_InspActData.bootstrapTable('getData').length  )                       
+                    } else {
+                        console.log(data)
+                        console.log('not empty1',  $table_InspActData.bootstrapTable('getData').length  ) 
+                        $table_InspActData.bootstrapTable('append', data) 
+                        console.log('not empty2',  $table_InspActData.bootstrapTable('getData').length  )   
+                    }    
+                    */                         
+                    
+                });
+
+            }
+        })
+    }
+
+
+
+/*
+    let finalResult;
+    const urls = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+    Promise.all(
+        urls.map(url =>
+            fetch('json/' + url + '.json')
+                .then(e => e.json())
+        )
+    ).then(data => {
+        finalResult = data.flat();
+    });
+*/
+
+
+
+
+
+    return
 
     $.ajax({
         url: "{% url 'get_inspact' %}",
         //data: {'idtree': document.getElementById("treeId").value},
         data: {'idtree': idTree},
         dataType: 'json',
-        success: function (jsonResult) {
-            //$('#button_show_inspact').hide();
-            $('#divTreeInspActData_'+id_suffix).show();
-            //$('#divTreeInspActDataPreview').show();
-            //console.log(jsonResult);
+        success: function (jsonResult) {            
+            $('#divTreeInspActData_'+id_suffix).show();            
+            console.log(jsonResult);
 
-            $(function() {
+            //$(function() {
                 let data = jsonResult
                 $table_InspActData.bootstrapTable({data: data})
-                //$table_InspActDataPreview.bootstrapTable({data: data})
-            })
+            //})
 
         }
       });
@@ -1201,7 +1300,7 @@ function Edit_Inspection_or_Action_show(row) {
             document.getElementById("inspTreeId").value = row.tree;
 
             document.getElementById("insp_height").value = row.height;
-            document.getElementById("insp_crowndiameter").value = row.lastinsp_crowndiameter;
+            document.getElementById("insp_crowndiameter").value = row.crowndiameter;
             document.getElementById("insp_trunkgirth").value = row.trunkgirth;
             $('#id_insp_remarks').selectpicker('val', row.remarks);
             document.getElementById("insp_status").value = row.status;
@@ -1209,27 +1308,27 @@ function Edit_Inspection_or_Action_show(row) {
 
 
             if (row.photo1 !== "") {
-                $("#id_insp_img_photo1").attr("src", "{% get_media_prefix%}"+row.photo1);
-                document.getElementById("id_insp_photo1_filename").value = "{% get_media_prefix%}"+row.photo1;
+                $("#id_insp_img_photo1").attr("src", row.photo1);
+                //document.getElementById("id_insp_photo1_new_name").value = "{% get_media_prefix%}"+row.photo1;
             } else {
                 $("#id_insp_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
-                document.getElementById("id_insp_photo1_filename").value = "";
+                document.getElementById("id_insp_photo1_new_name").value = "";
             }
 
             if (row.photo2 !== "") {
-                $("#id_insp_img_photo2").attr("src", "{% get_media_prefix%}"+row.photo2);
-                document.getElementById("id_insp_photo2_filename").value = "{% get_media_prefix%}"+row.photo2;
+                $("#id_insp_img_photo2").attr("src", row.photo2);
+                //document.getElementById("id_insp_photo2_new_name").value = "{% get_media_prefix%}"+row.photo2;
             } else {
                 $("#id_insp_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-                document.getElementById("id_insp_photo2_filename").value = "";
+                document.getElementById("id_insp_photo2_new_name").value = "";
             }
 
             if (row.photo3 !== "") {
-                $("#id_insp_img_photo3").attr("src", "{% get_media_prefix%}"+row.photo3);
-                document.getElementById("id_insp_photo3_filename").value = "{% get_media_prefix%}"+row.photo3;
+                $("#id_insp_img_photo3").attr("src", row.photo3);
+                //document.getElementById("id_insp_photo3_new_name").value = "{% get_media_prefix%}"+row.photo3;
             } else {
                 $("#id_insp_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-                document.getElementById("id_insp_photo3_filename").value = "";
+                document.getElementById("id_insp_photo3_new_name").value = "";
             }
 
 
@@ -1332,9 +1431,9 @@ function Slideshow_Inspection_show(row) {
     let photo1 = "";
     let photo2 = "";
     let photo3 = "";
-    if (row.photo1 !== "") { photo1 = "{% get_media_prefix %}" + row.photo1 }
-    if (row.photo2 !== "") { photo2 = "{% get_media_prefix %}" + row.photo2 }
-    if (row.photo3 !== "") { photo3 = "{% get_media_prefix %}" + row.photo3 }
+    if (row.photo1 !== "") { photo1 = row.photo1 }
+    if (row.photo2 !== "") { photo2 = row.photo2 }
+    if (row.photo3 !== "") { photo3 = row.photo3 }
     ShowSlideShow(photo1, photo2, photo3, "Modal")
 }
 
@@ -1354,11 +1453,11 @@ button_NewInspection.onclick = function() {
     $('#id_insp_recommendations').selectpicker('deselectAll');
     $('#id_insp_recommendations').selectpicker('val', []);
     $("#id_insp_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
-    document.getElementById("id_insp_photo1_filename").value = "";
+    document.getElementById("id_insp_photo1_new_name").value = "";
     $("#id_insp_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-    document.getElementById("id_insp_photo2_filename").value = "";
+    document.getElementById("id_insp_photo2_new_name").value = "";
     $("#id_insp_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-    document.getElementById("id_insp_photo3_filename").value = "";
+    document.getElementById("id_insp_photo3_new_name").value = "";
 
     $('#tabInspection').show();
     $('#myTab a[href="#inspection"]').tab('show'); // Select tab by name
@@ -1448,15 +1547,24 @@ function CloseSidebar(){
 }
 
 
+function closeTabTree() {
+    // delete previous marker if exists
+    mymap.removeLayer(newMarker);
+
+    $('#myTab a[href="#filter"]').tab('show'); // Select tab by name
+    $('#tabTree').hide();
+}
+
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
 function images_inspection_click(){
-        let photo1 = document.getElementById("id_insp_photo1_filename").value;
-        let photo2 = document.getElementById("id_insp_photo2_filename").value;
-        let photo3 = document.getElementById("id_insp_photo3_filename").value;
+        let photo1 = document.getElementById("id_insp_photo1_new_name").value;
+        let photo2 = document.getElementById("id_insp_photo2_new_name").value;
+        let photo3 = document.getElementById("id_insp_photo3_new_name").value;
         //console.log(photo1);
         ShowSlideShow(photo1, photo2, photo3, "Modal")
 }
@@ -1539,7 +1647,7 @@ document.onreadystatechange = function(){
 
 
     PermissionsApply();
-    AjaxLoadJson();
+    LoadGeoJsonData(true, true)
 
 
 
@@ -1629,15 +1737,15 @@ document.onreadystatechange = function(){
    	    let myFile2 = $('#id_insp_photo2').prop('files');
    	    let myFile3 = $('#id_insp_photo3').prop('files');
 
-   	    if ( $('#id_insp_photo1_filename').val() === '*will_be_deleted*' ) {
+   	    if ( $('#id_insp_photo1_new_name').val() === '*will_be_deleted*' ) {
    	        $('#id_insp_photo1').val('');
    	    }
 
-   	    if ( $('#id_insp_photo2_filename').val() === '*will_be_deleted*' ) {
+   	    if ( $('#id_insp_photo2_new_name').val() === '*will_be_deleted*' ) {
    	        $('#id_insp_photo2').val('');
    	    }
 
-   	    if ( $('#id_insp_photo3_filename').val() === '*will_be_deleted*' ) {
+   	    if ( $('#id_insp_photo3_new_name').val() === '*will_be_deleted*' ) {
    	        $('#id_insp_photo3').val('');
    	    }
 
@@ -1715,7 +1823,7 @@ document.onreadystatechange = function(){
 
         function callback_ObjectTree(object_tree) {
             ShowTreePreview(object_tree);
-            let latlng = L.latLng(object_tree.fields.latitude, object_tree.fields.longitude);
+            let latlng = L.latLng(object_tree.latitude, object_tree.longitude);
             mymap.setView(latlng, 20);
             selectMarker({{tree_id}});
         }
@@ -1728,54 +1836,14 @@ document.onreadystatechange = function(){
 }
 
 
-function AjaxLoadJson(){
-    // Add AJAX request for data
-    let treedata_ajax = $.ajax({
-      //url:"{% static 'varna.json' %}",
-      //url:"{% get_static_prefix %}citytree/geojson/{{obj_city.sysname}}.json",
-      url: "{% url 'citytree-restapi-getdata' city=obj_city.sysname %}",
 
-
-      dataType: "json",
-      success: console.log("County data successfully loaded."),
-      error: function (xhr) {
-        //alert(xhr.statusText)
-        // т.к. файла geojson файла пока нет, создаем
-        ajax_geojson = {"type": "FeatureCollection", "features": []};
-
-        // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
-        for (let i in treeData.features) {
-            if (treeData.features[i].properties.is_deleted == 0) {
-                ajax_geojson.features.push(treeData.features[i]);
-            }
-            //idsFromDB.push(treeData.features[i].properties.id);
-        }
-
-        LoadTreesToMap(true, false); // нпервоначальная загрузка, фильтр отключен
-      }
-    })
-
-
-    $.when(treedata_ajax).done(function() {
-        ajax_geojson = treedata_ajax.responseJSON;
-
-        // добавляем маркеры которые пришли из базы в json которые подгрузились из Ajax
-        // также в массив добавляем id деревьев, которые нужно отфильтровать из ajax json, т.к. могут присутствовать маркеры, которые были отредактированы, соотвественно они измененные и пришли из БД, а файл geojson обновляетне только переодически
-        //for (let i in treeData.features) {
-        //    if (treeData.features[i].properties.is_deleted == 0) { // если дерево не удалено, добавляем его в ajax_geojson
-        //        ajax_geojson.features.push(treeData.features[i]);
-        //    }
-        //    idsFromDB.push(treeData.features[i].properties.id); // добавляются все id пришедшие из БД, в том числе удаленные деревья, чтобы игнорировать их в ajax_geojson
-        //}
-
-  
-        LoadTreesToMap(true, false); // нпервоначальная загрузка, фильтр отключен
-
+function LoadGeoJsonData(firsttime, filterEnabled){
+    $.getJSON("{% url 'citytree-restapi-trees' city=obj_city.sysname %}", function(json) {            
+        cityTreesData = json;
+        LoadTreesToMap(firsttime, filterEnabled);
     });
-
-
-
 }
+
 
 
 
@@ -1928,3 +1996,441 @@ window.addEventListener('popstate', function(event) {
 //$(function () {
 //  $('[data-toggle="tooltip"]').tooltip()
 //})
+
+
+
+
+
+// REST API
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+
+let formTreeWrapper = document.getElementById('id_scrollbar_tree')
+formTreeWrapper.addEventListener('submit', function(e){
+    e.preventDefault()
+    let idTree = document.getElementById("treeId").value
+    let url
+    let method
+
+    if (idTree) {
+        url = "{% url 'citytree-restapi-treeitem' city=obj_city.sysname pk=12345 %}".replace(/12345/, idTree.toString());
+        method = 'PUT'  
+    } else {
+        url = "{% url 'citytree-restapi-trees' city=obj_city.sysname %}"
+        method = 'POST' 
+    }
+
+
+    let object = {}
+
+    const dataForm = new FormData(e.target);  
+
+    dataForm.forEach((value, key) => {
+        // Reflect.has in favor of: object.hasOwnProperty(key)
+        if(!Reflect.has(object, key)){
+            object[key] = value;
+            return;
+        }
+        if(!Array.isArray(object[key])){
+            object[key] = [object[key]];    
+        }
+        object[key].push(value);
+    });
+
+
+
+
+    if (Reflect.has(object, 'dateplanted')){
+        if (object['dateplanted'] == "") {
+            object['dateplanted'] = null;    
+        }
+    }
+
+
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually    
+    if(!Reflect.has(object, 'remarks')){
+        object['remarks'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['remarks'])){
+            object['remarks'] = [object['remarks']]    
+        }          
+    }
+    
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually    
+    if(!Reflect.has(object, 'recommendations')){
+        object['recommendations'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['recommendations'])){
+            object['recommendations'] = [object['recommendations']]    
+        }          
+    } 
+
+
+
+    if (method == 'POST' ) { // create tree with first inspection
+        object.inspection = {
+            crowndiameter: object.crowndiameter,
+            height: object.height, 
+            trunkgirth: object.trunkgirth,
+            photo1_newname: object.photo1_newname, 
+            photo2_newname: object.photo2_newname,
+            photo3_newname: object.photo3_newname,
+            status: object.status,
+            remarks: object.remarks,
+            recommendations: object.recommendations,
+            tree: 0, 
+            user: 0
+        }
+        
+        delete object.crowndiameter
+        delete object.height
+        delete object.trunkgirth
+        delete object.photo1_newname
+        delete object.photo2_newname
+        delete object.photo3_newname
+        delete object.status 
+        delete object.remarks   
+        delete object.recommendations
+    }    
+
+    console.log(object);
+
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        },
+        body: JSON.stringify(object)
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.errors);
+              });
+        
+        } else {
+            closeTabTree();
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }                      
+            
+            // select the new/edited accident marker
+            response.json().then(data => {
+                console.log(data);
+                LoadGeoJsonData(false, false);
+                
+            });
+        }
+    })
+
+
+})
+
+
+
+let button_deleteTree = document.getElementById('id_delete_tree');
+button_deleteTree.onclick = function() {
+    let idTree = document.getElementById("treeId").value
+    let url = "{% url 'citytree-restapi-treeitem' city=obj_city.sysname pk=12345 %}".replace(/12345/, idTree.toString());   
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        }
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });            
+
+        } else {
+            LoadGeoJsonData(false, false);
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }  
+            closeTabTree();                       
+        }
+    })
+
+}
+
+
+
+
+
+
+
+
+
+
+let formInspectionWrapper = document.getElementById('id_scrollbar_inspection')
+formInspectionWrapper.addEventListener('submit', function(e){
+    e.preventDefault()
+    let idInspection = document.getElementById("inspId").value
+    let idTree = document.getElementById("inspTreeId").value
+    let url
+    let method
+
+    if (idInspection) {
+        url = "{% url 'citytree-restapi-inspection-item' city=obj_city.sysname treeid=54321 inspid=12345 %}".replace(/12345/, idInspection.toString()).replace(/54321/, idTree.toString());  
+        method = 'PUT'
+    } else {
+        method = 'POST'
+        url = "{% url 'citytree-restapi-inspections' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());  
+    }
+
+
+    let object = {}
+
+    const dataForm = new FormData(e.target);  
+
+    dataForm.forEach((value, key) => {
+        // Reflect.has in favor of: object.hasOwnProperty(key)
+        if(!Reflect.has(object, key)){
+            object[key] = value;
+            return;
+        }
+        if(!Array.isArray(object[key])){
+            object[key] = [object[key]];    
+        }
+        object[key].push(value);
+    });
+
+
+
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually    
+    if(!Reflect.has(object, 'remarks')){
+        object['remarks'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['remarks'])){
+            object['remarks'] = [object['remarks']]    
+        }          
+    }
+    
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually    
+    if(!Reflect.has(object, 'recommendations')){
+        object['recommendations'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['recommendations'])){
+            object['recommendations'] = [object['recommendations']]    
+        }          
+    }    
+
+
+    console.log(object);
+
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        },
+        body: JSON.stringify(object)
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });
+        
+        } else {
+            closeTabTree();
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }                      
+            
+            // select the new/edited accident marker
+            response.json().then(data => {
+                console.log(data);
+                LoadGeoJsonData(false, false);
+                
+            });
+        }
+    })
+
+
+})
+
+
+let button_deleteInsp = document.getElementById('id_delete_insp');
+button_deleteInsp.onclick = function() {
+    let idTree = document.getElementById("inspTreeId").value
+    let idInsp = document.getElementById("inspId").value
+    
+    let url = "{% url 'citytree-restapi-inspection-item' city=obj_city.sysname treeid=12345 inspid=54321 %}".replace(/12345/, idTree.toString()).replace(/54321/, idInsp.toString());   
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        }
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });            
+
+        } else {
+            LoadGeoJsonData(false, false);
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }  
+            closeTabTree();                       
+        }
+    })
+
+}
+
+
+
+
+
+
+
+
+let formActionWrapper = document.getElementById('id_scrollbar_action')
+formActionWrapper.addEventListener('submit', function(e){
+    e.preventDefault()
+    let idAction = document.getElementById("actionId").value
+    let idTree = document.getElementById("actionTreeId").value
+    let url
+    let method
+
+    if (idAction) {
+        url = "{% url 'citytree-restapi-action-item' city=obj_city.sysname treeid=54321 actionid=12345 %}".replace(/12345/, idAction.toString()).replace(/54321/, idTree.toString());  
+        method = 'PUT'
+    } else {
+        method = 'POST'
+        url = "{% url 'citytree-restapi-actions' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());  
+    }
+
+
+    let object = {}
+
+    const dataForm = new FormData(e.target);  
+
+    dataForm.forEach((value, key) => {
+        // Reflect.has in favor of: object.hasOwnProperty(key)
+        if(!Reflect.has(object, key)){
+            object[key] = value;
+            return;
+        }
+        if(!Array.isArray(object[key])){
+            object[key] = [object[key]];    
+        }
+        object[key].push(value);
+    });
+
+
+    
+    // null values don't append to dataForm automatically for selectpicker elements, so add them manually    
+    if(!Reflect.has(object, 'actions')){
+        object['actions'] = [];
+    } else {
+        // если у компонента только одно значение, тогда она передается в объект как обычное число, но нам нужен массив, поэтому проверяет это и преобразуем значение в массив
+        if (!Array.isArray(object['actions'])){
+            object['actions'] = [object['actions']]    
+        }          
+    }    
+
+
+    console.log(object);
+
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        },
+        body: JSON.stringify(object)
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });
+        
+        } else {
+            closeTabTree();
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }                      
+            
+            // select the new/edited accident marker
+            response.json().then(data => {
+                console.log(data);
+                LoadGeoJsonData(false, false);
+                
+            });
+        }
+    })
+
+
+})
+
+
+let button_deleteAction = document.getElementById('id_delete_action');
+button_deleteAction.onclick = function() {
+    let idTree = document.getElementById("actionTreeId").value
+    let idAction = document.getElementById("actionId").value
+    
+    let url = "{% url 'citytree-restapi-action-item' city=obj_city.sysname treeid=12345 actionid=54321 %}".replace(/12345/, idTree.toString()).replace(/54321/, idAction.toString());   
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type':'application/json',
+            'X-CSRFToken':csrftoken,
+        }
+    }
+    ).then(function(response){
+        if (response.status >= 400) {
+
+            response.json().then(data => {
+                alert(response.statusText+' ('+response.status+')\n\n'+data.detail);
+              });            
+
+        } else {
+            LoadGeoJsonData(false, false);
+            if (IS_MOBILE) {
+                CloseSidebar()         
+            }  
+            closeTabTree();                       
+        }
+    })
+
+}

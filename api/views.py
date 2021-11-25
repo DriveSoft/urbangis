@@ -10,6 +10,7 @@ from .serializers import *
 
 from roadaccident.models import Accident
 from coregis.models import coreCity, coreUrbanObject
+from citytree.models import Inspection, CareActivity
 
 from django.views.decorators.gzip import gzip_page
 
@@ -231,15 +232,15 @@ def urbanobjectCreate(request, city):
 
         photo1_newname = request.data['photo1_newname']
         if photo1_newname:
-            serializer.validated_data['photo1'] = user_directory_path(request, photo1_newname)
+            serializer.validated_data['photo1'] = user_directory_path_urbanobject(request, photo1_newname)
 
         photo2_newname = request.data['photo2_newname']
         if photo2_newname:
-            serializer.validated_data['photo2'] = user_directory_path(request, photo2_newname)
+            serializer.validated_data['photo2'] = user_directory_path_urbanobject(request, photo2_newname)
 
         photo3_newname = request.data['photo3_newname']
         if photo3_newname:
-            serializer.validated_data['photo3'] = user_directory_path(request, photo3_newname)
+            serializer.validated_data['photo3'] = user_directory_path_urbanobject(request, photo3_newname)
 
         
         serializer.save(city=obj_city, useradded=request.user)
@@ -283,21 +284,21 @@ def urbanobjectUpdate(request, city, pk):
             if photo1_newname == '*will_be_deleted*':
                 serializer.validated_data['photo1'] = ''
             else:
-                serializer.validated_data['photo1'] = user_directory_path(request, photo1_newname)
+                serializer.validated_data['photo1'] = user_directory_path_urbanobject(request, photo1_newname)
 
         photo2_newname = request.data["photo2_newname"]
         if photo2_newname:
             if photo2_newname == '*will_be_deleted*':
                 serializer.validated_data['photo2'] = ''
             else:
-                serializer.validated_data['photo2'] = user_directory_path(request, photo2_newname)
+                serializer.validated_data['photo2'] = user_directory_path_urbanobject(request, photo2_newname)
 
         photo3_newname = request.data["photo3_newname"]
         if photo3_newname:
             if photo3_newname == '*will_be_deleted*':
                 serializer.validated_data['photo3'] = ''
             else:
-                serializer.validated_data['photo3'] = user_directory_path(request, photo3_newname)                                
+                serializer.validated_data['photo3'] = user_directory_path_urbanobject(request, photo3_newname)                                
 
 
         serializer.save()
@@ -322,7 +323,7 @@ def urbanobjectUpdate(request, city, pk):
     return Response(serializer.data)
 
 
-def user_directory_path(instance, filename):
+def user_directory_path_urbanobject(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'urbanobject/images_object/user_{0}/{1}'.format(instance.user.id, filename)
 
@@ -374,16 +375,331 @@ def update(request):
 
 
 
+
+
+
+
+
+
+
+
 @gzip_page
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def citytreeData(request, city):
-    obj_city = get_object_or_404(coreCity, sysname__iexact=city)
-    treeObjects = Tree.objects.filter(city=obj_city).filter(is_deleted=False)
-    serializer = citytreeSerializerList(treeObjects, many=True)
+    if request.method == 'GET':
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        treeObjects = Tree.objects.filter(city=obj_city).filter(is_deleted=False)
+        serializer = citytreeSerializerTreeList(treeObjects, many=True)
 
-    json = {
-    "type": "FeatureCollection",
-    "features": serializer.data        
-    }
+        json = {
+        "type": "FeatureCollection",
+        "features": serializer.data        
+        }
 
-    return Response(json) 
+        return Response(json) 
+    
+    
+    elif request.method == 'POST':
+            
+        if not request.user.has_perm('citytree.add_tree'):
+            raise PermissionDenied('You do not have enough permissions to create an entry.')
+
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        serializerTree = citytreeSerializerTree(data=request.data)
+
+            
+        if serializerTree.is_valid():#raise_exception=True
+
+            serializerFirstInsp = citytreeSerializerInspection(data=request.data['inspection'])
+            if serializerFirstInsp.is_valid(raise_exception=True):
+
+
+                print(serializerTree.validated_data)
+
+                photo1_newname = request.data['inspection']['photo1_newname']
+                if photo1_newname:
+                    serializerFirstInsp.validated_data['photo1'] = user_directory_path_citytree(request, photo1_newname)
+
+                photo2_newname = request.data['inspection']['photo2_newname']
+                if photo2_newname:
+                    serializerFirstInsp.validated_data['photo2'] = user_directory_path_citytree(request, photo2_newname)
+
+                photo3_newname = request.data['inspection']['photo3_newname']
+                if photo3_newname:
+                    serializerFirstInsp.validated_data['photo3'] = user_directory_path_citytree(request, photo3_newname)
+
+                
+                #serializer2.validated_data['user_id'] = request.user.id
+                                
+                tree = serializerTree.save(city=obj_city, useradded=request.user)
+                serializerFirstInsp.save(tree=tree, user=request.user)
+
+
+                print('ok1')
+                
+                # save first inspection of the object if present
+                #idObject = serializer.data['id']
+                #if (idObject):  
+        else:
+            print(serializerTree.errors)
+            serializerTree.data.errors = serializerTree.errors
+
+        print('ok2')
+
+        return Response(serializerTree.data)        
+
+
+
+
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def citytreeTree(request, city, pk):
+    
+    if request.method == 'GET': 
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=pk)
+        serializer = citytreeSerializerGetTreeObject(obj_tree, many=False)
+        return Response(serializer.data)
+
+
+    elif request.method == 'PUT':    
+        if not request.user.has_perm('citytree.change_tree'):
+            raise PermissionDenied("You do not have sufficient permissions to change this data.")
+            
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=pk)
+
+        if obj_tree.useradded != request.user and not request.user.has_perm('citytree.can_change_not_own_tree_record'):
+            raise PermissionDenied ('You cannot change information about the tree if this tree was added by another user.')
+
+        serializer = citytreeSerializerTree(instance=obj_tree, data=request.data)
+
+
+        if serializer.is_valid(raise_exception=True):
+
+            photo1_newname = request.data["photo1_newname"]
+            if photo1_newname:
+                if photo1_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo1'] = ''
+                else:
+                    serializer.validated_data['photo1'] = user_directory_path_citytree(request, photo1_newname)
+
+            photo2_newname = request.data["photo2_newname"]
+            if photo2_newname:
+                if photo2_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo2'] = ''
+                else:
+                    serializer.validated_data['photo2'] = user_directory_path_citytree(request, photo2_newname)
+
+            photo3_newname = request.data["photo3_newname"]
+            if photo3_newname:
+                if photo3_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo3'] = ''
+                else:
+                    serializer.validated_data['photo3'] = user_directory_path_citytree(request, photo3_newname)                                
+
+            serializer.save()
+
+        return Response(serializer.data)
+
+
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('citytree.delete_tree'):
+            raise PermissionDenied('You do not have enough permissions to delete the entry.')    
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        
+        obj_treeobject = get_object_or_404(Tree, pk=pk)
+        if obj_treeobject.useradded != request.user and not request.user.has_perm('citytree.can_delete_not_own_tree_record'):# and not request.user.is_staff and not request.user.is_superuser:
+            raise PermissionDenied('You do not have enough permissions to delete the entry that was created by another user.')    
+        
+        obj_treeobject.is_deleted=True
+        obj_treeobject.save() 
+        return Response('Item marked as deleted')          
+
+
+
+
+
+def user_directory_path_citytree(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'citytree/images_tree/user_{0}/{1}'.format(instance.user.id, filename)    
+
+   
+
+
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def citytreeInspections(request, city, treeid):
+    if request.method == 'GET':
+        tree_obj = get_object_or_404(Tree, pk=treeid)
+        inspectionObjects = Inspection.objects.filter(tree=tree_obj)
+        serializer = citytreeSerializerInspection(inspectionObjects, many=True)
+        return Response(serializer.data)
+
+
+    elif request.method == 'POST':
+        if not request.user.has_perm('citytree.add_inspection'):
+            raise PermissionDenied('You do not have enough permissions to create an entry.')
+
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=treeid)
+
+        serializer = citytreeSerializerInspection(data=request.data)
+
+        if serializer.is_valid():
+            photo1_newname = request.data["photo1_newname"]
+            if photo1_newname:
+                if photo1_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo1'] = ''
+                else:
+                    serializer.validated_data['photo1'] = user_directory_path_citytree(request, photo1_newname)
+
+            photo2_newname = request.data["photo2_newname"]
+            if photo2_newname:
+                if photo2_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo2'] = ''
+                else:
+                    serializer.validated_data['photo2'] = user_directory_path_citytree(request, photo2_newname)
+
+            photo3_newname = request.data["photo3_newname"]
+            if photo3_newname:
+                if photo3_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo3'] = ''
+                else:
+                    serializer.validated_data['photo3'] = user_directory_path_citytree(request, photo3_newname)                                
+
+
+            serializer.save(user=request.user,tree=obj_tree)        
+
+        return Response(serializer.data) 
+
+
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def citytreeInspectionItem(request, city, treeid, inspid):    
+    if request.method == 'PUT':
+        if not request.user.has_perm('citytree.change_inspection'):
+            raise PermissionDenied("You do not have sufficient permissions to change this data.")
+            
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=treeid)
+        obj_inspection = get_object_or_404(Inspection, pk=inspid)
+
+        if obj_inspection.user != request.user and not request.user.has_perm('citytree.can_change_not_own_insp_record'):
+            raise PermissionDenied ('You cannot change information about the inspection if this inspection was added by another user.')
+
+        serializer = citytreeSerializerInspection(instance=obj_inspection, data=request.data)
+
+
+        if serializer.is_valid(raise_exception=True):
+
+            photo1_newname = request.data["photo1_newname"]
+            if photo1_newname:
+                if photo1_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo1'] = ''
+                else:
+                    serializer.validated_data['photo1'] = user_directory_path_citytree(request, photo1_newname)
+
+            photo2_newname = request.data["photo2_newname"]
+            if photo2_newname:
+                if photo2_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo2'] = ''
+                else:
+                    serializer.validated_data['photo2'] = user_directory_path_citytree(request, photo2_newname)
+
+            photo3_newname = request.data["photo3_newname"]
+            if photo3_newname:
+                if photo3_newname == '*will_be_deleted*':
+                    serializer.validated_data['photo3'] = ''
+                else:
+                    serializer.validated_data['photo3'] = user_directory_path_citytree(request, photo3_newname)                                
+
+
+            serializer.save()
+
+        return Response(serializer.data)
+
+
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('citytree.delete_inspection'):
+            raise PermissionDenied('You do not have enough permissions to delete the entry.')    
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        
+        obj_insp = get_object_or_404(Inspection, pk=inspid)
+        if obj_insp.user != request.user and not request.user.has_perm('citytree.can_change_not_own_insp_record'):# and not request.user.is_staff and not request.user.is_superuser:
+            raise PermissionDenied('You do not have enough permissions to delete the entry that was created by another user.')    
+
+        obj_insp.delete()
+        return Response('Item has been deleted.')
+    
+    
+
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def citytreeActions(request, city, treeid):
+    if request.method == 'GET':
+        tree_obj = get_object_or_404(Tree, pk=treeid)
+        actionsObjects = CareActivity.objects.filter(tree=tree_obj)
+        serializer = citytreeSerializerAction(actionsObjects, many=True)
+        return Response(serializer.data)
+
+
+    elif request.method == 'POST':
+        if not request.user.has_perm('citytree.add_careactivity'):
+            raise PermissionDenied('You do not have enough permissions to create an entry.')
+
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=treeid)
+
+        serializer = citytreeSerializerAction(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=request.user, tree=obj_tree)        
+
+        return Response(serializer.data) 
+
+
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def citytreeActionItem(request, city, treeid, actionid):    
+    if request.method == 'PUT':
+        if not request.user.has_perm('citytree.change_careactivity'):
+            raise PermissionDenied("You do not have sufficient permissions to change this data.")
+            
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        obj_tree = get_object_or_404(Tree, pk=treeid)
+        obj_action = get_object_or_404(CareActivity, pk=actionid)
+
+        if obj_action.user != request.user and not request.user.has_perm('citytree.can_change_not_own_action_record'):
+            raise PermissionDenied ('You cannot change information about the action if this inspection was added by another user.')
+
+        serializer = citytreeSerializerAction(instance=obj_action, data=request.data)
+
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+        return Response(serializer.data)   
+
+
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('citytree.delete_careactivity'):
+            raise PermissionDenied('You do not have enough permissions to delete the entry.')    
+        obj_city = get_object_or_404(coreCity, sysname__iexact=city)
+        
+        obj_action = get_object_or_404(CareActivity, pk=actionid)
+        if obj_action.user != request.user and not request.user.has_perm('citytree.can_change_not_own_action_record'):# and not request.user.is_staff and not request.user.is_superuser:
+            raise PermissionDenied('You do not have enough permissions to delete the entry that was created by another user.')    
+
+        obj_action.delete()
+        return Response('Item has been deleted.')        

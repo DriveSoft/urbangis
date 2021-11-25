@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from roadaccident.models import Accident
 from coregis.models import coreUrbanObject, coreUrbanObjectPolygon
-from citytree.models import Tree
+from citytree.models import Tree, Inspection, CareActivity
 
 import json
 import os
@@ -171,7 +171,48 @@ class coreurbanobjectSerializerGetObject(serializers.ModelSerializer):
 
 
 
-class citytreeSerializer(serializers.ModelSerializer):
+class citytreeSerializerGetTreeObject(serializers.ModelSerializer):
+    class Meta:
+        model = Tree
+        fields = '__all__'
+
+    def to_representation(self, instance): #modify json output
+        data = super(citytreeSerializerGetTreeObject, self).to_representation(instance)
+  
+        data['species_id'] = data['species']
+        data['species'] = instance.species.speciesname
+        data['localname'] = instance.species.localname
+        
+        
+        if instance.lastinsp_status:
+            data['lastinsp_status'] = instance.lastinsp_status.statusname
+        else:
+            data['lastinsp_status'] = None
+
+        if instance.lastinsp_remarks:
+            data['lastinsp_remarks'] = ', '.join(instance.lastinsp_remarks.values_list('remarkname', flat=True))
+        else:
+            data['lastinsp_remarks'] = None
+
+        if instance.lastinsp_recommendations:            
+            data['lastinsp_recommendations'] = ', '.join(instance.lastinsp_recommendations.values_list('carename', flat=True))
+        else:
+            data['lastinsp_recommendations'] = None        
+        
+        data['id'] = instance.id
+        return data
+
+
+
+
+class citytreeSerializerInspection(serializers.ModelSerializer):
+    class Meta:
+        model = Inspection
+        fields = '__all__'
+        read_only_fields = ['tree', 'user']
+
+
+class citytreeSerializerTree(serializers.ModelSerializer):
     class Meta:
         model = Tree
         fields = '__all__'
@@ -179,8 +220,11 @@ class citytreeSerializer(serializers.ModelSerializer):
                             'lastinsp_height', 'lastinsp_status', 'lastinsp_photo1', 'lastinsp_photo2', 'lastinsp_photo3', 
                             'lastinsp_remarks_list', 'lastinsp_recommendations_list', 'lastinsp_remarks_text', 'lastinsp_recommendations_text', 'is_geojsoned']
 
+                    
 
-class citytreeSerializerList(serializers.ModelSerializer):
+
+
+class citytreeSerializerTreeList(serializers.ModelSerializer):
     class Meta:
         model = Tree
         exclude = ['city', 'datetimeadded', 'googlestreeturl', 'is_reservedplace', 'lastinsp_comment', 'lastinsp_photo1', 'lastinsp_photo2', 'lastinsp_photo3', 
@@ -190,7 +234,7 @@ class citytreeSerializerList(serializers.ModelSerializer):
 
     def to_representation(self, instance): #modify json output
         data = {
-            'properties': super(citytreeSerializerList, self).to_representation(instance)
+            'properties': super(citytreeSerializerTreeList, self).to_representation(instance)
         }
 
 
@@ -223,6 +267,18 @@ class citytreeSerializerList(serializers.ModelSerializer):
         }
 
         return data
+
+
+
+
+
+
+
+class citytreeSerializerAction(serializers.ModelSerializer):
+    class Meta:
+        model = CareActivity
+        fields = '__all__'
+        read_only_fields = ['tree', 'user']
 
 
 

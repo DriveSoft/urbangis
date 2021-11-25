@@ -19,6 +19,11 @@ urlpatterns = [
     path('urbanobject/<str:city>/object/<str:pk>/', views.urbanobjectGetObject, name="urbanobject-restapi-getobject"),
     #path('urbanobject/update/', views.update),
 
-    path('citytree/<str:city>/getdata/', views.citytreeData, name="citytree-restapi-getdata"),
+    path('citytree/<str:city>/trees/', views.citytreeData, name="citytree-restapi-trees"),
+    path('citytree/<str:city>/trees/<str:pk>/', views.citytreeTree, name="citytree-restapi-treeitem"),    
+    path('citytree/<str:city>/trees/<str:treeid>/inspections/', views.citytreeInspections, name="citytree-restapi-inspections"),
+    path('citytree/<str:city>/trees/<str:treeid>/inspections/<str:inspid>/', views.citytreeInspectionItem, name="citytree-restapi-inspection-item"),
+    path('citytree/<str:city>/trees/<str:treeid>/actions/', views.citytreeActions, name="citytree-restapi-actions"),
+    path('citytree/<str:city>/trees/<str:treeid>/actions/<str:actionid>/', views.citytreeActionItem, name="citytree-restapi-action-item"),    
 
 ]

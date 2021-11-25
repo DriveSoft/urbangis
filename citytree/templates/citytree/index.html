@@ -530,7 +530,7 @@
                                     Наистина ли искате да изтриете това дърво?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="delete">Изтрий</button>
+                                    <button type="submit" class="btn btn-light" data-dismiss="modal" name="send" value="delete" id="id_delete_tree">Изтрий</button>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
@@ -614,15 +614,15 @@
                     <div class="form-row mt-5">
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo1">
-                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo1_filename').value='*will_be_deleted*'; $('#id_insp_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo1_new_name').value='*will_be_deleted*'; $('#id_insp_img_photo1').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo2">
-                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo2_filename').value='*will_be_deleted*'; $('#id_insp_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo2_new_name').value='*will_be_deleted*'; $('#id_insp_img_photo2').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                         <div class="form-group col-4 align-self-end">
                             <img src="{% static 'images/no-photo.png' %}" class="img-fluid rounded" id="id_insp_img_photo3">
-                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo3_filename').value='*will_be_deleted*'; $('#id_insp_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
+                            <a href="#"><i class="far fa-times-circle fa-2x iconDeletePhoto" onclick="document.getElementById('id_insp_photo3_new_name').value='*will_be_deleted*'; $('#id_insp_img_photo3').attr('src', '{% static 'images/no-photo.png' %}');"></i></a>
                         </div>
                     </div>
 
@@ -661,10 +661,11 @@
                     </div>
 
 
-
+                    <!-- 
                     <input type="hidden" id="id_insp_photo1_filename" name="insp_photo1_filename">
                     <input type="hidden" id="id_insp_photo2_filename" name="insp_photo2_filename">
                     <input type="hidden" id="id_insp_photo3_filename" name="insp_photo3_filename">
+                    -->
 
                     <input type="hidden" id="inspTreeId" name="treeId">
                     <input type="hidden" id="inspId" name="inspId">
@@ -706,7 +707,7 @@
                                     Наистина ли искате да изтриете този преглед?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="deleteInsp">Изтрий</button>
+                                    <button type="submit" class="btn btn-light" data-dismiss="modal" name="send" value="deleteInsp" id="id_delete_insp">Изтрий</button>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
@@ -723,7 +724,7 @@
 
 
         <div class="tab-pane fade ml-3 mr-1" id="action" role="tabpanel" aria-labelledby="action-tab">
-            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);">
+            <div style="overflow-y: auto; overflow-x: hidden; width: 100%; height: calc(100vh - 80px);" id="id_scrollbar_action">
                 <form action="{{ obj_city.get_absolute_url }}" method="post">
                     {% csrf_token %}
                     <p> {{ formAction.errors }}</p>
@@ -790,7 +791,7 @@
                                     Наистина ли искате да изтриете тази дейност?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-light" name="send" value="deleteAct">Изтрий</button>
+                                    <button type="submit" class="btn btn-light" data-dismiss="modal" name="send" value="deleteAct" id="id_delete_action">Изтрий</button>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмени</button>
                                 </div>
                             </div>
@@ -952,7 +953,7 @@
                                     }
 
                                     function operateFormatterPreview(value, row, index) {
-                                        if (row.type=="Inspection" && (row.photo1 !=="" || row.photo2 !=="" || row.photo3 !=="")) {
+                                        if (row.type=="Inspection" && (row.photo1 || row.photo2 || row.photo3)) {
                                             return [
                                                 '<a class="edit" href="javascript:void(0)" title="Edit">',
                                                 '<i style="font-size:15pt" class="fa fa-edit"></i>',

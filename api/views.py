@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.exceptions import PermissionDenied
 from .serializers import *
 
@@ -454,7 +454,7 @@ def citytreeData(request, city):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def citytreeTree(request, city, pk):
     
     if request.method == 'GET': 
@@ -532,7 +532,7 @@ def user_directory_path_citytree(instance, filename):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def citytreeInspections(request, city, treeid):
     if request.method == 'GET':
         tree_obj = get_object_or_404(Tree, pk=treeid)
@@ -581,7 +581,7 @@ def citytreeInspections(request, city, treeid):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def citytreeInspectionItem(request, city, treeid, inspid):    
     if request.method == 'PUT':
         if not request.user.has_perm('citytree.change_inspection'):
@@ -643,7 +643,7 @@ def citytreeInspectionItem(request, city, treeid, inspid):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def citytreeActions(request, city, treeid):
     if request.method == 'GET':
         tree_obj = get_object_or_404(Tree, pk=treeid)
@@ -670,7 +670,7 @@ def citytreeActions(request, city, treeid):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def citytreeActionItem(request, city, treeid, actionid):    
     if request.method == 'PUT':
         if not request.user.has_perm('citytree.change_careactivity'):

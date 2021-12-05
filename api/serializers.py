@@ -174,7 +174,8 @@ class coreurbanobjectSerializerGetObject(serializers.ModelSerializer):
 class citytreeSerializerGetTreeObject(serializers.ModelSerializer):
     class Meta:
         model = Tree
-        fields = '__all__'
+        #fields = '__all__'
+        exclude = ['is_moderated', 'is_reservedplace', 'is_geojsoned', 'usermoderated']
 
     def to_representation(self, instance): #modify json output
         data = super(citytreeSerializerGetTreeObject, self).to_representation(instance)

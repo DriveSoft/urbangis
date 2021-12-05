@@ -410,6 +410,14 @@ function clearNewTreeForm() {
     document.getElementById("id_first_insp_photo1_new_name").value = '';
     document.getElementById("id_first_insp_photo2_new_name").value = '';
     document.getElementById("id_first_insp_photo3_new_name").value = '';
+
+    $('#id_first_insp_photo1_browse_button').html('Browse...');
+    $('#id_first_insp_photo2_browse_button').html('Browse...');
+    $('#id_first_insp_photo3_browse_button').html('Browse...');
+    
+    $("#id_first_insp_img_photo1").attr("src", "{% static 'images/take-photo.png' %}");
+    $("#id_first_insp_img_photo2").attr("src", "{% static 'images/take-photo.png' %}");
+    $("#id_first_insp_img_photo3").attr("src", "{% static 'images/take-photo.png' %}");    
 }
 
 
@@ -1133,11 +1141,11 @@ function Show_Inspections_Actions_Table(id_suffix, idTree)
     let urlInsp = "{% url 'citytree-restapi-inspections' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());
     let urlsAct = "{% url 'citytree-restapi-actions' city=obj_city.sysname treeid=12345 %}".replace(/12345/, idTree.toString());
 
-    console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
+    //console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
     DataToTable(urlInsp, true)
     sleep(100)
     DataToTable(urlsAct, false)
-    console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
+    //console.log( $table_InspActData.bootstrapTable('getOptions').totalRows  )
 
 
 
@@ -1307,7 +1315,11 @@ function Edit_Inspection_or_Action_show(row) {
             $('#id_insp_recommendations').selectpicker('val', row.recommendations);
 
 
-            if (row.photo1 !== "") {
+            $('#id_insp_photo1_browse_button').html('Browse...');
+            $('#id_insp_photo2_browse_button').html('Browse...');
+            $('#id_insp_photo3_browse_button').html('Browse...');
+
+            if (row.photo1) {
                 $("#id_insp_img_photo1").attr("src", row.photo1);
                 //document.getElementById("id_insp_photo1_new_name").value = "{% get_media_prefix%}"+row.photo1;
             } else {
@@ -1315,20 +1327,20 @@ function Edit_Inspection_or_Action_show(row) {
                 document.getElementById("id_insp_photo1_new_name").value = "";
             }
 
-            if (row.photo2 !== "") {
+            if (row.photo2) {
                 $("#id_insp_img_photo2").attr("src", row.photo2);
                 //document.getElementById("id_insp_photo2_new_name").value = "{% get_media_prefix%}"+row.photo2;
             } else {
                 $("#id_insp_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
-                document.getElementById("id_insp_photo2_new_name").value = "";
+                document.getElementById("id_insp_photo2_new_name").value = "";                
             }
 
-            if (row.photo3 !== "") {
+            if (row.photo3) {
                 $("#id_insp_img_photo3").attr("src", row.photo3);
                 //document.getElementById("id_insp_photo3_new_name").value = "{% get_media_prefix%}"+row.photo3;
             } else {
                 $("#id_insp_img_photo3").attr("src", "{% static 'images/no-photo.png' %}");
-                document.getElementById("id_insp_photo3_new_name").value = "";
+                document.getElementById("id_insp_photo3_new_name").value = "";                
             }
 
 
@@ -1452,6 +1464,11 @@ button_NewInspection.onclick = function() {
     document.getElementById("insp_status").value = "";
     $('#id_insp_recommendations').selectpicker('deselectAll');
     $('#id_insp_recommendations').selectpicker('val', []);
+
+    $('#id_insp_photo1_browse_button').html('Browse...');
+    $('#id_insp_photo2_browse_button').html('Browse...');
+    $('#id_insp_photo3_browse_button').html('Browse...');
+
     $("#id_insp_img_photo1").attr("src", "{% static 'images/no-photo.png' %}");
     document.getElementById("id_insp_photo1_new_name").value = "";
     $("#id_insp_img_photo2").attr("src", "{% static 'images/no-photo.png' %}");
@@ -2133,8 +2150,8 @@ formTreeWrapper.addEventListener('submit', function(e){
             closeTabTree();
             if (IS_MOBILE) {
                 CloseSidebar()         
-            }                      
-            
+            } 
+                        
             // select the new/edited accident marker
             response.json().then(data => {
                 console.log(data);

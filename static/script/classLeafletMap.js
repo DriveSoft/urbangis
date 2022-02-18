@@ -129,6 +129,9 @@ export class NewMap extends L.map {
 
 
 
+
+
+
         let that = this;
         this.but_newmarker = L.easyButton({
             position: 'topright',

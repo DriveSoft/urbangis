@@ -1,12 +1,130 @@
 from rest_framework import serializers
-from roadaccident.models import Accident
-from coregis.models import coreUrbanObject, coreUrbanObjectPolygon
+from roadaccident.models import Accident, Maneuver, TypeViolation, Violator
+from coregis.models import coreUrbanObject, coreUrbanObjectPolygon, coreCity
 from citytree.models import Tree, Inspection, CareActivity
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 import json
 import os
 #from django.conf import settings as djangoSettings
 #from django.core.files import File
+
+
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['username'] = user.username
+
+        return token
+
+
+
+class userGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+            required=True,
+            validators=[UniqueValidator(queryset=User.objects.all())]
+            )
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
+        extra_kwargs = {
+            'first_name': {'required': False},
+            'last_name': {'required': False}
+        }
+
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''), 
+            #is_active=False # confirmation of email is requirement
+        )
+
+        
+        user.set_password(validated_data['password'])
+        user.save()
+
+        default_group = Group.objects.get(name='Default')
+        user.groups.add(default_group)    
+
+        token = TokenObtainPairSerializer.get_token(user) 
+
+        return {'user': user, 'token': token}
+
+
+    def to_representation(self, instance): #modify json output
+        data = super(UserRegisterSerializer, self).to_representation(instance['user'])
+        data['token'] = {        
+            'refresh': str(instance['token']),
+            'access': str(instance['token'].access_token),
+        }
+
+        return data
+
+
+
+
+
+
+
+
+
+
+
+class citySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = coreCity
+        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population']
+
+
+class dictionaryRoadaccidentManeuversSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maneuver
+        fields = ['id', 'maneuvername']
+
+class dictionaryRoadaccidentTypeViolationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypeViolation
+        fields = ['id', 'violationname']
+
+class dictionaryRoadaccidentViolatorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Violator
+        fields = ['id', 'violatorname']                
+
+
 
 
 

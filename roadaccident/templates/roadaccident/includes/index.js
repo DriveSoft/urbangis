@@ -692,7 +692,7 @@ document.onreadystatechange = function(){
 
 function LoadGeoJsonData(firsttime, filterEnabled, idMarkerWillBeSelected){
     //$.getJSON("{# url 'roadaccident_geojson_get' city_name=obj_city.sysname #}", function(json) {
-    $.getJSON("{% url 'roadaccident-restapi-getdata' city=obj_city.sysname %}", function(json) {
+    $.getJSON("{% url 'roadaccident-restapi' city=obj_city.sysname %}", function(json) {
         accidentData = json;
         LoadAccidentsToMap(firsttime, filterEnabled);
         if (idMarkerWillBeSelected) {
@@ -1009,13 +1009,16 @@ formAccidentWrapper.addEventListener('submit', function(e){
     e.preventDefault()
     let idAccident = document.getElementById("accidentId").value
     let url
+    let method
 
     if (idAccident) {
         //let url = `http://127.0.0.1:8000/api/roadaccident/${accidentData.city.name}/update/${idAccident}/`
-        url = "{% url 'roadaccident-restapi-update' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());  
+        url = "{% url 'roadaccident-restapi-item' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());  
+        method = 'PUT'
     } else {
         //let url = `http://127.0.0.1:8000/api/roadaccident/${accidentData.city.name}/create/`
-        url = "{% url 'roadaccident-restapi-create' city=obj_city.sysname %}"
+        url = "{% url 'roadaccident-restapi' city=obj_city.sysname %}"
+        method = 'POST'
     }
     
   
@@ -1057,7 +1060,7 @@ formAccidentWrapper.addEventListener('submit', function(e){
     
 
     fetch(url, {
-        method: 'POST',
+        method: method,
         headers: {
             'Content-type':'application/json',
             'X-CSRFToken':csrftoken,
@@ -1094,7 +1097,7 @@ formAccidentWrapper.addEventListener('submit', function(e){
 let button_deleteAccident = document.getElementById('id_delete_accident');
 button_deleteAccident.onclick = function() {
     let idAccident = document.getElementById("accidentId").value
-    let url = "{% url 'roadaccident-restapi-delete' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());   
+    let url = "{% url 'roadaccident-restapi-item' city=obj_city.sysname pk=12345 %}".replace(/12345/, idAccident.toString());   
 
     fetch(url, {
         method: 'DELETE',

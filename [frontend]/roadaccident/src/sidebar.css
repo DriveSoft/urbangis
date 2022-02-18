@@ -1,0 +1,93 @@
+/*!
+ * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template/simple-sidebar)
+ * Copyright 2013-2020 Start Bootstrap
+ * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/LICENSE)
+ */
+
+ #wrapper {
+    overflow-x: hidden;
+ }
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  /*margin-left: -19rem; /* init value for mobile ver (hided) */
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 19rem; /* size for mobile ver (opened) */
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+/*
+#wrapper.hided #sidebar-wrapper {
+  margin-left: 0;
+}
+*/
+
+.tab-content {
+    background-color: white;
+}
+
+
+@media (min-width: 768px) { /* for screens larger that 768 (desktop version) */
+  #sidebar-wrapper {
+    margin-left: 0; /* init value for desktop, sidebar is opened */
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.hided #sidebar-wrapper {
+    margin-left: -30rem; /* value to hide sidebar for desktop version */
+  }
+
+  #wrapper.showed #sidebar-wrapper {
+    margin-left: 0; /* value to hide sidebar for desktop version */
+  }  
+
+  #sidebar-wrapper .list-group {
+    width: 30rem;
+  }
+
+}
+
+
+
+@media (max-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: -19rem; /* init value for mobile ver (hided) */
+  }
+
+  #page-content-wrapper {
+    min-width: 100vw;
+  }
+
+  #wrapper.hided #sidebar-wrapper {
+    margin-left: -19rem;
+  }
+
+  #wrapper.showed #sidebar-wrapper {
+    margin-left: 0;
+  }  
+
+  #sidebar-wrapper .list-group {
+    width: 19rem; /* size for mobile ver (opened) */
+  }
+
+}
+
+

@@ -1,13 +1,34 @@
 from django.urls import path
 from . import views
+from .views import MyTokenObtainPairView
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 urlpatterns = [
+    path('users/', views.usersData, name='api-users'),
+    path('users/<str:pk>/', views.userData, name='api-user-item'),
+
+    #path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),    
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    path('cities/', views.citiesData, name="api-cities"),
+    path('cities/<str:sysname>/', views.citiesDataItem, name="api-cities-item"),
+
+    path('dictionary/roadaccident/maneuvers/', views.dictionaryRoadaccidentManeuvers, name="api-dictionary-roadaccident-maneuvers"),
+    path('dictionary/roadaccident/typeviolations/', views.dictionaryRoadaccidentTypeViolations, name="api-dictionary-roadaccident-typeviolations"),
+    path('dictionary/roadaccident/violators/', views.dictionaryRoadaccidentViolators, name="api-dictionary-roadaccident-violators"),
+
+
     path('roadaccident/', views.apiOverviewRoadaccident, name="api-overview-roadaccident"),
-    path('roadaccident/<str:city>/getdata/', views.accidentData, name="roadaccident-restapi-getdata"),
-    #path('roadaccident/<str:city>/getdata2/', views.accidentData2, name="roadaccident-restapi-getdata2"),
-    path('roadaccident/<str:city>/create/', views.accidentCreate, name="roadaccident-restapi-create"),
-    path('roadaccident/<str:city>/update/<str:pk>/', views.accidentUpdate, name="roadaccident-restapi-update"),
-    path('roadaccident/<str:city>/delete/<str:pk>/', views.accidentDelete, name="roadaccident-restapi-delete"),
+    path('roadaccident/<str:city>/accidents/', views.accidentData, name="roadaccident-restapi"),
+    path('roadaccident/<str:city>/accidents/<str:pk>/', views.accidentItem, name="roadaccident-restapi-item"),
+
     #path('roadaccident/update/', views.update),
 
     path('urbanobject/', views.apiOverviewUrbanobject, name="api-overview-urbanobject"),

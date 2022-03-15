@@ -10,6 +10,10 @@ import "leaflet/dist/leaflet.css";
 import redIconFile from './images/markers/marker-red.png';
 import redIconShadowFile from './images/markers/marker-shadow.png';
 
+import MarkerClusterGroup from 'react-leaflet-markercluster';
+import 'react-leaflet-markercluster/dist/styles.min.css'; // sass
+//require('leaflet/dist/leaflet.css'); // inside .js file
+//require('react-leaflet-markercluster/dist/styles.min.css'); // inside .js file
 
 
 // fix disapeared marker from map
@@ -47,20 +51,24 @@ let geojsonMarkerOptions = {
     fillOpacity: 0.6//0.2
 };
 
-let buttonNewMarker = null
-let buttonHeatmap = null
-let buttonGPS = null
+//let buttonNewMarker = null
+//let buttonHeatmap = null
+//let buttonGPS = null
 
 let currentCitySysname = ''
 
 let heatMapLayer
 let markersLayer
 
+let setView_nTimes_gps
+let circle_geolocation
 
-function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, newMarkerState, onDragEndNewMarker, checkButtonNewMarker, checkButtonHeatmap, checkButtonGPS, onClickMap, onMarkerClick, onClickNewMarker, onClickHeatmap, onClickGPS, filterMapCallback, onBaselayerchange, setNewMarkerState, isMobileDevice, showOkCancelMobileMarker, setMapCurrentLatLng, showSidebar}) {
+
+function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, newMarkerState, onDragEndNewMarker, checkButtonNewMarker, checkButtonHeatmap, checkButtonGPS, onClickMap, onMarkerClick, onClickNewMarker, onClickHeatmap, onClickGPS, filterMapCallback, onBaselayerchange, setNewMarkerState, isMobileDevice, showOkCancelMobileMarker, setMapCurrentLatLng, setCheckButtonGPS, showSidebar}) {
 
     const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
-    const [map, setMap] = useState(null);    
+    const [map, setMap] = useState(null);  
+    const [currentZoom, setCurrentZoom] = useState(null)  
  
 
     const [buttonNewMarker, setButtonNewMarker] = useState(null);
@@ -79,19 +87,27 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
 
 
     let newMarkerRef = useRef(null)   
-
+ 
 
     // create buttons
     useEffect(() => {        
         if (map) {            
             setButtonNewMarker( ButtonMap_(map, 'fas fa-map-marker-alt fa-lg', 'fas fa-map-marker-alt fa-lg', onClickNewMarker, checkButtonNewMarker) )
             setButtonHeatmap( ButtonMap_(map, 'fas fa-eye fa-lg', 'fas fa-eye-slash fa-lg', onClickHeatmap, checkButtonHeatmap) )
-            setButtonGPS( ButtonMap_(map, 'fas fa-satellite-dish fa-lg', 'fas fa-satellite-dish fa-lg', onClickGPS, checkButtonGPS) )
+            setButtonGPS( ButtonMap_(map, 'fas fa-satellite-dish fa-lg', 'fas fa-satellite-dish fa-lg', _onClickGPS, checkButtonGPS) )
             
             setMapCurrentLatLng({lat: map.getCenter().lat, lng: map.getCenter().lng})
             
             
         }
+
+        return () => { 
+            buttonNewMarker && buttonNewMarker.remove()
+            buttonHeatmap && buttonHeatmap.remove()
+            buttonGPS && buttonGPS.remove()
+        }
+
+
       }, [map])  //<MapContainer whenCreated={setMap} ...
 
 
@@ -179,12 +195,30 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
     }    
 
 
+    function _onClickGPS(state) {
+        if (map) {
+            if (state){
+                setView_nTimes_gps = 4;
+                map.locate({maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
+            } else {
+                map.stopLocate();
+                map.removeLayer(circle_geolocation);
+                setView_nTimes_gps = 4;
+            }
+
+        }
+        onClickGPS(state)
+    }
+
+
     function markerOnClick(e)
     {
         let marker = e.target;
         let geojson = marker.toGeoJSON();
         onMarkerClick(geojson)
         //console.log(geojson)
+        
+        
     }
 
     function pointToLayer(feature, latlng) {
@@ -306,6 +340,31 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
             
             click(e) {
                 onClickMap(e)
+            }, 
+
+            zoomend(e){                
+                setCurrentZoom(e.target._zoom)
+            },
+
+            locationfound(e){
+                let radius = e.accuracy / 2;
+
+                if (setView_nTimes_gps > 0) {
+                    map.setView(e.latlng, 20);
+                    setView_nTimes_gps = setView_nTimes_gps - 1;
+                }
+    
+                if (map.hasLayer(circle_geolocation)) {
+                    circle_geolocation.setLatLng(e.latlng);
+                    circle_geolocation.setRadius(radius);
+                } else {
+                    circle_geolocation = L.circle(e.latlng, radius).addTo(map);
+                }                
+            },
+
+            locationerror(e){
+                setCheckButtonGPS(false)
+                alert(e.message)
             }
         })
       
@@ -337,7 +396,15 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
 
             if (checkButtonHeatmap) {                
                 if (dataHeatmapPoints) {
-                    heatMapLayer = L.heatLayer(dataHeatmapPoints)//.addTo(map);
+                    heatMapLayer = L.heatLayer(dataHeatmapPoints, {
+                        gradient: {0.4: '#1E90FF', 0.8: 'white', 1: 'red'},                        
+                        //minOpacity: 0.1,
+                        max: 1.5,
+                        radius: 14,
+                        blur: 10,
+                        maxZoom: 6
+
+                    })//.addTo(map);
                     map.addLayer(heatMapLayer)                
                 }
             }
@@ -353,6 +420,31 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
 
         return null
      }
+
+
+
+
+
+    const createClusterCustomIcon  = function (cluster) {
+        // get the number of items in the cluster
+        let count = cluster.getChildCount();
+
+        // figure out how many digits long the number is
+        //var digits = (count + '').length;
+        let digits;
+        if (count == 2) { digits = '1'; }
+        if (count >= 3 && count <=5) { digits = '2'; }
+        if (count >= 6 && count <=9) { digits = '3'; }
+        if (count >= 10 && count <=14) { digits = '4'; }
+        if (count > 14) { digits = '5'; }
+
+        return L.divIcon({
+          html: count,
+          className: 'cluster digits-' + digits,
+          iconSize: null
+        });
+      }
+
 
 
 
@@ -394,9 +486,22 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
                 {/*<SetViewMap center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} />*/} 
                 <SetPanToMap />
 
-                
-                <GeoJSON key={Date.now()} data={dataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>
-                
+
+                {currentZoom < 15 ? (
+                    <GeoJSON key={Date.now()} data={dataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
+                ) : (
+                    <MarkerClusterGroup
+                    spiderfyOnMaxZoom={true}
+                    showCoverageOnHover={false}
+                    zoomToBoundsOnClick={true}
+                    maxClusterRadius={15}
+                    iconCreateFunction={createClusterCustomIcon}>                
+                        <GeoJSON key={Date.now()} data={dataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                
+                    </MarkerClusterGroup>
+                )}
+
+
+
 
                 <NewMarker newMarkerState={newMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
                 

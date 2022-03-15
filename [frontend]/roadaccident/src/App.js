@@ -13,8 +13,6 @@ import useAuthToken from "./useAuthToken";
 
 
 function App(props) {
-	//const [userAuthToken, setUserAuthToken] = useState()
-	const map = useRef(null) 
 
 	const { authToken, setAuthToken } = useAuthToken();
 
@@ -26,7 +24,6 @@ function App(props) {
 	const paramsRouter = useParams();
 	const csrftoken = getCookie("csrftoken");
 
-	//const [authToken, setAuthToken] = useState()
 	const [loginModalShow, setLoginModalShow] = useState(false);
     const [registerModalShow, setRegisterModalShow] = useState(false);
 
@@ -171,16 +168,16 @@ function App(props) {
 
 	const onClickMap = (e) => {
 		if (checkButtonNewMarker && !isMobileDevice) {
-			setCheckButtonNewMarker(false);
+			setCheckButtonNewMarker(false)
 
-			let coord = { lat: 0, lng: 0 };
-			coord.lat = e.latlng.lat.toFixed(5);
-			coord.lng = e.latlng.lng.toFixed(5);
+			let coord = { lat: 0, lng: 0 }
+			coord.lat = e.latlng.lat.toFixed(5)
+			coord.lng = e.latlng.lng.toFixed(5)
 
-			setNewMarkerState({ visible: true, position: coord });
+			setNewMarkerState({ visible: true, position: coord })
 
-			setShowAccidentTab(true);
-			setActiveTabKey("accident");
+			setShowAccidentTab(true)
+			setActiveTabKey("accident")
 		}
 	};
 
@@ -203,11 +200,9 @@ function App(props) {
 	const onClickNewMarker = (state) => {
 		setCheckButtonNewMarker(state);
 
-		if (isMobileDevice && state) {
-			
+		if (isMobileDevice && state) {			
 			setNewMarkerState({ visible: true, position: {lat: 0, lng: 0} })
-			setShowOkCancelMobileMarker(true)
-			
+			setShowOkCancelMobileMarker(true)			
 		}
 	};
 
@@ -223,13 +218,8 @@ function App(props) {
 	};
 
 	const onClickGPS = (state) => {
-		console.log("onClickGPS", state);
+		//console.log("onClickGPS", state);
 		setCheckButtonGPS(state);
-
-		//loginUser({"username": "admin", "password": "admin"})
-		//setLoginModalShow(true)
-
-
 	};
 
 	const onSubmitFilter = (filter) => {
@@ -441,7 +431,7 @@ function App(props) {
 			dataHeatmapPoints.push([
 				feature.properties.latitude,
 				feature.properties.longitude,
-				1,
+				0.1,
 			]);
 		}
 
@@ -557,6 +547,7 @@ function App(props) {
 								isMobileDevice={isMobileDevice}
 								showOkCancelMobileMarker={showOkCancelMobileMarker}
 								setMapCurrentLatLng={setMapCurrentLatLng}
+								setCheckButtonGPS={setCheckButtonGPS}
 								showSidebar={showSidebar}
 							/>
 

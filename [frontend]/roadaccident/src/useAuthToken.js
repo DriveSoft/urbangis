@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 export default function useAuthToken() {
+    
     const getUsernameFromToken = (json) =>{
         let token = json?.access 
 
@@ -38,6 +39,7 @@ export default function useAuthToken() {
         }           
         setAuthToken(userToken);
     };    
+
 
     return {
         setAuthToken: saveToken,

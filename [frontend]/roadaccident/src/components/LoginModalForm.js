@@ -36,7 +36,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
                 if (data.status === 200) {
                     data.json().then((data) => {
 						setAuthToken(data)
-                        console.log(data.access);
+                        //console.log(data.access);
                         setShowWrongPassword(false)
                         setLoginModalShow(false)
 					});

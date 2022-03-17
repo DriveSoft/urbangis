@@ -29,7 +29,7 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
 if platform == "win32":
-    DEBUG = True
+    DEBUG = False
 else:
     DEBUG = False
 

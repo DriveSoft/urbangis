@@ -11,7 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.render(
   //<React.StrictMode>
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/roadaccident">
       <Routes>
         <Route path="/" element={<App />}>
           <Route path=":cityName" element={<App />} >

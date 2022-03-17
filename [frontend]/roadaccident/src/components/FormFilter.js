@@ -127,12 +127,12 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
 
                 <Row className="mt-3">
-                    <Form.Group as={Col} controlId="formManeuverFilter">
+                    <Form.Group as={Col} controlId="formManeuverFilter" style={{minWidth: '250px'}}>
                         <Form.Label>Маньовър на МПС</Form.Label>
                         <Controller
                             name="maneuverFilter"
                             control={control}
-                            render={({ field }) => <Select {...field} isClearable options={optionsManeuverFilter} />}
+                            render={({ field }) => <Select {...field} isClearable isSearchable={false} options={optionsManeuverFilter} />}
                         />
                     </Form.Group>
 
@@ -153,7 +153,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                     <Controller
                         name="violationsTypeFilter"
                         control={control}
-                        render={({ field }) => <Select {...field} isMulti options={optionsTypeViolationsFilter} />}
+                        render={({ field }) => <Select {...field} isMulti isSearchable={false} options={optionsTypeViolationsFilter} />}
                     />
                 </Form.Group>
 
@@ -163,7 +163,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                     <Controller
                         name="violatorsFilter"
                         control={control}
-                        render={({ field }) => <Select {...field} isMulti options={optionsViolatorsFilter} />}
+                        render={({ field }) => <Select {...field} isMulti isSearchable={false} options={optionsViolatorsFilter} />}
                     />
                 </Form.Group>      
 

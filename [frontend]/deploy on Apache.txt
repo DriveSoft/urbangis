@@ -1,0 +1,28 @@
+1. Создаем в папке проекта "public" .htaccess файл
+
+Options -MultiViews
+RewriteEngine On
+
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://bgurban.com/roadaccident/$1 [L,R=301]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]
+
+
+
+
+2. В index.js
+
+<BrowserRouter basename="/roadaccident">
+
+
+
+3. В package.json
+
+ "homepage": "https://bgurban.com/roadaccident/",
+ 
+ 
+ 
+ 
+ 4. Содержимое папки build копируем на сервер в папку roadaccident

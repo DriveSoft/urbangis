@@ -238,7 +238,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
 
                 <Row className="mt-3">
-                    <Form.Group as={Col} controlId="formDateTimeAccident">
+                    <Form.Group as={Col} controlId="formDateTimeAccident" style={{minWidth: '250px'}}>
                         <Form.Label>Дата и час</Form.Label>
                         <Controller
                             name="dateTimeAccidentForm"
@@ -259,7 +259,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                         <Controller
                             name="maneuverAccidentForm"
                             control={control}
-                            render={({ field }) => <Select {...field} isClearable options={optionsManeuverFilter} />}
+                            render={({ field }) => <Select {...field} isClearable isSearchable={false} options={optionsManeuverFilter} />}
                         />
                     </Form.Group>                    
                 </Row> 
@@ -271,7 +271,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     <Controller
                         name="violationsTypeAccidentForm"
                         control={control}
-                        render={({ field }) => <Select {...field} isMulti options={optionsTypeViolationsFilter} />}
+                        render={({ field }) => <Select {...field} isMulti isSearchable={false} options={optionsTypeViolationsFilter} />}
                     />
                 </Form.Group>
 
@@ -281,7 +281,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     <Controller
                         name="violatorsAccidentForm"
                         control={control}
-                        render={({ field }) => <Select {...field} isMulti options={optionsViolatorsFilter} />}
+                        render={({ field }) => <Select {...field} isMulti isSearchable={false} options={optionsViolatorsFilter} />}
                     />
                 </Form.Group>                
 
@@ -420,7 +420,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     <Controller
                         name="accidentId"
                         control={control}
-                        render={({ field }) => <Form.Control type="number" size="sm" min="0" max="99" {...field} />}
+                        render={({ field }) => <Form.Control type="number" size="sm" min="0" style={{display: 'none'}} {...field} />}
                     />
                 </Form.Group>
 

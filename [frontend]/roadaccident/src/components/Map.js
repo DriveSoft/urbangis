@@ -5,6 +5,7 @@ import "leaflet.heat"
 
 //import ButtonMap from './ButtonMap'
 import ButtonMap_ from './ButtonMap_'
+import MapTileLayers from './MapTileLayers'
 
 import "leaflet/dist/leaflet.css";
 import redIconFile from './images/markers/marker-red.png';
@@ -105,7 +106,7 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
             buttonNewMarker && buttonNewMarker.remove()
             buttonHeatmap && buttonHeatmap.remove()
             buttonGPS && buttonGPS.remove()
-        }
+        }  
 
 
       }, [map])  //<MapContainer whenCreated={setMap} ...
@@ -454,34 +455,11 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
         { currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
 
             <MapContainer style={{cursor: "crosshair"}} whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={13} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
-                <LayersControl position="topleft">
-                    <LayersControl.BaseLayer checked={mapBaseLayerName === 'Default'} name="Default">
-                        <TileLayer
-                            attribution='Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>'
-                            url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
-                            accessToken='pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-                            id='mapbox/streets-v11'
-                            tileSize={512}
-                            zoomOffset={-1}
-                        />
-                    </LayersControl.BaseLayer>
-
-                    <LayersControl.BaseLayer checked={mapBaseLayerName === 'Dark'}  name="Dark">
-                        <TileLayer
-                            attribution='Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://www.mapbox.com/">Mapbox</a>'
-                            url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
-                            accessToken='pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ'
-                            id='mapbox/dark-v10'
-                            tileSize={512}
-                            zoomOffset={-1}                            
-                        />
-                    </LayersControl.BaseLayer>  
-
+                <LayersControl position="topleft">                    
+                    <MapTileLayers mapBaseLayerName={mapBaseLayerName} />                 
                 </LayersControl>    
 
-
-                
-
+            
                 {/* To change center of the map when current city will change */}
                 {/*<SetViewMap center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} />*/} 
                 <SetPanToMap />
@@ -501,13 +479,12 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
                 )}
 
 
-
-
                 <NewMarker newMarkerState={newMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
                 
                 <MapEvents />
                 
-                <ZoomControl position='bottomright'/>
+                {!isMobileDevice && <ZoomControl position='bottomright'/>}
+                
    
                 {/* <ButtonsControl /> */}
 

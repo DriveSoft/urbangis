@@ -2,7 +2,7 @@
   "name": "roadaccident",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://bgurban.com/react/",
+
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@testing-library/jest-dom": "^5.16.1",
@@ -20,6 +20,7 @@
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.22.5",
     "react-leaflet": "^3.2.2",
+    "react-leaflet-bing-v2": "^5.2.3",
     "react-leaflet-markercluster": "^3.0.0-rc1",
     "react-router-dom": "^6.1.1",
     "react-scripts": "4.0.3",

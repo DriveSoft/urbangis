@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, Button, FloatingLabel, Modal, Col, Row } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
+import { useTranslation } from 'react-i18next'
 
 const RegisterModalForm = ({
 	show,
@@ -10,6 +11,7 @@ const RegisterModalForm = ({
 	setAuthToken,
 }) => {
 	
+	const { t } = useTranslation()
 
 	useEffect(() => {
 		reset();	
@@ -86,7 +88,7 @@ const RegisterModalForm = ({
 		>
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-vcenter">
-					SIGN UP
+					{t('registerForm.title')}
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
@@ -102,7 +104,7 @@ const RegisterModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingUsername"
-							label="Username"
+							label={t('registerForm.username')}
 							className="mb-3"
 						>
 							<Controller
@@ -112,7 +114,7 @@ const RegisterModalForm = ({
 								render={({ field }) => (
 									<Form.Control
 										type="text"
-										placeholder="Username"
+										placeholder={t('registerForm.username')}
 										isInvalid={!!errors.username}
 										{...field}
 									/>
@@ -129,7 +131,7 @@ const RegisterModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingEmail"
-							label="Email"
+							label={t('registerForm.email')}
 							className="mb-3"
 						>
 							<Controller
@@ -139,7 +141,7 @@ const RegisterModalForm = ({
 								render={({ field }) => (
 									<Form.Control
 										type="text"
-										placeholder="Email"
+										placeholder={t('registerForm.email')}
 										isInvalid={!!errors.email}
 										{...field}
 									/>
@@ -156,7 +158,7 @@ const RegisterModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingPassword"
-							label="Password"
+							label={t('registerForm.password')}
 							className="mb-3"
 						>
 							<Controller
@@ -166,7 +168,7 @@ const RegisterModalForm = ({
 								render={({ field }) => (
 									<Form.Control
 										type="password"
-										placeholder="Password"
+										placeholder={t('registerForm.password')}
 										isInvalid={!!errors.password}
 										{...field}
 									/>
@@ -176,7 +178,7 @@ const RegisterModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingPassword2"
-							label="Confirm password"
+							label={t('registerForm.confirmPassword')}
 							className="mb-3"
 						>
 							<Controller
@@ -186,7 +188,7 @@ const RegisterModalForm = ({
 								render={({ field }) => (
 									<Form.Control
 										type="password"
-										placeholder="Password"
+										placeholder={t('registerForm.confirmPassword')}
 										isInvalid={!!errors.password2}
 										{...field}
 									/>
@@ -204,7 +206,7 @@ const RegisterModalForm = ({
 										<Form.Control
 											type="text"
 											size="sm"
-											placeholder="Firstname (optional)"
+											placeholder={t('registerForm.firstNameOptional')}
 											isInvalid={!!errors.first_name}
 											{...field}
 										/>
@@ -221,7 +223,7 @@ const RegisterModalForm = ({
 										<Form.Control
 											type="text"
 											size="sm"
-											placeholder="Lastname (optional)"
+											placeholder={t('registerForm.lastNameOptional')}
 											isInvalid={!!errors.last_name}
 											{...field}
 										/>
@@ -238,12 +240,12 @@ const RegisterModalForm = ({
 						type="submit"
 						style={{ display: "block", width: "100%" }}
 					>
-						REGISTER
+						{t('registerForm.register')}
 					</Button>
 
 					<Form.Text className="text-muted mb-0">
 						<p className="text-center">
-							Already have an account?{" "}
+							{t('registerForm.alreadyHaveAccount')}{" "}
 							<a
 								href="#"
 								onClick={() => {
@@ -251,7 +253,7 @@ const RegisterModalForm = ({
 									setLoginModalShow(true);
 								}}
 							>
-								Login
+								{t('registerForm.login')}
 							</a>
 						</p>
 					</Form.Text>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Form, Button, FloatingLabel, Modal } from "react-bootstrap";
 import { useForm, Controller  } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow, setAuthToken }) => {
 
     const [showWrongPassword, setShowWrongPassword] = useState(false)
+	const { t } = useTranslation()
 
     useEffect(() => {
         reset()
@@ -17,6 +19,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
         defaultValues: {
             username: '',
             password: '',
+			rememberme: false
         }
     }); 
 
@@ -24,6 +27,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 
 
     async function loginUser(credentials) {
+		//console.log(credentials)
         return fetch(`${process.env.REACT_APP_API_URL}token/`, {
 			method: "POST",
 			headers: {
@@ -35,8 +39,9 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 			.then((data) => {
                 if (data.status === 200) {
                     data.json().then((data) => {
+						//data.rememberme = credentials.rememberme
 						setAuthToken(data)
-                        //console.log(data.access);
+                        //console.log(data);
                         setShowWrongPassword(false)
                         setLoginModalShow(false)
 					});
@@ -52,7 +57,8 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 
     const OnSubmitForm = (data) => {
         setShowWrongPassword(false)
-        loginUser(data)        
+        localStorage.setItem('rememberme', data.rememberme);
+		loginUser(data)        
     }    
 
 
@@ -66,7 +72,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 		>
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-vcenter">
-					SIGN IN
+					{t('loginForm.title')}
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
@@ -74,7 +80,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 					<Form.Group className="mb-3" controlId="formLogin">
 						<FloatingLabel
 							controlId="floatingInput"
-							label="Username"
+							label={t('loginForm.username')}
 							className="mb-3"
 						>
 							<Controller
@@ -84,7 +90,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 								render={({ field }) => (
 									<Form.Control
 										type="text"
-										placeholder="Username"
+										placeholder={t('loginForm.username')}
 										isInvalid={!!errors.username}
 										{...field}
 									/>						
@@ -94,7 +100,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 
 						<FloatingLabel
 							controlId="floatingPassword"
-							label="Password"
+							label={t('loginForm.password')}
 						>
 							<Controller
 								name="password"
@@ -103,7 +109,7 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 								render={({ field }) => (
 									<Form.Control
 										type="password"
-										placeholder="Password"
+										placeholder={t('loginForm.password')}
 										isInvalid={!!errors.password}
 										{...field}
 									/>
@@ -113,12 +119,20 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 					</Form.Group>
 
 					<Form.Group className="mb-3" controlId="formBasicCheckbox">
-						<Form.Check type="checkbox" label="Remember me" />
+						<Controller
+							name="rememberme"
+							control={control}
+							rules={{ required: false }}
+							render={({ field }) => (
+								<Form.Check type="checkbox" label={t('loginForm.rememberMe')} {...field}/>
+
+							)}
+						/>						
 					</Form.Group>
 
 					{showWrongPassword && (
 						<Form.Text className="text-danger">
-							Wrong username or password.
+							{t('loginForm.wrongUsernamePassword')}
 						</Form.Text>
 					)}
 
@@ -128,12 +142,12 @@ const LoginModalForm = ({ show, onHide, setLoginModalShow, setRegisterModalShow,
 						type="submit"
 						style={{ display: "block", width: "100%" }}
 					>
-						LOGIN
+						{t('loginForm.login')}
 					</Button>
 
 					<Form.Text className="text-muted mb-0">
 						<p className="text-center">
-							Don't have account? <a href="#" onClick={()=> { setLoginModalShow(false); setRegisterModalShow(true) } }>Sign up</a>
+							{t('loginForm.dontHaveAccount')} <a href="#" onClick={()=> { setLoginModalShow(false); setRegisterModalShow(true) } }>{t('loginForm.signUp')}</a>
 						</p>
 					</Form.Text>
 				</Form>

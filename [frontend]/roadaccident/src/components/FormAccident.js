@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { useForm, Controller  } from 'react-hook-form'
-import { Form, Button, Card, Row, Col, Modal} from 'react-bootstrap';
+import { Form, Button, Card, Row, Col, Modal} from 'react-bootstrap'
 import Select from "react-select";
 import "@fortawesome/fontawesome-free/css/all.min.css"
 
 import Datetime from 'react-datetime'
 import "react-datetime/css/react-datetime.css"
 
-import moment from 'moment';
+import moment from 'moment'
+import { useTranslation } from 'react-i18next'
 
 
 function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCloseAccident, dictManeuvers, dictTypeViolations, dataAccidentForm, dictViolators, currentCity} ) {
     
     const [showModalDelete, setShowModalDelete] = useState(false);
     const dateTimeRef = useRef(null)
+    const { t } = useTranslation()
 
     //const handleShowModalDeleteClose = () => setShowModalDelete(false);
 
@@ -106,17 +108,17 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
     let optionsManeuverFilter = []
     if (Array.isArray(dictManeuvers)) {
-        optionsManeuverFilter = dictManeuvers.map((x) => { return {value: x.id, label: x.maneuvername} })  
+        optionsManeuverFilter = dictManeuvers.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.maneuversList.${x.maneuvername}`)} })  
     }
   
     let optionsTypeViolationsFilter = []
     if (Array.isArray(dictTypeViolations)) {
-        optionsTypeViolationsFilter = dictTypeViolations.map((x) => { return {value: x.id, label: x.violationname} })  
+        optionsTypeViolationsFilter = dictTypeViolations.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.typeViolationsList.${x.violationname}`)} })  
     }
       
     let optionsViolatorsFilter = []
     if (Array.isArray(dictViolators)) {
-        optionsViolatorsFilter = dictViolators.map((x) => { return {value: x.id, label: x.violatorname} })  
+        optionsViolatorsFilter = dictViolators.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.violatorsList.${x.violatorname}`)} })  
     }      
 
 
@@ -197,7 +199,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
                 <Row>
                     <Form.Group as={Col} controlId="formDateFromFilter">
-                        <Form.Label>Lat/Lng <a href="#"><i className="fas fa-edit align-middle"></i></a></Form.Label>
+                        <Form.Label>{t('sidebar.accidentTab.latLng')} <a href="#"><i className="fas fa-edit align-middle"></i></a></Form.Label>
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formLatAccident">
@@ -209,7 +211,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                         />
 
                         <Form.Control.Feedback type="invalid">
-                            Required field
+                            {t('words.requiredField')}
                         </Form.Control.Feedback>                          
                     </Form.Group>
 
@@ -221,14 +223,14 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                             render={({ field }) => <Form.Control type="number" step="any" size="sm" isInvalid={!!errors.lngAccidentForm} {...field} />}
                         />
                         <Form.Control.Feedback type="invalid">
-                            Required field
+                            {t('words.requiredField')}
                         </Form.Control.Feedback>                        
                     </Form.Group>                    
                 </Row>
 
 
                 <Form.Group controlId="formDescriptionAccident" className="mt-3">
-                    <Form.Label>Описание</Form.Label>
+                    <Form.Label>{t('sidebar.accidentTab.description')}</Form.Label>
                     <Controller
                         name="descAccidentForm"
                         control={control}
@@ -239,7 +241,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
                 <Row className="mt-3">
                     <Form.Group as={Col} controlId="formDateTimeAccident" style={{minWidth: '250px'}}>
-                        <Form.Label>Дата и час</Form.Label>
+                        <Form.Label>{t('sidebar.accidentTab.datetime')}</Form.Label>
                         <Controller
                             name="dateTimeAccidentForm"
                             control={control}
@@ -255,7 +257,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formManeuverAccident">
-                        <Form.Label>Маньовър на МПС</Form.Label>
+                        <Form.Label>{t('sidebar.accidentTab.vehicleManeuver')}</Form.Label>
                         <Controller
                             name="maneuverAccidentForm"
                             control={control}
@@ -267,7 +269,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
 
                 <Form.Group controlId="formViolationsTypeAccident" className="mt-3">
-                    <Form.Label>Вид на нарушение</Form.Label>
+                    <Form.Label>{t('sidebar.accidentTab.violationsType')}</Form.Label>
                     <Controller
                         name="violationsTypeAccidentForm"
                         control={control}
@@ -277,7 +279,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
 
                 <Form.Group controlId="formViolatorsAccident" className="mt-3">
-                    <Form.Label>Нарушители</Form.Label>
+                    <Form.Label>{t('sidebar.accidentTab.violators')}</Form.Label>
                     <Controller
                         name="violatorsAccidentForm"
                         control={control}
@@ -290,11 +292,11 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
                 <Row className="mt-3">
                     <Form.Group as={Col} controlId="formInjuredLabelAccident"> 
-                        <Form.Label style={{marginTop: "32px"}}>Постр:</Form.Label>
+                        <Form.Label style={{marginTop: "32px"}}>{t('sidebar.accidentTab.injured')}</Form.Label>
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formDriversInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-car fa-lg" title="Шофьор и пътници"></i></Form.Label>
+                        <Form.Label><i className="fas fa-car fa-lg" title={t('sidebar.accidentTab.driverAndPassengers')}></i></Form.Label>
                         <Controller
                             name="driversInjuredAccidentForm"
                             control={control}
@@ -303,7 +305,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group>    
 
                     <Form.Group as={Col} controlId="formMotorcyclistsInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-motorcycle fa-lg" title="Мотоциклист"></i></Form.Label>
+                        <Form.Label><i className="fas fa-motorcycle fa-lg" title={t('sidebar.accidentTab.motorcyclist')}></i></Form.Label>
                         <Controller
                             name="motorcyclistsInjuredAccidentForm"
                             control={control}
@@ -312,7 +314,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group> 
 
                     <Form.Group as={Col} controlId="formCyclistsInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-bicycle fa-lg" title="Велосипедист"></i></Form.Label>
+                        <Form.Label><i className="fas fa-bicycle fa-lg" title={t('sidebar.accidentTab.cyclist')}></i></Form.Label>
                         <Controller
                             name="cyclistsInjuredAccidentForm"
                             control={control}
@@ -321,7 +323,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group> 
 
                     <Form.Group as={Col} controlId="formPedInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-walking fa-lg" title="Пешеходец"></i></Form.Label>
+                        <Form.Label><i className="fas fa-walking fa-lg" title={t('sidebar.accidentTab.pedestrian')}></i></Form.Label>
                         <Controller
                             name="pedInjuredAccidentForm"
                             control={control}
@@ -330,7 +332,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group> 
 
                     <Form.Group as={Col} controlId="formKidsInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-baby fa-lg" title="Дете"></i></Form.Label>
+                        <Form.Label><i className="fas fa-baby fa-lg" title={t('sidebar.accidentTab.kid')}></i></Form.Label>
                         <Controller
                             name="kidsInjuredAccidentForm"
                             control={control}
@@ -339,7 +341,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                     </Form.Group> 
 
                     <Form.Group as={Col} controlId="formPubtrPassengersInjuredAccident" className="ps-1 pe-0">
-                        <Form.Label><i className="fas fa-bus-alt fa-lg" title="Пътник на градски транспорт"></i></Form.Label>
+                        <Form.Label><i className="fas fa-bus-alt fa-lg" title={t('sidebar.accidentTab.publicTransPassenger')}></i></Form.Label>
                         <Controller
                             name="pubtrPassengersInjuredAccidentForm"
                             control={control}
@@ -352,7 +354,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
                 <Row className="mt-0">
                     <Form.Group as={Col} controlId="formKilledLabelAccident"> 
-                        <Form.Label>Убити:</Form.Label>
+                        <Form.Label>{t('sidebar.accidentTab.killed')}</Form.Label>
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formDriversKilledAccident" className="ps-1 pe-0">
@@ -410,7 +412,7 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
                                 name="publicTransportInvolvedAccidentForm"
                                 control={control}
                                 render={({ field }) => 
-                                    <Form.Check {...field} checked={field['value'] ?? false} inline label="ГТ участва в ПТП" type="checkbox" id="idPublicTransportInvolvedAccident"/>
+                                    <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.accidentTab.publicTransInvolved')} type="checkbox" id="idPublicTransportInvolvedAccident"/>
                                 }
                     /> 
                 </Form.Group>
@@ -427,9 +429,9 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
 
                 <div className="mt-4 me-2 float-end">
-                    <Button onClick={() => setShowModalDelete(true)} variant="light">Изтрий</Button>{' '}
-                    <Button onClick={onCloseAccident} variant="secondary">Изход</Button>{' '}
-                    <Button type="submit" variant="primary" style={{ minWidth: '110px' }}>Запази</Button>
+                    <Button onClick={() => setShowModalDelete(true)} variant="light">{t('sidebar.accidentTab.delete')}</Button>{' '}
+                    <Button onClick={onCloseAccident} variant="secondary">{t('sidebar.accidentTab.close')}</Button>{' '}
+                    <Button type="submit" variant="primary" style={{ minWidth: '110px' }}>{t('sidebar.accidentTab.save')}</Button>
                 </div>
 
 
@@ -441,15 +443,15 @@ function FormAccident( {newMarkerState, onSubmitAccident, onDeleteAccident, onCl
 
             <Modal show={showModalDelete} onHide={() => setShowModalDelete(false)}>
                 <Modal.Header closeButton>
-                <Modal.Title>Изтриване</Modal.Title>
+                <Modal.Title>{t('words.deleting')}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Наистина ли искате да изтриете този инцидент?</Modal.Body>
+                <Modal.Body>{t('words.confirmDeleting')}</Modal.Body>
                 <Modal.Footer>
                 <Button variant="light" onClick={() => {setShowModalDelete(false); onDeleteAccident(getValues("accidentId"))} }>
-                    Изтрий
+                    {t('words.delete')}
                 </Button>
                 <Button variant="secondary" onClick={() => setShowModalDelete(false)}>
-                    Отмени
+                    {t('words.cancel')}
                 </Button>
                 </Modal.Footer>
             </Modal>

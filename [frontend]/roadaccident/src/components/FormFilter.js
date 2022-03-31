@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import { useForm, Controller  } from 'react-hook-form'
 import { Form, Button, Card, Row, Col, } from 'react-bootstrap';
 import Select from "react-select";
+import { useTranslation } from 'react-i18next';
 
 //export const DictionariesContext = createContext({})
 
 
 function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeViolations, dictViolators} ) {
+
+    const { t, i18n } = useTranslation()
 
     // used to set default values for dates control, because when it renders first time, minMaxDateData is still empty, after that I just can't change def values, so do it manually 
     useEffect(() => {
@@ -72,24 +75,25 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
       //    optionsViolatorsFilter = arViolators.map((x) => { return {value: x.id, label: x.violatorname} })  
       //}         
 
-    
+      
     let optionsManeuverFilter = []
     if (Array.isArray(dictManeuvers)) {
-        optionsManeuverFilter = dictManeuvers.map((x) => { return {value: x.id, label: x.maneuvername} })  
+        optionsManeuverFilter = dictManeuvers.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.maneuversList.${x.maneuvername}`)} }) 
+         
     }
 
     let optionsTypeViolationsFilter = []
     if (Array.isArray(dictTypeViolations)) {
-        optionsTypeViolationsFilter = dictTypeViolations.map((x) => { return {value: x.id, label: x.violationname} })  
+        optionsTypeViolationsFilter = dictTypeViolations.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.typeViolationsList.${x.violationname}`)} })  
     }
     
     let optionsViolatorsFilter = []
     if (Array.isArray(dictViolators)) {
-        optionsViolatorsFilter = dictViolators.map((x) => { return {value: x.id, label: x.violatorname} })  
+        optionsViolatorsFilter = dictViolators.map((x) => { return {value: x.id, label: t(`sidebar.filterTab.violatorsList.${x.violatorname}`)} })  
     }    
 
       
-      
+     
     
     
     function onResetButton(e) {
@@ -106,7 +110,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
                 <Row >
                     <Form.Group as={Col} controlId="formDateFromFilter">
-                        <Form.Label>От</Form.Label>
+                        <Form.Label>{t('sidebar.filterTab.from')}</Form.Label>
                         <Controller
                             name="dateFromFilter"
                             control={control}
@@ -115,7 +119,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formDateToFilter">
-                        <Form.Label>До</Form.Label>
+                        <Form.Label>{t('sidebar.filterTab.to')}</Form.Label>
                         <Controller
                             name="dateToFilter"
                             control={control}
@@ -128,7 +132,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
                 <Row className="mt-3">
                     <Form.Group as={Col} controlId="formManeuverFilter" style={{minWidth: '250px'}}>
-                        <Form.Label>Маньовър на МПС</Form.Label>
+                        <Form.Label>{t('sidebar.filterTab.vehicleManeuver')}</Form.Label>
                         <Controller
                             name="maneuverFilter"
                             control={control}
@@ -137,7 +141,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formDescFilter">
-                        <Form.Label>Описание</Form.Label>
+                        <Form.Label>{t('sidebar.filterTab.description')}</Form.Label>
                         <Controller
                             name="descFilter"
                             control={control}
@@ -149,7 +153,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
 
                 <Form.Group controlId="formViolationsTypeFilter" className="mt-3">
-                    <Form.Label>Вид на нарушение</Form.Label>
+                    <Form.Label>{t('sidebar.filterTab.violationsType')}</Form.Label>
                     <Controller
                         name="violationsTypeFilter"
                         control={control}
@@ -159,7 +163,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
 
                 <Form.Group controlId="formviolatorsFilter" className="mt-3">
-                    <Form.Label>Нарушители</Form.Label>
+                    <Form.Label>{t('sidebar.filterTab.violators')}</Form.Label>
                     <Controller
                         name="violatorsFilter"
                         control={control}
@@ -170,13 +174,13 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
 
                 <Card body className="mt-3">
-                    <Card.Title><h6>Пострадали</h6></Card.Title>
+                    <Card.Title><h6>{t('sidebar.filterTab.injured')}</h6></Card.Title>
                     
                         <Controller
                             name="driverInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Шофьор" type="checkbox" id="idDriverInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.driver')} type="checkbox" id="idDriverInjuredFilter"/>
                             }
                         />        
 
@@ -184,7 +188,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="motorcyclistInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Мотоциклист" type="checkbox" id="idMotorcyclistInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.motorcyclist')} type="checkbox" id="idMotorcyclistInjuredFilter"/>
                             }
                         />                                         
 
@@ -192,7 +196,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="cyclistInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Велосипедист" type="checkbox" id="idCyclistInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.cyclist')} type="checkbox" id="idCyclistInjuredFilter"/>
                             }
                         /> 
 
@@ -200,7 +204,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="pedestrianInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Пешеходец" type="checkbox" id="idPedestrianInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.pedestrian')} type="checkbox" id="idPedestrianInjuredFilter"/>
                             }
                         /> 
 
@@ -208,7 +212,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="kidsInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Дете" type="checkbox" id="idKidsInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.kid')} type="checkbox" id="idKidsInjuredFilter"/>
                             }
                         /> 
      
@@ -216,7 +220,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="pubtrPassengersInjuredFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Пътник на ГТ" type="checkbox" id="idPubtrPassengersInjuredFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.pubtrPassenger')} type="checkbox" id="idPubtrPassengersInjuredFilter"/>
                             }
                         />                         
                 </Card>          
@@ -224,13 +228,13 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
 
 
                 <Card body className="mt-3">
-                    <Card.Title><h6>Убити</h6></Card.Title>
+                    <Card.Title><h6>{t('sidebar.filterTab.killed')}</h6></Card.Title>
                     
                         <Controller
                             name="driversKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Шофьор" type="checkbox" id="idDriversKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.driver')} type="checkbox" id="idDriversKilledFilter"/>
                             }
                         />        
 
@@ -238,7 +242,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="motorcyclistsKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Мотоциклист" type="checkbox" id="idMotorcyclistsKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.motorcyclist')} type="checkbox" id="idMotorcyclistsKilledFilter"/>
                             }
                         />                                         
 
@@ -246,7 +250,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="cyclistsKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Велосипедист" type="checkbox" id="idCyclistsKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.cyclist')} type="checkbox" id="idCyclistsKilledFilter"/>
                             }
                         /> 
 
@@ -254,7 +258,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="pedestrianKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Пешеходец" type="checkbox" id="idPedestrianKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.pedestrian')} type="checkbox" id="idPedestrianKilledFilter"/>
                             }
                         /> 
 
@@ -262,7 +266,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="kidsKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Дете" type="checkbox" id="idKidsKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.kid')} type="checkbox" id="idKidsKilledFilter"/>
                             }
                         /> 
      
@@ -270,7 +274,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                             name="pubtrPassengersKilledFilter"
                             control={control}
                             render={({ field }) => 
-                                <Form.Check {...field} checked={field['value'] ?? false} inline label="Пътник на ГТ" type="checkbox" id="idPubtrPassengersKilledFilter"/>
+                                <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.pubtrPassenger')} type="checkbox" id="idPubtrPassengersKilledFilter"/>
                             }
                         />                         
                 </Card> 
@@ -281,7 +285,7 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                                 name="publicTransportInvolvedFilter"
                                 control={control}
                                 render={({ field }) => 
-                                    <Form.Check {...field} checked={field['value'] ?? false} inline label="ГТ участва в ПТП" type="checkbox" id="idPublicTransportInvolvedFilter"/>
+                                    <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.publicTransportInvolved')} type="checkbox" id="idPublicTransportInvolvedFilter"/>
                                 }
                     /> 
                 </Form.Group>
@@ -291,18 +295,18 @@ function FormFilter( {onSubmitFilter, minMaxDateData, dictManeuvers, dictTypeVio
                                 name="showOnlyMyAccidentsFilter"
                                 control={control}
                                 render={({ field }) => 
-                                    <Form.Check {...field} checked={field['value'] ?? false} inline label="Покажи ПТП добавени от мен" type="checkbox" id="idShowOnlyMyAccidentsFilter"/>
+                                    <Form.Check {...field} checked={field['value'] ?? false} inline label={t('sidebar.filterTab.showOnlyMyAccidents')} type="checkbox" id="idShowOnlyMyAccidentsFilter"/>
                                 }
                     /> 
                 </Form.Group>
 
 
                 <div className="mt-4 me-2 float-end">
-                    <Button variant="light" onClick={onResetButton}>Изчисти</Button>{' '}
-                    <Button type="submit" variant="primary" style={{ minWidth: '150px' }}>Търси</Button>{' '}
+                    <Button variant="light" onClick={onResetButton}>{t('sidebar.filterTab.clear')}</Button>{' '}
+                    <Button type="submit" variant="primary" style={{ minWidth: '150px' }}>{t('sidebar.filterTab.search')}</Button>{' '}
                 </div>
 
-            </Form>
+            </Form> 
         </div>
     )
 }

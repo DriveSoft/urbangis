@@ -14,13 +14,26 @@ export default function useAuthToken() {
     }
     
     const getToken = () => {
-        const tokenString = localStorage.getItem('token');
-        let json = JSON.parse(tokenString)
-        const userName = getUsernameFromToken(json)
-        if (userName) {
-            json.username = userName
+        let tokenString
+        const rememberme = localStorage.getItem('rememberme')
+
+        if (rememberme==='true') {
+            tokenString = localStorage.getItem('token')
+        } else {
+            tokenString = sessionStorage.getItem('token')
         }
-        return json
+        
+
+        if (tokenString) {
+            let json = JSON.parse(tokenString)
+            const userName = getUsernameFromToken(json)
+            if (userName) {
+                json.username = userName
+            }            
+            return json
+        } else {
+            return null
+        }
       };
 
     const [authToken, setAuthToken] = useState(getToken());
@@ -28,7 +41,15 @@ export default function useAuthToken() {
 
     const saveToken = userToken => {
         if (userToken) {
-            localStorage.setItem('token', JSON.stringify(userToken));
+
+            const rememberme = localStorage.getItem('rememberme')
+
+            if (rememberme === 'true') {
+                localStorage.setItem('token', JSON.stringify(userToken));
+            } else {
+                sessionStorage.setItem('token', JSON.stringify(userToken));
+            }
+            
             
             const userName = getUsernameFromToken(userToken)
             if (userName) {
@@ -36,6 +57,8 @@ export default function useAuthToken() {
             }            
         } else {
             localStorage.removeItem("token")    
+            localStorage.removeItem("rememberme") 
+            sessionStorage.removeItem("token")
         }           
         setAuthToken(userToken);
     };    

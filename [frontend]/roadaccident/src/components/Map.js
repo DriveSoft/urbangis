@@ -65,7 +65,29 @@ let setView_nTimes_gps
 let circle_geolocation
 
 
-function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, newMarkerState, onDragEndNewMarker, checkButtonNewMarker, checkButtonHeatmap, checkButtonGPS, onClickMap, onMarkerClick, onClickNewMarker, onClickHeatmap, onClickGPS, filterMapCallback, onBaselayerchange, setNewMarkerState, isMobileDevice, showOkCancelMobileMarker, setMapCurrentLatLng, setCheckButtonGPS, showSidebar}) {
+function Map ({
+                mapBaseLayerName, 
+                dataAccidents, 
+                dataHeatmapPoints, 
+                currentCity, 
+                newMarkerState, 
+                onDragEndNewMarker, 
+                checkButtonNewMarker, 
+                checkButtonHeatmap, 
+                checkButtonGPS, 
+                onClickMap, 
+                onMarkerClick, 
+                onClickNewMarker, 
+                onClickHeatmap, 
+                onClickGPS, 
+                filterMapCallback, 
+                onBaselayerchange, 
+                setNewMarkerState, 
+                isMobileDevice, 
+                showOkCancelMobileMarker, 
+                //setMapCurrentLatLng, 
+                setCheckButtonGPS, 
+                showSidebar}) {
 
     const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
     const [map, setMap] = useState(null);  
@@ -97,7 +119,7 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
             setButtonHeatmap( ButtonMap_(map, 'fas fa-eye fa-lg', 'fas fa-eye-slash fa-lg', onClickHeatmap, checkButtonHeatmap) )
             setButtonGPS( ButtonMap_(map, 'fas fa-satellite-dish fa-lg', 'fas fa-satellite-dish fa-lg', _onClickGPS, checkButtonGPS) )
             
-            setMapCurrentLatLng({lat: map.getCenter().lat, lng: map.getCenter().lng})
+            //setMapCurrentLatLng({lat: map.getCenter().lat, lng: map.getCenter().lng})
             
             
         }
@@ -334,7 +356,7 @@ function Map ({mapBaseLayerName, dataAccidents, dataHeatmapPoints, currentCity, 
                     coord.lng = LatLng.lng.toFixed(5);                   
                     setNewMarkerState({visible: true, position: coord})                        
                 }
-                setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
+                //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
 
 
             },

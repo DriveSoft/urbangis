@@ -5,6 +5,7 @@ import './index.css';
 import './sidebar.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import './i18nextConf';
 
 // Importing the Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';

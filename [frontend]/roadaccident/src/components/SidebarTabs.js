@@ -3,6 +3,7 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import FormFilter from './FormFilter'
 import FormAccident from './FormAccident'
+import { useTranslation } from 'react-i18next';
 
 const SidebarTabs = ({
 						onSubmitFilter, 
@@ -27,6 +28,8 @@ const SidebarTabs = ({
 					}) => {
     const [key, setKey] = useState('filter')    
     
+	const { t } = useTranslation()
+
     return (
         <Tabs
         	id="controlled-tab-example"
@@ -36,7 +39,7 @@ const SidebarTabs = ({
           	className="mb-3"
 		>
 
-        	<Tab eventKey="filter" title="Търсене">
+        	<Tab eventKey="filter" title={t('sidebar.filterTab.title')}>
 				<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
 					<FormFilter 
 						onSubmitFilter={onSubmitFilter} 
@@ -48,7 +51,7 @@ const SidebarTabs = ({
 				</div>
           	</Tab>
 
-          	<Tab eventKey="accident" title="ПТП" tabClassName={!showAccidentTab ? 'd-none' : ''}>
+          	<Tab eventKey="accident" title={t('sidebar.accidentTab.title')} tabClassName={!showAccidentTab ? 'd-none' : ''}>
 			  	<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
 					<FormAccident 
 						onSubmitAccident={onSubmitAccident}

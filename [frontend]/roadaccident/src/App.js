@@ -10,6 +10,8 @@ import RegisterModalForm from "./components/RegisterModalForm";
 import Button from "react-bootstrap/Button";
 
 import useAuthToken from "./useAuthToken";
+import { useTranslation } from 'react-i18next'
+
 
 
 function App(props) {
@@ -28,7 +30,7 @@ function App(props) {
     const [registerModalShow, setRegisterModalShow] = useState(false);
 
 	const [mapBaseLayerName, setMapBaseLayerName] = useState("Default");
-	const [mapCurrentLatLng, setMapCurrentLatLng] = useState({lat: 0, lng: 0})
+	//const [mapCurrentLatLng, setMapCurrentLatLng] = useState({lat: 0, lng: 0})
 	
 
 	const [dictManeuvers, setDictManeuvers] = useState({});
@@ -59,7 +61,9 @@ function App(props) {
 
 	const [showOkCancelMobileMarker, setShowOkCancelMobileMarker] = useState(false)
 
-	const accidentId = parseInt(paramsRouter.accidentId, 10);
+	//const accidentId = parseInt(paramsRouter.accidentId, 10);
+
+	const { t } = useTranslation()
 
 	let dataHeatmapPoints = [];
 
@@ -118,6 +122,23 @@ function App(props) {
 	}, []); /* useEffect triggers when route has been changed too */
 
 
+	useEffect(() => {
+		fetchAccidents();
+	}, [paramsRouter]); /* useEffect triggers when route has been changed too */
+
+    useEffect(() => {
+        let periodUpdate = 240000 //4 min
+        let interval = setInterval(() => {
+            if (authToken) {
+                refreshAuthToken(authToken.refresh)    
+            }
+        }, periodUpdate)
+
+        return ()=> clearInterval(interval)
+    }, [authToken])
+
+
+
     function handleWindowSizeChange() {
         setScreenWidth(window.innerWidth);
     }
@@ -149,21 +170,10 @@ function App(props) {
 
 
 
-    useEffect(() => {
-        let periodUpdate = 240000 //4 min
-        let interval = setInterval(() => {
-            if (authToken) {
-                refreshAuthToken(authToken.refresh)    
-            }
-        }, periodUpdate)
-
-        return ()=> clearInterval(interval)
-    }, [authToken])
 
 
-	useEffect(() => {
-		fetchAccidents();
-	}, [paramsRouter]); /* useEffect triggers when route has been changed too */
+
+
 
 
 	const onClickMap = (e) => {
@@ -190,7 +200,7 @@ function App(props) {
 	};
 
 	const onMarkerClick = (data) => {
-		console.log("makrer", data);
+		//console.log("makrer", data);
 		setShowAccidentTab(true);
 		setActiveTabKey("accident");
 		setDataAccidentForm(data);
@@ -546,7 +556,7 @@ function App(props) {
 								setNewMarkerState={setNewMarkerState}
 								isMobileDevice={isMobileDevice}
 								showOkCancelMobileMarker={showOkCancelMobileMarker}
-								setMapCurrentLatLng={setMapCurrentLatLng}
+								//setMapCurrentLatLng={setMapCurrentLatLng}
 								setCheckButtonGPS={setCheckButtonGPS}
 								showSidebar={showSidebar}
 							/>
@@ -565,7 +575,7 @@ function App(props) {
 										//setNewMarkerState({visible: true, position: mapCurrentLatLng})
 									}}
 								>
-									Готово
+									{t('words.done')}
 								</Button>{" "}
 								<Button
 									variant="secondary"

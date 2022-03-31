@@ -1,0 +1,116 @@
+{
+    "menu": {
+        "menu": "Меню",
+        "home": "Начало",
+        "appMaps": {
+            "title": "Карти",
+            "roadaccident": "Пътно транспортни произшествия",
+            "citytree": "Градска растителност",
+            "urbanobject": "Градски обекти"
+        },
+        "city": "Град",
+        "signin": "Вход",
+        "logout": "Изход"
+
+    },
+
+    "sidebar": {
+        "filterTab": {
+            "title": "Търсене",
+            "from": "От",
+            "to": "До",            
+            "vehicleManeuver": "Маньовър на МПС",
+            "description": "Описание",
+            "violationsType": "Вид на нарушение",
+            "violators": "Нарушители",
+            "injured": "Пострадали",
+            "driver": "Шофьор",
+            "motorcyclist": "Мотоциклист",
+            "cyclist": "Велосипедист",
+            "pedestrian": "Пешеходец",
+            "kid": "Дете",
+            "pubtrPassenger": "Пътник на ГТ",
+            "killed": "Убити",
+            "publicTransportInvolved": "ГТ участва в ПТП",
+            "showOnlyMyAccidents": "Покажи ПТП добавени от мен",
+            "clear": "Изчисти",
+            "search": "Търси",
+            "maneuversList": {
+                "idLngForward": "При движение напред",
+                "idLngRightTurn": "При завой надясно",
+                "idLngLeftTurn": "При завой наляво",
+                "idLngBackward": "При движение назад"
+            },
+            "typeViolationsList": {
+                "idLngRunningRedLight": "Преминаване на червено",
+                "idLngPriorityViolation": "Отнемано на предимство",
+                "idLngSelfCrashed": "Самокатастрофирал",
+                "idLngDrunkDriving": "Употреба на алкохол/наркотици"
+            },
+            "violatorsList": {
+                "idLngDriver": "Водач",
+                "idLngMotorcyclist": "Мотоциклист",
+                "idLngCyclist": "Велосипедист",
+                "idLngPedestrian": "Пешеходец"
+            }  
+        },
+
+        "accidentTab": {
+            "title": "ПТП",
+            "latLng": "Lat/Lng",
+            "description": "Описание",
+            "datetime": "Дата и час",
+            "vehicleManeuver": "Маньовър на МПС",
+            "violationsType": "Вид на нарушение",
+            "violators": "Нарушители",
+            "injured": "Постр:",
+            "killed": "Убити:",
+            "driverAndPassengers": "Шофьор и пътници",
+            "motorcyclist": "Мотоциклист",
+            "cyclist": "Велосипедист",
+            "pedestrian": "Пешеходец",
+            "kid": "Дете",
+            "publicTransPassenger": "Пътник на градски транспорт",
+            "publicTransInvolved": "ГТ участва в ПТП",
+            "delete": "Изтрий",
+            "close": "Изход",
+            "save": "Запази"
+        }
+
+    },
+
+
+    "loginForm": {
+        "title": "Вход",
+        "username": "Потребителско име",
+        "password": "Парола",
+        "rememberMe": "Запомни ме",
+        "wrongUsernamePassword": "Грешно потребителско име и/или парола.",
+        "login": "ВХОД",
+        "dontHaveAccount": "Нямате акаунт?",
+        "signUp": "Регистрирай се"
+    },
+
+    "registerForm": {
+        "title": "Регистрация",
+        "username": "Потребителско име",
+        "password": "Парола",
+        "confirmPassword": "Повтори парола",
+        "email": "Имейл",
+        "firstNameOptional": "Име (незадължително)",
+        "lastNameOptional": "Фамилия (незадължително)",
+        "register": "Регистрирай ме",
+        "alreadyHaveAccount": "Вече имате акаунт?",
+        "login": "Вход"        
+    },    
+
+    "words": {
+        "hello": "Здравей",
+        "requiredField": "Полето задължително",
+        "deleting": "Изтриване",
+        "confirmDeleting": "Наистина ли искате да изтриете този инцидент?",
+        "delete": "Изтрий",
+        "cancel": "Отмени",
+        "done": "Готово"
+    }
+}

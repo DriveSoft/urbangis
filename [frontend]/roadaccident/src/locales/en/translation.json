@@ -1,0 +1,118 @@
+{    
+
+    "menu": {
+        "menu": "Menu",
+        "home": "Home",
+        "appMaps": {
+            "title": "Maps",
+            "roadaccident": "Road traffic accidents",
+            "citytree": "City trees",
+            "urbanobject": "Urban objects"
+        },
+        "city": "City",
+        "signin": "Signin",
+        "logout": "Logout"
+
+    },
+
+    "sidebar": {
+        "filterTab": {
+            "title": "Filters",
+            "from": "From",
+            "to": "To",            
+            "vehicleManeuver": "Vehicle maneuver",
+            "description": "Description",
+            "violationsType": "Violations type",
+            "violators": "Violators",
+            "injured": "Injured",
+            "driver": "Driver",
+            "motorcyclist": "Motorcyclist",
+            "cyclist": "Cyclist",
+            "pedestrian": "Pedestrian",
+            "kid": "Kid",
+            "pubtrPassenger": "Public transport passenger",
+            "killed": "Killed",
+            "publicTransportInvolved": "Public transport involved",
+            "showOnlyMyAccidents": "Added by me",
+            "clear": "Clear",
+            "search": "Search",
+            "maneuversList": {
+                "idLngForward": "Forward",
+                "idLngRightTurn": "Right turn",
+                "idLngLeftTurn": "Left turn",
+                "idLngBackward": "Backward"
+            },
+            "typeViolationsList": {
+                "idLngRunningRedLight": "Running red light",
+                "idLngPriorityViolation": "Priority violation",
+                "idLngSelfCrashed": "Self-crashed",
+                "idLngDrunkDriving": "Drunk driving"
+            },                        
+            "violatorsList": {
+                "idLngDriver": "Driver",
+                "idLngMotorcyclist": "Motorcyclist",
+                "idLngCyclist": "Cyclist",
+                "idLngPedestrian": "Pedestrian"
+            }            
+        },
+
+        "accidentTab": {
+            "title": "Accident",
+            "latLng": "Lat/Lng",
+            "description": "Description",
+            "datetime": "Date time",
+            "vehicleManeuver": "Vehicle maneuver",
+            "violationsType": "Violations type",
+            "violators": "Violators",
+            "injured": "Injured:",
+            "killed": "Killed:",
+            "driverAndPassengers": "Driver and passengers",
+            "motorcyclist": "Motorcyclist",
+            "cyclist": "Cyclist",
+            "pedestrian": "Pedestrian",
+            "kid": "Kid",
+            "publicTransPassenger": "Public transport passenger",
+            "publicTransInvolved": "Public transport involved",
+            "delete": "Delete",
+            "close": "Close",
+            "save": "Save"                                    
+        }        
+        
+    },    
+
+
+    "loginForm": {
+        "title": "SIGN IN",
+        "username": "Username",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "wrongUsernamePassword.": "Wrong username or password.",
+        "login": "LOGIN",
+        "dontHaveAccount": "Don't have account?",
+        "signUp": "Sign up"
+    },
+
+    "registerForm": {
+        "title": "SIGN UP",
+        "username": "Username",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "email": "E-mail",
+        "firstNameOptional": "Firstname (optional)",
+        "lastNameOptional": "Lastname (optional)",
+        "register": "Register",
+        "alreadyHaveAccount": "Already have an account?",
+        "login": "Login"         
+    },
+
+    "words": {
+        "hello": "Hello",
+        "requiredField": "Required field",
+        "deleting": "Deleting",
+        "confirmDeleting": "Are you sure you want to delete this accident?",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "done": "Done"
+
+    }    
+}

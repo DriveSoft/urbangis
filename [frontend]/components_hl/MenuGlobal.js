@@ -5,9 +5,12 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Button from 'react-bootstrap/Button';
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, authToken, setAuthToken}) {
-    const [cities, setCities] = useState([])    
+    const [cities, setCities] = useState([])  
+	
+	const { t, i18n } = useTranslation();
 
 
     useEffect(() => {
@@ -23,6 +26,12 @@ function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, a
       
       
 
+	function changeLanguage(value) {
+		i18n.changeLanguage(value)
+		//localStorage.setItem('lng', value)
+	}
+
+
     return (
 		<Navbar bg="light" expand="lg">
 			<Container>
@@ -32,38 +41,39 @@ function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, a
 					id="menu-toggle"
 					onClick={onClickShowMenu}
 				>
-					Menu
+					{t('menu.menu')}
 				</Button>{" "}
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="ms-auto">
-						<Nav.Link href="/">Начало</Nav.Link>
+						<Nav.Link href="/">{t('menu.home')}</Nav.Link>
 
-						<NavDropdown title="Карти" id="basic-nav-dropdown">
+
+						<NavDropdown title={t('menu.appMaps.title')} id="basic-nav-dropdown">
 							<NavDropdown.Item
 								href={`/roadaccident/${currentCity}`}
 								key="1"
 								active={appname === "roadaccident"}
 							>
-								Пътно транспортни произвешствия
+								{t('menu.appMaps.roadaccident')}
 							</NavDropdown.Item>
 							<NavDropdown.Item
 								href={`/citytree/${currentCity}`}
 								key="2"
 								active={appname === "citytree"}
 							>
-								Градска растителност
+								{t('menu.appMaps.citytree')}
 							</NavDropdown.Item>
 							<NavDropdown.Item
 								href={`/urbanobject/${currentCity}`}
 								key="3"
 								active={appname === "urbanobject"}
 							>
-								Градски обекти
+								{t('menu.appMaps.urbanobject')}
 							</NavDropdown.Item>
 						</NavDropdown>
 
-						<NavDropdown title="Град" id="basic-nav-dropdown">
+						<NavDropdown title={t('menu.city')} id="basic-nav-dropdown">
 							{cities.map((city) => (
 								<NavDropdown.Item
 									as={Link}
@@ -77,10 +87,32 @@ function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, a
 						</NavDropdown>
 
 
+
+						<NavDropdown title="Lang" id="basic-nav-dropdown">
+							<NavDropdown.Item								
+								key="1"
+								active={"en" === i18n.language || "en-US" === i18n.language || "en-GB" === i18n.language}
+								value="en"
+								onClick={() => changeLanguage('en')}
+							>
+								English
+							</NavDropdown.Item>
+
+							<NavDropdown.Item
+								key="2"
+								active={"bg" === i18n.language}
+								value="bg"
+								onClick={() => changeLanguage('bg')}
+							>
+								Bulgarian
+							</NavDropdown.Item>
+						</NavDropdown>						
+
+
 						{authToken ? (	
 							<>
 								<Nav.Link>
-									{`Hello, ${authToken.username}`}
+									{`${t('words.hello')}, ${authToken.username}`}
 								</Nav.Link>							
 
 								<Nav.Link
@@ -89,7 +121,7 @@ function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, a
 										setAuthToken(undefined);
 									}}
 								>
-									Logout
+									{t('menu.logout')}
 								</Nav.Link>
 							</>
 						) : (
@@ -97,9 +129,14 @@ function MenuGlobal({currentCity, appname, onClickShowMenu, setLoginModalShow, a
 								href="#"
 								onClick={() => setLoginModalShow(true)}
 							>
-								Signin
+								{t('menu.signin')}
 							</Nav.Link>
 						)}
+
+
+
+
+
 
 
 					</Nav>

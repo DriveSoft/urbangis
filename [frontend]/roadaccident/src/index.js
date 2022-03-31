@@ -6,12 +6,21 @@ import './sidebar.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './i18nextConf';
+import { createStore } from 'redux'
+import allReducers from './reducers';
+import { Provider } from 'react-redux'
 
 // Importing the Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const store = createStore(
+  allReducers,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+)
+
 ReactDOM.render(
-  //<React.StrictMode>
+  <Provider store={store}>
+  {/*<React.StrictMode>*/}
     <BrowserRouter basename="/roadaccident">
       <Routes>
         <Route path="/" element={<App />}>
@@ -21,7 +30,8 @@ ReactDOM.render(
         </Route>
       </Routes>
     </BrowserRouter>,
-  //</React.StrictMode>,
+  {/*</React.StrictMode>,*/}
+  </Provider>,
   document.getElementById('root')
 );
 

@@ -25,9 +25,11 @@
     "react-leaflet": "^3.2.2",
     "react-leaflet-bing-v2": "^5.2.3",
     "react-leaflet-markercluster": "^3.0.0-rc1",
+    "react-redux": "^7.2.6",
     "react-router-dom": "^6.1.1",
     "react-scripts": "4.0.3",
     "react-select": "^5.2.1",
+    "redux": "^4.1.2",
     "web-vitals": "^1.1.2"
   },
   "scripts": {

@@ -98,11 +98,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'urbangis.wsgi.application'
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
-}
+# for whole project we are use jwt auth, therefore user permission works only for roadaccident app
+# temporaly disable jwt auth, we must enable it again when all app will be on React
+#REST_FRAMEWORK = {
+#    'DEFAULT_AUTHENTICATION_CLASSES': [
+#        'rest_framework_simplejwt.authentication.JWTAuthentication',
+#    ]
+#}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -266,7 +268,9 @@ django_heroku.settings(locals())
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
+    "http://localhost:8000",
     "http://192.168.1.25:3000",
     "https://smartcitykey.com",
     "https://www.smartcitykey.com",

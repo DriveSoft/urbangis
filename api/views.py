@@ -122,7 +122,7 @@ def accidentData(request, city):
         return Response(json) 
 
 
-    elif request.method == 'POST':
+    elif request.method == 'POST':        
         if not request.user.has_perm('roadaccident.add_accident'):
             raise PermissionDenied('You do not have enough permissions to create an entry.')
 
@@ -491,8 +491,7 @@ def citytreeData(request, city):
         return Response(json) 
     
     
-    elif request.method == 'POST':
-            
+    elif request.method == 'POST':            
         if not request.user.has_perm('citytree.add_tree'):
             raise PermissionDenied('You do not have enough permissions to create an entry.')
 

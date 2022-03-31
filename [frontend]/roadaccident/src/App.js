@@ -12,9 +12,13 @@ import Button from "react-bootstrap/Button";
 import useAuthToken from "./useAuthToken";
 import { useTranslation } from 'react-i18next'
 
+import { useSelector } from 'react-redux'
 
 
 function App(props) {
+
+	// redux
+	const rxLoginModalShow = useSelector(state => state.uiReducer.loginModalShow)
 
 	const { authToken, setAuthToken } = useAuthToken();
 
@@ -594,6 +598,7 @@ function App(props) {
 					</div>
 				</div>
 			</div>
+			
 
 			<LoginModalForm
 				setAuthToken={setAuthToken}

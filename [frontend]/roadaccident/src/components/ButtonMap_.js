@@ -3,7 +3,7 @@ import easyButton from 'leaflet-easybutton'
 import "leaflet-easybutton/src/easy-button.css"
 import "@fortawesome/fontawesome-free/css/all.min.css" 
  
-function ButtonMap_ (map, iconTrue, iconFalse, onClick, checkButtonState) {
+function ButtonMap_ (map, iconTrue, iconFalse, onClick) {
     //const map = useMap()
     
             const buttonMap = L.easyButton({

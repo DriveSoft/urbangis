@@ -4,6 +4,10 @@ import { useState, useEffect, useRef } from "react";
 
 import MenuGlobal from "./components_hl/MenuGlobal";
 import Sidebar from "./components/Sidebar";
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
+import FormFilter from './components/FormFilter'
+import FormAccident from './components/FormAccident'
 import Map from "./components/Map";
 import LoginModalForm from "./components/LoginModalForm";
 import RegisterModalForm from "./components/RegisterModalForm";
@@ -12,61 +16,42 @@ import Button from "react-bootstrap/Button";
 import useAuthToken from "./useAuthToken";
 import { useTranslation } from 'react-i18next'
 
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import {
+	actNewMarkerState,
+	actIsMobileDevice,
+	actShowSidebar,
+	actCheckButtonNewMarker,
+	actShowOkCancelMobileMarker,
+	actShowAccidentTab,
+	actActiveTabKey,
+	actDictManeuvers,
+	actDictTypeViolations,
+	actDictViolators,
+	actDataAccidents,
+	actDataFilters,
+	actMinMaxDateData
+} from "./actions";
 
 
 function App(props) {
-
-	// redux
-	const rxLoginModalShow = useSelector(state => state.uiReducer.loginModalShow)
-
-	const { authToken, setAuthToken } = useAuthToken();
-
-	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-	const [isMobileDevice, setIsMobileDevice] = useState(false)
-	const isMobileView = screenWidth <= 768;
-	
-
 	const paramsRouter = useParams();
 	const csrftoken = getCookie("csrftoken");
 
-	const [loginModalShow, setLoginModalShow] = useState(false);
-    const [registerModalShow, setRegisterModalShow] = useState(false);
+	// redux
+	const dispatch = useDispatch()
+	const rxShowSidebar = useSelector(state => state.uiReducer.showSidebar)
+	const rxShowOkCancelMobileMarker = useSelector(state => state.uiReducer.showOkCancelMobileMarker)
+	const rxDataFilters = useSelector(state => state.dataReducer.dataFilters)
+	const rxActiveTabKey = useSelector(state => state.uiReducer.activeTabKey)
+	const rxShowAccidentTab = useSelector(state => state.uiReducer.showAccidentTab)
 
-	const [mapBaseLayerName, setMapBaseLayerName] = useState("Default");
-	//const [mapCurrentLatLng, setMapCurrentLatLng] = useState({lat: 0, lng: 0})
+	const { authToken, setAuthToken } = useAuthToken();
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+	//const [isMobileDevice, setIsMobileDevice] = useState(false)
+	const isMobileView = screenWidth <= 768; // show or hide sidebar at startup
 	
-
-	const [dictManeuvers, setDictManeuvers] = useState({});
-	const [dictTypeViolations, setTypeViolations] = useState({});
-	const [dictViolators, setDictViolators] = useState({});
-
-	const [dataAccidents, setDataAccidents] = useState([]);
-	const [dataFilters, setDataFilters] = useState({});
-	const [minMaxDateData, setMinMaxDateData] = useState({
-		minDate: "",
-		maxDate: "",
-	});
 	const [dataAccidentForm, setDataAccidentForm] = useState({});
-
-	const [newMarkerState, setNewMarkerState] = useState({
-		visible: false,
-		position: {},
-		isMobile: false
-	});
-
-	const [showSidebar, setShowSidebar] = useState(!isMobileView);
-	const [showAccidentTab, setShowAccidentTab] = useState(false);
-	const [activeTabKey, setActiveTabKey] = useState("filter");
-
-	const [checkButtonNewMarker, setCheckButtonNewMarker] = useState(false);
-	const [checkButtonHeatmap, setCheckButtonHeatmap] = useState(false);
-	const [checkButtonGPS, setCheckButtonGPS] = useState(false);
-
-	const [showOkCancelMobileMarker, setShowOkCancelMobileMarker] = useState(false)
-
-	//const accidentId = parseInt(paramsRouter.accidentId, 10);
-
 	const { t } = useTranslation()
 
 	let dataHeatmapPoints = [];
@@ -81,42 +66,34 @@ function App(props) {
 			const url = `${process.env.REACT_APP_API_URL}dictionary/roadaccident/maneuvers`;
 			const res = await fetch(url);
 			const data = await res.json();
-			setDictManeuvers(data);
+			dispatch(actDictManeuvers(data))
 		};
 
 		const fetchTypeViolations = async () => {
 			const url = `${process.env.REACT_APP_API_URL}dictionary/roadaccident/typeviolations`;
 			const res = await fetch(url);
 			const data = await res.json();
-			setTypeViolations(data);
+			dispatch(actDictTypeViolations(data))
 		};
 
 		const fetchViolators = async () => {
 			const url = `${process.env.REACT_APP_API_URL}dictionary/roadaccident/violators`;
 			const res = await fetch(url);
 			const data = await res.json();
-			setDictViolators(data);
+			dispatch(actDictViolators(data))
 		};
 
 		fetchManeuvers();
 		fetchTypeViolations();
 		fetchViolators();
 
-		let mapname_ = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith("mapname="));
-
-		if (mapname_) {
-			setMapBaseLayerName(mapname_.split("=")[1]);
-		}
-
 		if (authToken) {
             checkAuthToken()
         }
 
         
-		setIsMobileDevice( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) )		
-		//setIsMobileDevice( true )		
+		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)))
+		dispatch(actShowSidebar(!isMobileView))	
 		
 		window.addEventListener('resize', handleWindowSizeChange);
         return () => {
@@ -165,35 +142,16 @@ function App(props) {
 				datefilter_Min = item.properties.datetime;
 			}
 		}
-		setMinMaxDateData({
+
+		dispatch(actMinMaxDateData({
 			minDate: datefilter_Min.slice(0, 10),
 			maxDate: datefilter_Max.slice(0, 10),
-		});
-		setDataAccidents(data);
+		}))
+
+		dispatch(actDataAccidents(data))
 	};
 
 
-
-
-
-
-
-
-
-	const onClickMap = (e) => {
-		if (checkButtonNewMarker && !isMobileDevice) {
-			setCheckButtonNewMarker(false)
-
-			let coord = { lat: 0, lng: 0 }
-			coord.lat = e.latlng.lat.toFixed(5)
-			coord.lng = e.latlng.lng.toFixed(5)
-
-			setNewMarkerState({ visible: true, position: coord })
-
-			setShowAccidentTab(true)
-			setActiveTabKey("accident")
-		}
-	};
 
 	const onDragEndNewMarker = (LatLng) => {
 		//let coord = { lat: 0, lng: 0 };
@@ -204,44 +162,18 @@ function App(props) {
 	};
 
 	const onMarkerClick = (data) => {
-		//console.log("makrer", data);
-		setShowAccidentTab(true);
-		setActiveTabKey("accident");
+		dispatch(actShowAccidentTab(true))
+		dispatch(actActiveTabKey('accident'))
 		setDataAccidentForm(data);
-		setShowSidebar(true)
-	};
-
-	const onClickNewMarker = (state) => {
-		setCheckButtonNewMarker(state);
-
-		if (isMobileDevice && state) {			
-			setNewMarkerState({ visible: true, position: {lat: 0, lng: 0} })
-			setShowOkCancelMobileMarker(true)			
-		}
-	};
-
-	const onClickHeatmap = (state) => {
-		console.log("onClickHeatmap", state);
-
-		if (state) {
-			setMapBaseLayerName("Dark");
-		} else {
-			setMapBaseLayerName("Default");
-		}
-		setCheckButtonHeatmap(state);
-	};
-
-	const onClickGPS = (state) => {
-		//console.log("onClickGPS", state);
-		setCheckButtonGPS(state);
+		dispatch(actShowSidebar(true))
 	};
 
 	const onSubmitFilter = (filter) => {
 		dataHeatmapPoints = [];
-		setDataFilters(filter);
+		dispatch(actDataFilters(filter))
 
 		if (isMobileView) {
-			setShowSidebar(false)
+			dispatch(actShowSidebar(false))
 		}
 	};
 
@@ -260,7 +192,7 @@ function App(props) {
 		fetchUrl(url, method, data);
 		
 		if (isMobileView) {
-			setShowSidebar(false)
+			dispatch(actShowSidebar(false))
 		}
 	};
 
@@ -272,19 +204,9 @@ function App(props) {
 	};
 
 	const onCloseAccident = () => {
-		setNewMarkerState({ visible: false, position: {} });
-		setActiveTabKey("filter");
-		setShowAccidentTab(false);
-	};
-
-	const onBaselayerchange = (e) => {
-		//console.log('onBaselayerchange', e.name)
-		document.cookie = "mapname=" + e.name;
-
-		//setMapBaseLayerName(e.name)
-
-		//setMapname(e.name)
-		//mapname = e.name
+		dispatch(actNewMarkerState({ visible: false, position: {} }))
+		dispatch(actActiveTabKey('filter'))
+		dispatch(actShowAccidentTab(false))
 	};
 
 	const filterMapCallback = (feature, layer) => {
@@ -315,23 +237,23 @@ function App(props) {
 
 		let valueFilter;
 
-		valueFilter = dataFilters?.dateFromFilter;
+		valueFilter = rxDataFilters?.dateFromFilter;
 		if (valueFilter) {
 			dateFrom_Filter =
 				feature.properties.datetime.split("T")[0] >= valueFilter;
 		}
-		valueFilter = dataFilters?.dateToFilter;
+		valueFilter = rxDataFilters?.dateToFilter;
 		if (valueFilter) {
 			dateTo_Filter =
 				feature.properties.datetime.split("T")[0] <= valueFilter;
 		}
 
-		valueFilter = dataFilters?.maneuverFilter?.value;
+		valueFilter = rxDataFilters?.maneuverFilter?.value;
 		if (valueFilter) {
 			maneuver_Filter = valueFilter === feature.properties.maneuver;
 		}
 
-		valueFilter = dataFilters?.descFilter;
+		valueFilter = rxDataFilters?.descFilter;
 		if (valueFilter) {
 			if (
 				feature.properties.description
@@ -342,7 +264,7 @@ function App(props) {
 			}
 		}
 
-		valueFilter = dataFilters?.violationsTypeFilter;
+		valueFilter = rxDataFilters?.violationsTypeFilter;
 		if (Array.isArray(valueFilter)) {
 			let intersection = valueFilter.filter((x) =>
 				feature.properties.violations_type.includes(String(x.value))
@@ -350,7 +272,7 @@ function App(props) {
 			violations_type_Filter = intersection.length > 0;
 		}
 
-		valueFilter = dataFilters?.violatorsFilter;
+		valueFilter = rxDataFilters?.violatorsFilter;
 		if (Array.isArray(valueFilter)) {
 			let intersection = valueFilter.filter((x) =>
 				feature.properties.violators.includes(String(x.value))
@@ -358,61 +280,61 @@ function App(props) {
 			violators_Filter = intersection.length > 0;
 		}
 
-		valueFilter = dataFilters?.driverInjuredFilter;
+		valueFilter = rxDataFilters?.driverInjuredFilter;
 		if (valueFilter) {
 			drivers_injured_Filter = feature.properties.drivers_injured > 0;
 		}
-		valueFilter = dataFilters?.motorcyclistInjuredFilter;
+		valueFilter = rxDataFilters?.motorcyclistInjuredFilter;
 		if (valueFilter) {
 			motorcyclists_injured_Filter =
 				feature.properties.motorcyclists_injured > 0;
 		}
-		valueFilter = dataFilters?.cyclistInjuredFilter;
+		valueFilter = rxDataFilters?.cyclistInjuredFilter;
 		if (valueFilter) {
 			cyclists_injured_Filter = feature.properties.cyclists_injured > 0;
 		}
-		valueFilter = dataFilters?.pedestrianInjuredFilter;
+		valueFilter = rxDataFilters?.pedestrianInjuredFilter;
 		if (valueFilter) {
 			ped_injured_Filter = feature.properties.ped_injured > 0;
 		}
-		valueFilter = dataFilters?.kidsInjuredFilter;
+		valueFilter = rxDataFilters?.kidsInjuredFilter;
 		if (valueFilter) {
 			kids_injured_Filter = feature.properties.kids_injured > 0;
 		}
-		valueFilter = dataFilters?.pubtrPassengersInjuredFilter;
+		valueFilter = rxDataFilters?.pubtrPassengersInjuredFilter;
 		if (valueFilter) {
 			pubtr_passengers_injured_Filter =
 				feature.properties.pubtr_passengers_injured > 0;
 		}
 
-		valueFilter = dataFilters?.driversKilledFilter;
+		valueFilter = rxDataFilters?.driversKilledFilter;
 		if (valueFilter) {
 			drivers_killed_Filter = feature.properties.drivers_killed > 0;
 		}
-		valueFilter = dataFilters?.motorcyclistsKilledFilter;
+		valueFilter = rxDataFilters?.motorcyclistsKilledFilter;
 		if (valueFilter) {
 			motorcyclists_killed_Filter =
 				feature.properties.motorcyclists_killed > 0;
 		}
-		valueFilter = dataFilters?.cyclistsKilledFilter;
+		valueFilter = rxDataFilters?.cyclistsKilledFilter;
 		if (valueFilter) {
 			cyclists_killed_Filter = feature.properties.cyclists_killed > 0;
 		}
-		valueFilter = dataFilters?.pedestrianKilledFilter;
+		valueFilter = rxDataFilters?.pedestrianKilledFilter;
 		if (valueFilter) {
 			ped_killed_Filter = feature.properties.ped_killed > 0;
 		}
-		valueFilter = dataFilters?.kidsKilledFilter;
+		valueFilter = rxDataFilters?.kidsKilledFilter;
 		if (valueFilter) {
 			kids_killed_Filter = feature.properties.kids_killed > 0;
 		}
-		valueFilter = dataFilters?.pubtrPassengersKilledFilter;
+		valueFilter = rxDataFilters?.pubtrPassengersKilledFilter;
 		if (valueFilter) {
 			pubtr_passengers_killed_Filter =
 				feature.properties.pubtr_passengers_killed > 0;
 		}
 
-		valueFilter = dataFilters?.publicTransportInvolvedFilter;
+		valueFilter = rxDataFilters?.publicTransportInvolvedFilter;
 		if (valueFilter) {
 			public_transport_involved_Filter =
 				feature.properties.public_transport_involved > 0;
@@ -485,9 +407,9 @@ function App(props) {
 				response.json().then((data) => {
 					console.log(data);
 					fetchAccidents();
-					setNewMarkerState({ visible: false, position: {} });
-					setActiveTabKey("filter");
-					setShowAccidentTab(false);
+					dispatch(actNewMarkerState({ visible: false, position: {} }))
+					dispatch(actActiveTabKey('filter'))
+					dispatch(actShowAccidentTab(false))					
 				});
 			}
 		});
@@ -502,36 +424,45 @@ function App(props) {
 	return (
 		<div className="main-wrapper">
 			<div id="app">
+				<div className={`d-flex ${rxShowSidebar ? "showed" : "hided"}`} id="wrapper">
+					
+					<Sidebar>						
+						<Tabs
+							id="controlled-tab-example"
+							activeKey={rxActiveTabKey}
+							onSelect={ (k) => dispatch(actActiveTabKey(k)) }
+							//onSelect={(k) => setKey(k)}
+							className="mb-3"
+						>
+							<Tab eventKey="filter" title={t('sidebar.filterTab.title')}>
+								<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
+									<FormFilter 
+										onSubmitFilter={onSubmitFilter}  
+									/>
+								</div>
+							</Tab>
 
-				<div
-					className={`d-flex ${showSidebar ? "showed" : "hided"}`}
-					id="wrapper"
-				>
-					{/* <DictionariesContext.Provider value={{dictManeuvers, dictTypeViolations, dictViolators}}> */}
-					<Sidebar
-						onSubmitFilter={onSubmitFilter}
-						onSubmitAccident={onSubmitAccident}
-						onDeleteAccident={onDeleteAccident}
-						onCloseAccident={onCloseAccident}
-						minMaxDateData={minMaxDateData}
-						dataAccidentForm={dataAccidentForm}
-						showAccidentTab={showAccidentTab}
-						activeTabKey={activeTabKey}
-						setActiveTabKey={setActiveTabKey}
-						newMarkerState={newMarkerState}
-						dictManeuvers={dictManeuvers}
-						dictTypeViolations={dictTypeViolations}
-						dictViolators={dictViolators}
-						currentCity={paramsRouter.cityName}
-					/>
-					{/*</DictionariesContext.Provider> */}
+							<Tab eventKey="accident" title={t('sidebar.accidentTab.title')} tabClassName={!rxShowAccidentTab ? 'd-none' : ''}>
+								<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
+									<FormAccident 
+										onSubmitAccident={onSubmitAccident}
+										onDeleteAccident={onDeleteAccident}
+										onCloseAccident={onCloseAccident} 
+										dataAccidentForm={dataAccidentForm}
+										//currentCity={paramsRouter.cityName}
+									/>
+								</div>
+							</Tab>
+						</Tabs>
+					</Sidebar>
+
+					
 
 					<div id="page-content-wrapper">
 						<MenuGlobal
 							currentCity={paramsRouter.cityName}
-							onClickShowMenu={() => setShowSidebar(!showSidebar)}
+							//onClickShowMenu={ () => dispatch(actShowSidebar(!rxShowSidebar)) }
 							authToken={authToken}
-							setLoginModalShow={setLoginModalShow}
 							setAuthToken={setAuthToken}
 							appname="roadaccident"
 						/>
@@ -541,42 +472,23 @@ function App(props) {
 							style={{ paddingRight: "0px", paddingLeft: "0px" }}
 						>
 							<Map
-								mapBaseLayerName={mapBaseLayerName}
-								dataAccidents={dataAccidents}
 								dataHeatmapPoints={dataHeatmapPoints}
 								currentCity={paramsRouter.cityName}
-								checkButtonNewMarker={checkButtonNewMarker}
-								checkButtonHeatmap={checkButtonHeatmap}
-								checkButtonGPS={checkButtonGPS}
-								onClickNewMarker={onClickNewMarker}
-								onClickHeatmap={onClickHeatmap}
-								onClickGPS={onClickGPS}
-								onClickMap={onClickMap}
 								onMarkerClick={onMarkerClick}
-								newMarkerState={newMarkerState}
 								onDragEndNewMarker={onDragEndNewMarker}
 								filterMapCallback={filterMapCallback}
-								onBaselayerchange={onBaselayerchange}
-								setNewMarkerState={setNewMarkerState}
-								isMobileDevice={isMobileDevice}
-								showOkCancelMobileMarker={showOkCancelMobileMarker}
-								//setMapCurrentLatLng={setMapCurrentLatLng}
-								setCheckButtonGPS={setCheckButtonGPS}
-								showSidebar={showSidebar}
 							/>
 
-							{showOkCancelMobileMarker && <> 
+							{rxShowOkCancelMobileMarker && <> 
 								<Button
 									variant="success"
 									id="doneEditMarkerMobile"
-									onClick={()=>{
-										setCheckButtonNewMarker(false);
-										setShowOkCancelMobileMarker(false)
-										setShowAccidentTab(true)
-										setActiveTabKey("accident")
-										setShowSidebar(true)
-
-										//setNewMarkerState({visible: true, position: mapCurrentLatLng})
+									onClick={()=>{										
+										dispatch(actCheckButtonNewMarker(false))										
+										dispatch(actShowOkCancelMobileMarker(false))										
+										dispatch(actShowAccidentTab(true))										
+										dispatch(actActiveTabKey('accident'))										
+										dispatch(actShowSidebar(true))
 									}}
 								>
 									{t('words.done')}
@@ -585,9 +497,9 @@ function App(props) {
 									variant="secondary"
 									id="cancelMarkerMobile"
 									onClick={() => {
-										setNewMarkerState({ visible: false, position: { lat: 0, lng: 0 } })
-										setShowOkCancelMobileMarker(false)
-										setCheckButtonNewMarker(false)										
+										dispatch(actNewMarkerState({ visible: false, position: {lat: 0, lng: 0} }))
+										dispatch(actShowOkCancelMobileMarker(false))
+										dispatch(actCheckButtonNewMarker(false))
 									}}									
 								>
 									&#x2715;
@@ -600,23 +512,14 @@ function App(props) {
 			</div>
 			
 
-			<LoginModalForm
-				setAuthToken={setAuthToken}
-				show={loginModalShow}
-				setLoginModalShow={setLoginModalShow}
-                setRegisterModalShow={setRegisterModalShow}
-				onHide={() => setLoginModalShow(false)}
-			/>
+			<LoginModalForm setAuthToken={setAuthToken}/>
+			<RegisterModalForm setAuthToken={setAuthToken}/>
 
-			<RegisterModalForm
-				setAuthToken={setAuthToken}
-				show={registerModalShow}
-				setRegisterModalShow={setRegisterModalShow}
-                setLoginModalShow={setLoginModalShow}
-				onHide={() => setRegisterModalShow(false)}
-			/>
 		</div>
 	);
+
+
+
 
 	function getCookie(name) {
 		var cookieValue = null;

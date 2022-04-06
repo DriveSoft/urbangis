@@ -4,6 +4,9 @@ import Tab from 'react-bootstrap/Tab'
 import FormFilter from './FormFilter'
 import FormAccident from './FormAccident'
 import { useTranslation } from 'react-i18next';
+import { useSelector, useDispatch } from 'react-redux'
+import { actActiveTabKey } from '../actions'
+
 
 const SidebarTabs = ({
 						onSubmitFilter, 
@@ -15,26 +18,31 @@ const SidebarTabs = ({
 						minMaxDateData, 
 						dataAccidentForm,
 
-						showAccidentTab, 
-						activeTabKey, 
-						setActiveTabKey, 
+						//showAccidentTab, 
+						//activeTabKey, 
+						//setActiveTabKey, 
 						newMarkerState, 
 						
-						dictManeuvers, 
-						dictTypeViolations, 
-						dictViolators,
+						//dictManeuvers, 
+						//dictTypeViolations, 
+						//dictViolators,
 						currentCity
 									
 					}) => {
+	const rxShowAccidentTab = useSelector(state => state.uiReducer.showAccidentTab)
+	const rxActiveTabKey = useSelector(state => state.uiReducer.activeTabKey)
+
     const [key, setKey] = useState('filter')    
-    
 	const { t } = useTranslation()
 
+	const dispath = useDispatch()
+
     return (
+
         <Tabs
         	id="controlled-tab-example"
-          	activeKey={activeTabKey}
-			onSelect={(k) => setActiveTabKey(k)}
+          	activeKey={rxActiveTabKey}
+			onSelect={(k) => dispath(actActiveTabKey(k)) /*setActiveTabKey(k)*/}
           	//onSelect={(k) => setKey(k)}
           	className="mb-3"
 		>
@@ -44,23 +52,23 @@ const SidebarTabs = ({
 					<FormFilter 
 						onSubmitFilter={onSubmitFilter} 
 						minMaxDateData={minMaxDateData} 
-						dictManeuvers={dictManeuvers} 
-						dictTypeViolations={dictTypeViolations} 
-						dictViolators={dictViolators} 
+						//dictManeuvers={dictManeuvers} 
+						//dictTypeViolations={dictTypeViolations} 
+						//dictViolators={dictViolators} 
 					/>
 				</div>
           	</Tab>
 
-          	<Tab eventKey="accident" title={t('sidebar.accidentTab.title')} tabClassName={!showAccidentTab ? 'd-none' : ''}>
+          	<Tab eventKey="accident" title={t('sidebar.accidentTab.title')} tabClassName={!rxShowAccidentTab ? 'd-none' : ''}>
 			  	<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
 					<FormAccident 
 						onSubmitAccident={onSubmitAccident}
 						onDeleteAccident={onDeleteAccident}
 						onCloseAccident={onCloseAccident}
-						newMarkerState={newMarkerState}
-						dictManeuvers={dictManeuvers}
-						dictTypeViolations={dictTypeViolations}
-						dictViolators={dictViolators} 
+						//newMarkerState={rxNewMarkerState}
+						//dictManeuvers={dictManeuvers}
+						//dictTypeViolations={dictTypeViolations}
+						//dictViolators={dictViolators} 
 						dataAccidentForm={dataAccidentForm}
 						currentCity={currentCity}
 					/>
@@ -70,6 +78,7 @@ const SidebarTabs = ({
 
 
         </Tabs>
+		
       );
 }
 

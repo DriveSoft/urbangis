@@ -3,19 +3,21 @@ import { Form, Button, FloatingLabel, Modal, Col, Row } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from 'react-i18next'
 
+import { useSelector, useDispatch } from 'react-redux'
+import { actLoginModalShow, actRegisterModalShow } from '../actions'
+
 const RegisterModalForm = ({
-	show,
-	onHide,
-	setRegisterModalShow,
-	setLoginModalShow,
 	setAuthToken,
 }) => {
+
+	const dispatch = useDispatch();
+	const rxRegisterModalShow = useSelector(state => state.uiReducer.registerModalShow)	
 	
 	const { t } = useTranslation()
 
 	useEffect(() => {
 		reset();	
-	}, [show]);
+	}, [rxRegisterModalShow]);
 
 	const {
 		control,
@@ -56,7 +58,8 @@ const RegisterModalForm = ({
 			if (data.status === 200) {
 				data.json().then((data) => {	
                     console.log('ok', data)				
-                    setRegisterModalShow(false);
+                    //setRegisterModalShow(false);
+					dispatch(actRegisterModalShow(false))
                     setAuthToken(data.token) // after register make login					
 				});
 
@@ -81,8 +84,10 @@ const RegisterModalForm = ({
 	return (
 		<Modal
 			//{...props}
-			show={show}
-			onHide={onHide}
+			//show={show}
+			show={rxRegisterModalShow}
+			//onHide={onHide}
+			onHide={() => dispatch(actRegisterModalShow(false))}
 			aria-labelledby="contained-modal-title-vcenter"
 			centered
 		>
@@ -249,8 +254,10 @@ const RegisterModalForm = ({
 							<a
 								href="#"
 								onClick={() => {
-									setRegisterModalShow(false);
-									setLoginModalShow(true);
+									//setRegisterModalShow(false);
+									//setLoginModalShow(true);
+									dispatch(actRegisterModalShow(false))
+									dispatch(actLoginModalShow(true))
 								}}
 							>
 								{t('registerForm.login')}

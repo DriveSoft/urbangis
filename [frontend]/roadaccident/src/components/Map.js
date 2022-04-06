@@ -17,6 +17,19 @@ import 'react-leaflet-markercluster/dist/styles.min.css'; // sass
 //require('react-leaflet-markercluster/dist/styles.min.css'); // inside .js file
 
 
+import { useSelector, useDispatch } from 'react-redux'
+import {
+	actCheckButtonGPS,
+	actCheckButtonHeatmap,
+	actCheckButtonNewMarker,
+	actMapBaseLayerName,
+	actNewMarkerState,
+	actShowOkCancelMobileMarker,
+    actShowAccidentTab,
+    actActiveTabKey
+} from "../actions";
+
+
 // fix disapeared marker from map
 
 //import icon from 'leaflet/dist/images/marker-icon.png';
@@ -66,28 +79,26 @@ let circle_geolocation
 
 
 function Map ({
-                mapBaseLayerName, 
-                dataAccidents, 
                 dataHeatmapPoints, 
-                currentCity, 
-                newMarkerState, 
-                onDragEndNewMarker, 
-                checkButtonNewMarker, 
-                checkButtonHeatmap, 
-                checkButtonGPS, 
-                onClickMap, 
-                onMarkerClick, 
-                onClickNewMarker, 
-                onClickHeatmap, 
-                onClickGPS, 
-                filterMapCallback, 
-                onBaselayerchange, 
-                setNewMarkerState, 
-                isMobileDevice, 
-                showOkCancelMobileMarker, 
-                //setMapCurrentLatLng, 
-                setCheckButtonGPS, 
-                showSidebar}) {
+                currentCity,                 
+                onDragEndNewMarker,                                
+                onMarkerClick,                 
+                filterMapCallback                
+            }) {
+
+    const dispatch = useDispatch()
+
+    const rxDataAccidents = useSelector(state => state.dataReducer.dataAccidents)
+    
+    const rxMapBaseLayerName = useSelector(state => state.uiReducer.mapBaseLayerName)
+    const rxIsMobileDevice = useSelector(state => state.uiReducer.isMobileDevice)
+    const rxShowSidebar = useSelector(state => state.uiReducer.showSidebar)
+    const rxNewMarkerState = useSelector(state => state.uiReducer.newMarkerState)
+    const rxShowOkCancelMobileMarker = useSelector(state => state.uiReducer.showOkCancelMobileMarker)
+    
+    const rxCheckButtonNewMarker = useSelector(state => state.uiReducer.checkButtonNewMarker)
+    const rxCheckButtonHeatmap = useSelector(state => state.uiReducer.checkButtonHeatmap)
+    const rxCheckButtonGPS = useSelector(state => state.uiReducer.checkButtonGPS)
 
     const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
     const [map, setMap] = useState(null);  
@@ -98,12 +109,11 @@ function Map ({
     const [buttonHeatmap, setButtonHeatmap] = useState(null);
     const [buttonGPS, setButtonGPS] = useState(null);
 
-
-    let mapname = 'Default'
     let mapname_ = document.cookie
     .split('; ')
     .find(row => row.startsWith('mapname='))
 
+    let mapname
     if (mapname_) {
         mapname = mapname_.split('=')[1]    
     }
@@ -115,13 +125,19 @@ function Map ({
     // create buttons
     useEffect(() => {        
         if (map) {            
-            setButtonNewMarker( ButtonMap_(map, 'fas fa-map-marker-alt fa-lg', 'fas fa-map-marker-alt fa-lg', onClickNewMarker, checkButtonNewMarker) )
-            setButtonHeatmap( ButtonMap_(map, 'fas fa-eye fa-lg', 'fas fa-eye-slash fa-lg', onClickHeatmap, checkButtonHeatmap) )
-            setButtonGPS( ButtonMap_(map, 'fas fa-satellite-dish fa-lg', 'fas fa-satellite-dish fa-lg', _onClickGPS, checkButtonGPS) )
+            setButtonNewMarker( ButtonMap_(map, 'fas fa-map-marker-alt fa-lg', 'fas fa-map-marker-alt fa-lg', onClickNewMarker) )
+            setButtonHeatmap( ButtonMap_(map, 'fas fa-eye fa-lg', 'fas fa-eye-slash fa-lg', onClickHeatmap) )
+            setButtonGPS( ButtonMap_(map, 'fas fa-satellite-dish fa-lg', 'fas fa-satellite-dish fa-lg', onClickGPS) )
             
-            //setMapCurrentLatLng({lat: map.getCenter().lat, lng: map.getCenter().lng})
-            
-            
+            //setMapCurrentLatLng({lat: map.getCenter().lat, lng: map.getCenter().lng})                        
+
+            let mapname_ = document.cookie
+			.split("; ")
+			.find((row) => row.startsWith("mapname="));
+
+		    if (mapname_) {
+                dispatch(actMapBaseLayerName(mapname_.split("=")[1]))
+		    }            
         }
 
         return () => { 
@@ -151,7 +167,7 @@ function Map ({
       // apply states for buttons
       useEffect(() => {        
         if (buttonNewMarker) {
-            if (checkButtonNewMarker) {
+            if (rxCheckButtonNewMarker) {
                 buttonNewMarker.state('on');
                 buttonNewMarker.button.style.backgroundColor = 'red';
             } else {
@@ -159,10 +175,10 @@ function Map ({
                 buttonNewMarker.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [checkButtonNewMarker])
+      }, [rxCheckButtonNewMarker])
       useEffect(() => {        
         if (buttonHeatmap) {
-            if (checkButtonHeatmap) {
+            if (rxCheckButtonHeatmap) {
                 buttonHeatmap.state('on');
                 buttonHeatmap.button.style.backgroundColor = 'red';
             } else {
@@ -170,10 +186,10 @@ function Map ({
                 buttonHeatmap.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [checkButtonHeatmap])
+      }, [rxCheckButtonHeatmap])
       useEffect(() => {        
         if (buttonGPS) {
-            if (checkButtonGPS) {
+            if (rxCheckButtonGPS) {
                 buttonGPS.state('on');
                 buttonGPS.button.style.backgroundColor = 'red';
             } else {
@@ -181,21 +197,21 @@ function Map ({
                 buttonGPS.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [checkButtonGPS])      
+      }, [rxCheckButtonGPS])      
 
 
 
     useEffect(()=>{
 
 
-        if (map && !isMobileDevice) {
-            if (checkButtonNewMarker) {
+        if (map && !rxIsMobileDevice) {
+            if (rxCheckButtonNewMarker) {
                 L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
             } else {
                 L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
             }    
         }
-    }, [checkButtonNewMarker])
+    }, [rxCheckButtonNewMarker])
       
 
 
@@ -203,7 +219,37 @@ function Map ({
         if (map) {
             window.setTimeout(function(){map.invalidateSize({pan: false});}, 600)
         }        
-    }, [showSidebar])
+    }, [rxShowSidebar])
+
+
+
+
+
+
+    
+
+	const onClickNewMarker = (state) => {
+        dispatch(actCheckButtonNewMarker(state))
+
+		if (rxIsMobileDevice && state) {						
+            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }))
+            dispatch(actShowOkCancelMobileMarker(true))
+		}
+	};
+
+	const onClickHeatmap = (state) => {
+		console.log("onClickHeatmap", state);
+
+		if (state) {
+            dispatch(actMapBaseLayerName('Dark'))
+		} else {
+            dispatch(actMapBaseLayerName('Default'))
+		}
+        dispatch(actCheckButtonHeatmap(state))
+	};
+
+
+
 
 
     function SetPanToMap() {        
@@ -218,7 +264,7 @@ function Map ({
     }    
 
 
-    function _onClickGPS(state) {
+    function onClickGPS(state) {
         if (map) {
             if (state){
                 setView_nTimes_gps = 4;
@@ -230,7 +276,7 @@ function Map ({
             }
 
         }
-        onClickGPS(state)
+        dispatch(actCheckButtonGPS(state))
     }
 
 
@@ -246,7 +292,7 @@ function Map ({
 
     function pointToLayer(feature, latlng) {
         //return L.circleMarker(latlng, geojsonMarkerOptions).bindPopup("MESSAGE")
-        if (!checkButtonHeatmap) {
+        if (!rxCheckButtonHeatmap) {
             return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
         }
         
@@ -277,14 +323,15 @@ function Map ({
             () => ({
                 dragend() {
                     const marker = newMarkerRef.current
-                    if (!isMobileDevice && marker != null) {
+                    if (!rxIsMobileDevice && marker != null) {
                         //onDragEndNewMarker(marker.getLatLng())                        
                         const LatLng = marker.getLatLng()
                         let coord = { lat: 0, lng: 0 };
                         coord.lat = LatLng.lat.toFixed(5);
                         coord.lng = LatLng.lng.toFixed(5);
                 
-                        setNewMarkerState({ visible: true, position: coord });                        
+                        //setNewMarkerState({ visible: true, position: coord }); 
+                        dispatch(actNewMarkerState({ visible: true, position: coord }))                       
                     }
                 },
             }),
@@ -297,7 +344,7 @@ function Map ({
 
         return (<>
                     {visible && <> 
-                        {(!isMobileDevice) 
+                        {(!rxIsMobileDevice) 
                         ?
                             <Marker
                                 icon={redIcon}
@@ -326,16 +373,14 @@ function Map ({
 
     function MapEvents() {        
         const map = useMapEvents({
-            //baselayerchange(e) {
-            //    document.cookie = 'mapname='+e.name
-            //    //setMapname(e.name)
-            //    mapname = e.name
-            //}, 
-            baselayerchange: onBaselayerchange,
+            baselayerchange(e) {
+                document.cookie = 'mapname='+e.name
+            }, 
+            //baselayerchange: onBaselayerchange,
 
             move(e) {               
                 
-                if (showOkCancelMobileMarker) {
+                if (rxShowOkCancelMobileMarker) {
 
                     const marker = newMarkerRef.current
                     marker.setLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
@@ -347,14 +392,15 @@ function Map ({
             },
 
             moveend(e) {
-                if (showOkCancelMobileMarker) {
+                if (rxShowOkCancelMobileMarker) {
                     
                     const marker = newMarkerRef.current
                     const LatLng = marker.getLatLng()
                     let coord = { lat: 0, lng: 0 };
                     coord.lat = LatLng.lat.toFixed(5);
                     coord.lng = LatLng.lng.toFixed(5);                   
-                    setNewMarkerState({visible: true, position: coord})                        
+                    //setNewMarkerState({visible: true, position: coord})                        
+                    dispatch(actNewMarkerState({visible: true, position: coord}))
                 }
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
 
@@ -362,7 +408,23 @@ function Map ({
             },
             
             click(e) {
-                onClickMap(e)
+                //onClickMap(e)
+                if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
+                    //setCheckButtonNewMarker(false)
+                    dispatch(actCheckButtonNewMarker(false))
+        
+                    let coord = { lat: 0, lng: 0 }
+                    coord.lat = e.latlng.lat.toFixed(5)
+                    coord.lng = e.latlng.lng.toFixed(5)
+        
+                    //setNewMarkerState({ visible: true, position: coord })
+                    dispatch(actNewMarkerState({ visible: true, position: coord }))
+        
+                    //setShowAccidentTab(true)
+                    dispatch(actShowAccidentTab(true))
+                    //setActiveTabKey("accident")
+                    dispatch(actActiveTabKey('accident'))
+                }                
             }, 
 
             zoomend(e){                
@@ -386,7 +448,8 @@ function Map ({
             },
 
             locationerror(e){
-                setCheckButtonGPS(false)
+                //setCheckButtonGPS(false)
+                dispatch(actCheckButtonGPS(false))
                 alert(e.message)
             }
         })
@@ -417,7 +480,7 @@ function Map ({
                 map.removeLayer(heatMapLayer)
             }
 
-            if (checkButtonHeatmap) {                
+            if (rxCheckButtonHeatmap) {                
                 if (dataHeatmapPoints) {
                     heatMapLayer = L.heatLayer(dataHeatmapPoints, {
                         gradient: {0.4: '#1E90FF', 0.8: 'white', 1: 'red'},                        
@@ -478,7 +541,7 @@ function Map ({
 
             <MapContainer style={{cursor: "crosshair"}} whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={13} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
                 <LayersControl position="topleft">                    
-                    <MapTileLayers mapBaseLayerName={mapBaseLayerName} />                 
+                    <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
 
             
@@ -488,7 +551,7 @@ function Map ({
 
 
                 {currentZoom < 15 ? (
-                    <GeoJSON key={Date.now()} data={dataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
+                    <GeoJSON key={Date.now()} data={rxDataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
                 ) : (
                     <MarkerClusterGroup
                     spiderfyOnMaxZoom={true}
@@ -496,16 +559,16 @@ function Map ({
                     zoomToBoundsOnClick={true}
                     maxClusterRadius={15}
                     iconCreateFunction={createClusterCustomIcon}>                
-                        <GeoJSON key={Date.now()} data={dataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                
+                        <GeoJSON key={Date.now()} data={rxDataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                
                     </MarkerClusterGroup>
                 )}
 
 
-                <NewMarker newMarkerState={newMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
+                <NewMarker newMarkerState={rxNewMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
                 
                 <MapEvents />
                 
-                {!isMobileDevice && <ZoomControl position='bottomright'/>}
+                {!rxIsMobileDevice && <ZoomControl position='bottomright'/>}
                 
    
                 {/* <ButtonsControl /> */}

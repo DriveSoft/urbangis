@@ -7,7 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './i18nextConf';
 import { createStore } from 'redux'
-import allReducers from './reducers';
+import { allReducers } from './reducers';
 import { Provider } from 'react-redux'
 
 // Importing the Bootstrap CSS
@@ -23,13 +23,13 @@ ReactDOM.render(
   {/*<React.StrictMode>*/}
     <BrowserRouter basename="/roadaccident">
       <Routes>
-        <Route path="/" element={<App />}>
+        <Route path="/">
           <Route path=":cityName" element={<App />} >
             <Route path=":accidentId" element={<App />} />
           </Route>               
         </Route>
       </Routes>
-    </BrowserRouter>,
+    </BrowserRouter>
   {/*</React.StrictMode>,*/}
   </Provider>,
   document.getElementById('root')

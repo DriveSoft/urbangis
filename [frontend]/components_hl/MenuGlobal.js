@@ -9,16 +9,38 @@ import { useTranslation } from 'react-i18next';
 
 import { useDispatch, useSelector } from 'react-redux'
 import { actLoginModalShow, actShowSidebar } from '../actions'
+import { RootState } from '../reducers/index'
+
+
+interface IStateCities {
+	cities: {
+		id: number
+		sysname: string;
+		cityname: string;
+		latitude: number;
+		longitude: number;
+		population: number;
+	}[]
+}
+
+interface MenuGlobalProps {
+	currentCity: string;
+	appname: string;
+	authToken: any;
+	setAuthToken: (userToken: {access: string; refresh: string; username?: string} | null) => void;
+  }
+
+
 
 function MenuGlobal({
 	currentCity,
 	appname,
 	authToken,
 	setAuthToken,
-}) {
+}: MenuGlobalProps) {
 	const dispatch = useDispatch();
-	const rxShowSidebar = useSelector(state => state.uiReducer.showSidebar)
-	const [cities, setCities] = useState([]);
+	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
+	const [cities, setCities] = useState<IStateCities['cities']>([]);
 
 	const { t, i18n } = useTranslation();
 
@@ -33,7 +55,7 @@ function MenuGlobal({
 		fetchCities();
 	}, []);
 
-	function changeLanguage(value) {
+	function changeLanguage(value: string) {
 		i18n.changeLanguage(value);
 		//localStorage.setItem('lng', value)
 	}
@@ -48,15 +70,15 @@ function MenuGlobal({
 					//onClick={onClickShowMenu}
 					onClick={() => dispatch(actShowSidebar(!rxShowSidebar))}
 				>
-					{t("menu.menu")}
+					{t<string>("menu.menu")}
 				</Button>{" "}
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="ms-auto">
-						<Nav.Link href="/">{t("menu.home")}</Nav.Link>
+						<Nav.Link href="/">{t<string>("menu.home")}</Nav.Link>
 
 						<NavDropdown
-							title={t("menu.appMaps.title")}
+							title={t<string>("menu.appMaps.title")}
 							id="basic-nav-dropdown"
 						>
 							<NavDropdown.Item
@@ -64,26 +86,26 @@ function MenuGlobal({
 								key="1"
 								active={appname === "roadaccident"}
 							>
-								{t("menu.appMaps.roadaccident")}
+								{t<string>("menu.appMaps.roadaccident")}
 							</NavDropdown.Item>
 							<NavDropdown.Item
 								href={`/citytree/${currentCity}`}
 								key="2"
 								active={appname === "citytree"}
 							>
-								{t("menu.appMaps.citytree")}
+								{t<string>("menu.appMaps.citytree")}
 							</NavDropdown.Item>
 							<NavDropdown.Item
 								href={`/urbanobject/${currentCity}`}
 								key="3"
 								active={appname === "urbanobject"}
 							>
-								{t("menu.appMaps.urbanobject")}
+								{t<string>("menu.appMaps.urbanobject")}
 							</NavDropdown.Item>
 						</NavDropdown>
 
 						<NavDropdown
-							title={t("menu.city")}
+							title={t<string>("menu.city")}
 							id="basic-nav-dropdown"
 						>
 							{cities.map((city) => (
@@ -133,10 +155,10 @@ function MenuGlobal({
 								<Nav.Link
 									href="#"
 									onClick={() => {
-										setAuthToken(undefined);
+										setAuthToken(null);
 									}}
 								>
-									{t("menu.logout")}
+									{t<string>("menu.logout")}
 								</Nav.Link>
 							</>
 						) : (
@@ -147,7 +169,7 @@ function MenuGlobal({
 									dispatch(actLoginModalShow(true))
 								}
 							>
-								{t("menu.signin")}
+								{t<string>("menu.signin")}
 							</Nav.Link>
 						)}
 					</Nav>

@@ -10,6 +10,19 @@ import "react-datetime/css/react-datetime.css"
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '../reducers/index'
+import { AccidentItem } from '../interfaces'
+
+
+
+
+
+interface FormAccidentProps {
+	onSubmitAccident: (data: {}) => void;
+	onDeleteAccident: (id: number) => void;
+	onCloseAccident: () => void;
+	dataAccidentForm: AccidentItem | null;
+}
 
 
 function FormAccident({
@@ -17,12 +30,12 @@ function FormAccident({
 	onDeleteAccident,
 	onCloseAccident,
 	dataAccidentForm,
-	//currentCity,
-}) {
-	const rxNewMarkerState = useSelector((state) => state.uiReducer.newMarkerState)
-	const rxDictManeuvers = useSelector(state => state.dataReducer.dictManeuvers)
-    const rxDictTypeViolations = useSelector(state => state.dataReducer.dictTypeViolations)
-    const rxDictViolators = useSelector(state => state.dataReducer.dictViolators)	
+}: FormAccidentProps) {
+
+	const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState)
+	const rxDictManeuvers = useSelector((state: RootState) => state.dataReducer.dictManeuvers)
+    const rxDictTypeViolations = useSelector((state: RootState) => state.dataReducer.dictTypeViolations)
+    const rxDictViolators = useSelector((state: RootState) => state.dataReducer.dictViolators)	
 
 	const [showModalDelete, setShowModalDelete] = useState(false);
 	const dateTimeRef = useRef(null);
@@ -35,7 +48,9 @@ function FormAccident({
 			reset();
 
 			// perhaps a bug of component, value is not reset, so reset it manually
+			//@ts-ignore
 			dateTimeRef.current.state.inputValue = "";
+			//@ts-ignore
 			dateTimeRef.current.state.selectedDate = undefined;
 
 			setValue("latAccidentForm", rxNewMarkerState.position.lat);
@@ -44,8 +59,9 @@ function FormAccident({
 	}, [rxNewMarkerState]);
 
 	useEffect(() => {
-		let formData = {};
+		let formData: any = {};
 
+	    
 		formData.accidentId = dataAccidentForm?.properties?.id;
 		formData.latAccidentForm = dataAccidentForm?.properties?.latitude;
 		formData.lngAccidentForm = dataAccidentForm?.properties?.longitude;
@@ -59,25 +75,28 @@ function FormAccident({
 
 		let maneuver = dataAccidentForm?.properties?.maneuver;
 		if (maneuver) {
-			formData.maneuverAccidentForm = optionsManeuverFilter.find(
-				(item) => item.value === maneuver
+			console.log('optionsManeuverFilter', optionsManeuverFilter)
+			formData.maneuverAccidentForm = optionsManeuverFilter.find(				
+				(item) => item.value == maneuver	
 			);
 		}
 
 		let violations_type = dataAccidentForm?.properties?.violations_type;
 		if (violations_type) {
-			violations_type = violations_type.map((item) => parseInt(item));
+			//let violationsTypeValues = violations_type.map((item) => parseInt(item));
+			let violationsTypeValues = violations_type.map((item) => parseInt(item));
+			
 			formData.violationsTypeAccidentForm =
 				optionsTypeViolationsFilter.filter((item) =>
-					violations_type.includes(item.value)
+					violationsTypeValues.includes(item.value)
 				);
 		}
 
 		let violators = dataAccidentForm?.properties?.violators;
 		if (violators) {
-			violators = violators.map((item) => parseInt(item));
+			let violatorsValues = violators.map((item) => parseInt(item));
 			formData.violatorsAccidentForm = optionsViolatorsFilter.filter(
-				(item) => violators.includes(item.value)
+				(item) => violatorsValues.includes(item.value)
 			);
 		}
 
@@ -110,23 +129,12 @@ function FormAccident({
 		formData.publicTransportInvolvedAccidentForm =
 			dataAccidentForm?.properties?.public_transport_involved;
 
-		//formData.violationsTypeAccidentForm = [{value: 1, label: 'Преминаване на червено'}, {value: 3, label: 'Самокатастрофирал'}]
-
-		//setValue("violationsTypeAccidentForm",[{value: 1, label: 'Преминаване на червено'}, {value: 3, label: 'Самокатастрофирал'}]);
-
-		//formData.violationsTypeAccidentForm =
-
-		//console.log('optionsTypeViolationsFilter', optionsTypeViolationsFilter)
-		//console.log('violations_type', violations_type)
-
-		//console.log('dictManeuvers', dictManeuvers)
-		//setValue("maneuverAccidentForm", {value: 2, label: 'При завой надясно'}, { shouldValidate: true });
-		//setValue("maneuverAccidentForm",[{value: 'optionA', label:'Option A'}]);
 
 		reset(formData, { keepDefaultValues: true });
 	}, [dataAccidentForm]);
 
-	let optionsManeuverFilter = [];
+
+	let optionsManeuverFilter: {value: number; label: string}[] = [];
 	if (Array.isArray(rxDictManeuvers)) {
 		optionsManeuverFilter = rxDictManeuvers.map((x) => {
 			return {
@@ -136,7 +144,7 @@ function FormAccident({
 		});
 	}
 
-	let optionsTypeViolationsFilter = [];
+	let optionsTypeViolationsFilter: {value: number; label: string}[] = [];
 	if (Array.isArray(rxDictTypeViolations)) {
 		optionsTypeViolationsFilter = rxDictTypeViolations.map((x) => {
 			return {
@@ -148,7 +156,7 @@ function FormAccident({
 		});
 	}
 
-	let optionsViolatorsFilter = [];
+	let optionsViolatorsFilter: {value: number; label: string}[] = [];
 	if (Array.isArray(rxDictViolators)) {
 		optionsViolatorsFilter = rxDictViolators.map((x) => {
 			return {
@@ -196,54 +204,41 @@ function FormAccident({
 		},
 	});
 
-	function prepareOnSubmitAccident(data) {
-		let dataRest = {};
+	function prepareOnSubmitAccident(data: any) {
+		let dataRest: any = {};
 
 		dataRest.id = parseInt(getValues("accidentId")) || null;
 		//dataRest.city = currentCity
 		dataRest.latitude = getValues("latAccidentForm");
 		dataRest.longitude = getValues("lngAccidentForm");
-		dataRest.datetime = getValues("dateTimeAccidentForm").format(
-			"YYYY-MM-DDTHH:mm"
-		);
+		dataRest.datetime = getValues<any>("dateTimeAccidentForm").format("YYYY-MM-DDTHH:mm");
 
-		dataRest.maneuver = getValues("maneuverAccidentForm")?.value;
+		dataRest.maneuver = getValues<any>("maneuverAccidentForm")?.value;
 		if (dataRest.maneuver === undefined) {
 			dataRest.maneuver = null;
 		}
 
 		dataRest.description = getValues("descAccidentForm");
 		dataRest.violations_type = getValues("violationsTypeAccidentForm").map(
-			(item) => item.value
+			(item: {value: number; label: string}) => item.value
 		);
 		dataRest.violators = getValues("violatorsAccidentForm").map(
-			(item) => item.value
+			(item: {value: number; label: string}) => item.value
 		);
 
-		dataRest.drivers_injured =
-			parseInt(getValues("driversInjuredAccidentForm")) || 0;
-		dataRest.motorcyclists_injured =
-			parseInt(getValues("motorcyclistsInjuredAccidentForm")) || 0;
-		dataRest.cyclists_injured =
-			parseInt(getValues("cyclistsInjuredAccidentForm")) || 0;
-		dataRest.ped_injured =
-			parseInt(getValues("pedInjuredAccidentForm")) || 0;
-		dataRest.kids_injured =
-			parseInt(getValues("kidsInjuredAccidentForm")) || 0;
-		dataRest.pubtr_passengers_injured =
-			parseInt(getValues("pubtrPassengersInjuredAccidentForm")) || 0;
+		dataRest.drivers_injured = parseInt(getValues("driversInjuredAccidentForm").toString()) || 0;
+		dataRest.motorcyclists_injured = parseInt(getValues("motorcyclistsInjuredAccidentForm").toString()) || 0;
+		dataRest.cyclists_injured = parseInt(getValues("cyclistsInjuredAccidentForm").toString()) || 0;
+		dataRest.ped_injured = parseInt(getValues("pedInjuredAccidentForm").toString()) || 0;
+		dataRest.kids_injured = parseInt(getValues("kidsInjuredAccidentForm").toString()) || 0;
+		dataRest.pubtr_passengers_injured = parseInt(getValues("pubtrPassengersInjuredAccidentForm").toString()) || 0;
 
-		dataRest.drivers_killed =
-			parseInt(getValues("driversKilledAccidentForm")) || 0;
-		dataRest.motorcyclists_killed =
-			parseInt(getValues("motorcyclistsKilledAccidentForm")) || 0;
-		dataRest.cyclists_killed =
-			parseInt(getValues("cyclistsKilledAccidentForm")) || 0;
-		dataRest.ped_killed = parseInt(getValues("pedKilledAccidentForm")) || 0;
-		dataRest.kids_killed =
-			parseInt(getValues("kidsKilledAccidentForm")) || 0;
-		dataRest.pubtr_passengers_killed =
-			parseInt(getValues("pubtrPassengersKilledAccidentForm")) || 0;
+		dataRest.drivers_killed = parseInt(getValues("driversKilledAccidentForm").toString()) || 0;
+		dataRest.motorcyclists_killed = parseInt(getValues("motorcyclistsKilledAccidentForm").toString()) || 0;
+		dataRest.cyclists_killed = parseInt(getValues("cyclistsKilledAccidentForm").toString()) || 0;
+		dataRest.ped_killed = parseInt(getValues("pedKilledAccidentForm").toString()) || 0;
+		dataRest.kids_killed = parseInt(getValues("kidsKilledAccidentForm").toString()) || 0;
+		dataRest.pubtr_passengers_killed = parseInt(getValues("pubtrPassengersKilledAccidentForm").toString()) || 0;
 
 		dataRest.public_transport_involved = getValues(
 			"publicTransportInvolvedAccidentForm"
@@ -261,7 +256,7 @@ function FormAccident({
 				<Row>
 					<Form.Group as={Col} controlId="formDateFromFilter">
 						<Form.Label>
-							{t("sidebar.accidentTab.latLng")}{" "}
+							{t<string>("sidebar.accidentTab.latLng")}{" "}
 							<a href="#">
 								<i className="fas fa-edit align-middle"></i>
 							</a>
@@ -285,7 +280,7 @@ function FormAccident({
 						/>
 
 						<Form.Control.Feedback type="invalid">
-							{t("words.requiredField")}
+							{t<string>("words.requiredField")}
 						</Form.Control.Feedback>
 					</Form.Group>
 
@@ -305,7 +300,7 @@ function FormAccident({
 							)}
 						/>
 						<Form.Control.Feedback type="invalid">
-							{t("words.requiredField")}
+							{t<string>("words.requiredField")}
 						</Form.Control.Feedback>
 					</Form.Group>
 				</Row>
@@ -315,7 +310,7 @@ function FormAccident({
 					className="mt-3"
 				>
 					<Form.Label>
-						{t("sidebar.accidentTab.description")}
+						{t<string>("sidebar.accidentTab.description")}
 					</Form.Label>
 					<Controller
 						name="descAccidentForm"
@@ -338,7 +333,7 @@ function FormAccident({
 						style={{ minWidth: "250px" }}
 					>
 						<Form.Label>
-							{t("sidebar.accidentTab.datetime")}
+							{t<string>("sidebar.accidentTab.datetime")}
 						</Form.Label>
 						<Controller
 							name="dateTimeAccidentForm"
@@ -359,7 +354,7 @@ function FormAccident({
 
 					<Form.Group as={Col} controlId="formManeuverAccident">
 						<Form.Label>
-							{t("sidebar.accidentTab.vehicleManeuver")}
+							{t<string>("sidebar.accidentTab.vehicleManeuver")}
 						</Form.Label>
 						<Controller
 							name="maneuverAccidentForm"
@@ -381,7 +376,7 @@ function FormAccident({
 					className="mt-3"
 				>
 					<Form.Label>
-						{t("sidebar.accidentTab.violationsType")}
+						{t<string>("sidebar.accidentTab.violationsType")}
 					</Form.Label>
 					<Controller
 						name="violationsTypeAccidentForm"
@@ -391,6 +386,7 @@ function FormAccident({
 								{...field}
 								isMulti
 								isSearchable={false}
+								//@ts-ignore
 								options={optionsTypeViolationsFilter}
 							/>
 						)}
@@ -399,7 +395,7 @@ function FormAccident({
 
 				<Form.Group controlId="formViolatorsAccident" className="mt-3">
 					<Form.Label>
-						{t("sidebar.accidentTab.violators")}
+						{t<string>("sidebar.accidentTab.violators")}
 					</Form.Label>
 					<Controller
 						name="violatorsAccidentForm"
@@ -409,6 +405,7 @@ function FormAccident({
 								{...field}
 								isMulti
 								isSearchable={false}
+								//@ts-ignore
 								options={optionsViolatorsFilter}
 							/>
 						)}
@@ -418,7 +415,7 @@ function FormAccident({
 				<Row className="mt-3">
 					<Form.Group as={Col} controlId="formInjuredLabelAccident">
 						<Form.Label style={{ marginTop: "32px" }}>
-							{t("sidebar.accidentTab.injured")}
+							{t<string>("sidebar.accidentTab.injured")}
 						</Form.Label>
 					</Form.Group>
 
@@ -586,7 +583,7 @@ function FormAccident({
 				<Row className="mt-0">
 					<Form.Group as={Col} controlId="formKilledLabelAccident">
 						<Form.Label>
-							{t("sidebar.accidentTab.killed")}
+							{t<string>("sidebar.accidentTab.killed")}
 						</Form.Label>
 					</Form.Group>
 
@@ -719,11 +716,12 @@ function FormAccident({
 						name="publicTransportInvolvedAccidentForm"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t(
+								label={t<string>(
 									"sidebar.accidentTab.publicTransInvolved"
 								)}
 								type="checkbox"
@@ -754,17 +752,17 @@ function FormAccident({
 						onClick={() => setShowModalDelete(true)}
 						variant="light"
 					>
-						{t("sidebar.accidentTab.delete")}
+						{t<string>("sidebar.accidentTab.delete")}
 					</Button>{" "}
 					<Button onClick={onCloseAccident} variant="secondary">
-						{t("sidebar.accidentTab.close")}
+						{t<string>("sidebar.accidentTab.close")}
 					</Button>{" "}
 					<Button
 						type="submit"
 						variant="primary"
 						style={{ minWidth: "110px" }}
 					>
-						{t("sidebar.accidentTab.save")}
+						{t<string>("sidebar.accidentTab.save")}
 					</Button>
 				</div>
 			</Form>
@@ -774,24 +772,24 @@ function FormAccident({
 				onHide={() => setShowModalDelete(false)}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>{t("words.deleting")}</Modal.Title>
+					<Modal.Title>{t<string>("words.deleting")}</Modal.Title>
 				</Modal.Header>
-				<Modal.Body>{t("words.confirmDeleting")}</Modal.Body>
+				<Modal.Body>{t<string>("words.confirmDeleting")}</Modal.Body>
 				<Modal.Footer>
 					<Button
 						variant="light"
 						onClick={() => {
 							setShowModalDelete(false);
-							onDeleteAccident(getValues("accidentId"));
+							onDeleteAccident(parseInt(getValues("accidentId").toString()));
 						}}
 					>
-						{t("words.delete")}
+						{t<string>("words.delete")}
 					</Button>
 					<Button
 						variant="secondary"
 						onClick={() => setShowModalDelete(false)}
 					>
-						{t("words.cancel")}
+						{t<string>("words.cancel")}
 					</Button>
 				</Modal.Footer>
 			</Modal>

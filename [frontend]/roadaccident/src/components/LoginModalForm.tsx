@@ -5,16 +5,25 @@ import { useTranslation } from 'react-i18next'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { actLoginModalShow, actRegisterModalShow } from '../actions'
+import { RootState } from '../reducers/index'
 
-const LoginModalForm = ({
-	//show,
-	//onHide,
-	//setLoginModalShow,
-	//setRegisterModalShow,
-	setAuthToken,
-}) => {
+
+
+interface Credentials {
+	username: string; 
+	password: string; 
+	rememberme: boolean;
+} 
+
+
+interface LoginModalFormProps {
+	setAuthToken: (userToken: {access: string; refresh: string; username?: string} | null) => void;
+}
+
+
+const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 	const dispatch = useDispatch();
-	const rxLoginModalShow = useSelector(state => state.uiReducer.loginModalShow)
+	const rxLoginModalShow = useSelector((state: RootState) => state.uiReducer.loginModalShow)
 
 	const [showWrongPassword, setShowWrongPassword] = useState(false);
 	const { t } = useTranslation();
@@ -38,8 +47,8 @@ const LoginModalForm = ({
 		},
 	});
 
-	async function loginUser(credentials) {
-		//console.log(credentials)
+	async function loginUser(credentials: Credentials) {
+		console.log(credentials)
 		return fetch(`${process.env.REACT_APP_API_URL}token/`, {
 			method: "POST",
 			headers: {
@@ -64,9 +73,9 @@ const LoginModalForm = ({
 		});
 	}
 
-	const OnSubmitForm = (data) => {
+	const OnSubmitForm = (data: Credentials) => {
 		setShowWrongPassword(false);
-		localStorage.setItem("rememberme", data.rememberme);
+		localStorage.setItem("rememberme", data.rememberme.toString());
 		loginUser(data);
 	};
 
@@ -82,7 +91,7 @@ const LoginModalForm = ({
 		>
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-vcenter">
-					{t("loginForm.title")}
+					{t<string>("loginForm.title")}
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
@@ -90,7 +99,7 @@ const LoginModalForm = ({
 					<Form.Group className="mb-3" controlId="formLogin">
 						<FloatingLabel
 							controlId="floatingInput"
-							label={t("loginForm.username")}
+							label={t<string>("loginForm.username")}
 							className="mb-3"
 						>
 							<Controller
@@ -110,7 +119,7 @@ const LoginModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingPassword"
-							label={t("loginForm.password")}
+							label={t<string>("loginForm.password")}
 						>
 							<Controller
 								name="password"
@@ -134,9 +143,10 @@ const LoginModalForm = ({
 							control={control}
 							rules={{ required: false }}
 							render={({ field }) => (
+								/* @ts-ignore */
 								<Form.Check
 									type="checkbox"
-									label={t("loginForm.rememberMe")}
+									label={t<string>("loginForm.rememberMe")}
 									{...field}
 								/>
 							)}
@@ -145,7 +155,7 @@ const LoginModalForm = ({
 
 					{showWrongPassword && (
 						<Form.Text className="text-danger">
-							{t("loginForm.wrongUsernamePassword")}
+							{t<string>("loginForm.wrongUsernamePassword")}
 						</Form.Text>
 					)}
 
@@ -155,13 +165,13 @@ const LoginModalForm = ({
 						type="submit"
 						style={{ display: "block", width: "100%" }}
 					>
-						{t("loginForm.login")}
+						{t<string>("loginForm.login")}
 					</Button>
 
 					<Form.Text className="text-muted mb-0">
 						<p className="text-center">
 							{/* {t('loginForm.dontHaveAccount')} <a href="#" onClick={()=> { setLoginModalShow(false); setRegisterModalShow(true) } }>{t('loginForm.signUp')}</a> */}
-							{t("loginForm.dontHaveAccount")}{" "}
+							{t<string>("loginForm.dontHaveAccount")}{" "}
 							<a
 								href="#"
 								onClick={() => {
@@ -169,7 +179,7 @@ const LoginModalForm = ({
 									dispatch(actRegisterModalShow(true));
 								}}
 							>
-								{t("loginForm.signUp")}
+								{t<string>("loginForm.signUp")}
 							</a>
 						</p>
 					</Form.Text>

@@ -5,13 +5,31 @@ import { useTranslation } from 'react-i18next'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { actLoginModalShow, actRegisterModalShow } from '../actions'
+import { RootState } from '../reducers/index'
 
-const RegisterModalForm = ({
-	setAuthToken,
-}) => {
+
+
+interface RegisterModalFormProps {
+	setAuthToken: (userToken: {access: string; refresh: string; username?: string} | null) => void;
+}
+
+
+interface RegisterData {
+	username: string;
+	email: string;
+	password: string;
+	password2: string;
+	first_name: string;
+	last_name: string;
+} 
+
+
+
+
+const RegisterModalForm = ({setAuthToken}: RegisterModalFormProps) => {
 
 	const dispatch = useDispatch();
-	const rxRegisterModalShow = useSelector(state => state.uiReducer.registerModalShow)	
+	const rxRegisterModalShow = useSelector((state: RootState) => state.uiReducer.registerModalShow)	
 	
 	const { t } = useTranslation()
 
@@ -40,13 +58,12 @@ const RegisterModalForm = ({
 
 
 
-	const OnSubmitForm = (data) => {
+	const OnSubmitForm = (data: RegisterData) => {
 		registerUser(data);
 	};
 
-	async function registerUser(credentials) {
-
-		return fetch("http://localhost:8000/api/users/", {
+	async function registerUser(credentials: RegisterData) {		
+		return fetch(`${process.env.REACT_APP_API_URL}users/`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -68,7 +85,8 @@ const RegisterModalForm = ({
 					console.log(data)
                 
                     for (const [key, value] of Object.entries(data)) {                
-                        setError(key, {
+                        //@ts-ignore
+						setError(key, {
                             type: "manual",
                             message: value,
                         }); 
@@ -93,7 +111,7 @@ const RegisterModalForm = ({
 		>
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-vcenter">
-					{t('registerForm.title')}
+					{t<string>('registerForm.title')}
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
@@ -103,13 +121,14 @@ const RegisterModalForm = ({
                 
                         {errors?.username?.message && (
 							<Form.Text className="text-danger">
+								{/*@ts-ignore*/}
 								{errors.username.message.map(value => <p key={value} className="mb-0">{value}</p>)}
 							</Form.Text>                           
 						)}                        
 
 						<FloatingLabel
 							controlId="floatingUsername"
-							label={t('registerForm.username')}
+							label={t<string>('registerForm.username')}
 							className="mb-3"
 						>
 							<Controller
@@ -130,13 +149,14 @@ const RegisterModalForm = ({
                         
                         {errors?.email?.message && (
 							<Form.Text className="text-danger">
+								{/*@ts-ignore  message is array, but declared as string */}
 								{errors.email.message.map(value => <p key={value} className="mb-0">{value}</p>)}
 							</Form.Text>                           
 						)}                          
 
 						<FloatingLabel
 							controlId="floatingEmail"
-							label={t('registerForm.email')}
+							label={t<string>('registerForm.email')}
 							className="mb-3"
 						>
 							<Controller
@@ -156,14 +176,15 @@ const RegisterModalForm = ({
 
 
                         {errors?.password?.message && (
-							<Form.Text className="text-danger">
+							<Form.Text className="text-danger">								
+								{/*@ts-ignore*/}
 								{errors.password.message.map(value => <p key={value} className="mb-0">{value}</p>)}
 							</Form.Text>                           
 						)}  
 
 						<FloatingLabel
 							controlId="floatingPassword"
-							label={t('registerForm.password')}
+							label={t<string>('registerForm.password')}
 							className="mb-3"
 						>
 							<Controller
@@ -183,7 +204,7 @@ const RegisterModalForm = ({
 
 						<FloatingLabel
 							controlId="floatingPassword2"
-							label={t('registerForm.confirmPassword')}
+							label={t<string>('registerForm.confirmPassword')}
 							className="mb-3"
 						>
 							<Controller
@@ -245,22 +266,20 @@ const RegisterModalForm = ({
 						type="submit"
 						style={{ display: "block", width: "100%" }}
 					>
-						{t('registerForm.register')}
+						{t<string>('registerForm.register')}
 					</Button>
 
 					<Form.Text className="text-muted mb-0">
 						<p className="text-center">
-							{t('registerForm.alreadyHaveAccount')}{" "}
+							{t<string>('registerForm.alreadyHaveAccount')}{" "}
 							<a
 								href="#"
 								onClick={() => {
-									//setRegisterModalShow(false);
-									//setLoginModalShow(true);
 									dispatch(actRegisterModalShow(false))
 									dispatch(actLoginModalShow(true))
 								}}
 							>
-								{t('registerForm.login')}
+								{t<string>('registerForm.login')}
 							</a>
 						</p>
 					</Form.Text>

@@ -1,8 +1,14 @@
 import React from "react"
 import { LayersControl, TileLayer } from "react-leaflet"
+//@ts-ignore
 import {BingLayer} from 'react-leaflet-bing-v2/src/index'
 
-function MapTileLayers({ mapBaseLayerName }) {
+
+interface MapTileLayersProps {
+	mapBaseLayerName: string;
+}
+
+function MapTileLayers({ mapBaseLayerName }: MapTileLayersProps) {
 	return (
 		<>
 			<LayersControl.BaseLayer

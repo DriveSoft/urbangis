@@ -28,7 +28,7 @@ import {
     actShowAccidentTab,
     actActiveTabKey
 } from "../actions";
-
+import { RootState } from '../reducers/index'
 
 // fix disapeared marker from map
 
@@ -71,12 +71,32 @@ let geojsonMarkerOptions = {
 
 let currentCitySysname = ''
 
-let heatMapLayer
+let heatMapLayer: any;
 let markersLayer
 
-let setView_nTimes_gps
-let circle_geolocation
+let setView_nTimes_gps: number;
+let circle_geolocation: L.Circle<any>;
 
+
+
+
+
+interface IStateCurrentCity {
+    id: number
+	sysname: string;
+	cityname: string;
+	latitude: string;
+	longitude: string;
+	population: number;	
+}
+
+interface MapProps {
+    dataHeatmapPoints: number[][]; // [[lat, lng, value],[lat, lng, value]...]
+    currentCity: string;
+    onDragEndNewMarker: (LatLng: {lon: number; lat: number}) => void;
+    onMarkerClick: (data: any) => void;
+    filterMapCallback: (feature: any) => boolean;
+}
 
 function Map ({
                 dataHeatmapPoints, 
@@ -84,30 +104,31 @@ function Map ({
                 onDragEndNewMarker,                                
                 onMarkerClick,                 
                 filterMapCallback                
-            }) {
+            }: MapProps) {
 
     const dispatch = useDispatch()
 
-    const rxDataAccidents = useSelector(state => state.dataReducer.dataAccidents)
+    const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents)
     
-    const rxMapBaseLayerName = useSelector(state => state.uiReducer.mapBaseLayerName)
-    const rxIsMobileDevice = useSelector(state => state.uiReducer.isMobileDevice)
-    const rxShowSidebar = useSelector(state => state.uiReducer.showSidebar)
-    const rxNewMarkerState = useSelector(state => state.uiReducer.newMarkerState)
-    const rxShowOkCancelMobileMarker = useSelector(state => state.uiReducer.showOkCancelMobileMarker)
+    const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName)
+    const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice)
+    const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
+    const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState)
+    const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker)
     
-    const rxCheckButtonNewMarker = useSelector(state => state.uiReducer.checkButtonNewMarker)
-    const rxCheckButtonHeatmap = useSelector(state => state.uiReducer.checkButtonHeatmap)
-    const rxCheckButtonGPS = useSelector(state => state.uiReducer.checkButtonGPS)
+    const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker)
+    const rxCheckButtonHeatmap = useSelector((state: RootState) => state.uiReducer.checkButtonHeatmap)
+    const rxCheckButtonGPS = useSelector((state: RootState) => state.uiReducer.checkButtonGPS)
 
-    const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
-    const [map, setMap] = useState(null);  
+    //const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
+    const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null)
+    const [map, setMap] = useState<any>(null);  
     const [currentZoom, setCurrentZoom] = useState(null)  
  
 
-    const [buttonNewMarker, setButtonNewMarker] = useState(null);
-    const [buttonHeatmap, setButtonHeatmap] = useState(null);
-    const [buttonGPS, setButtonGPS] = useState(null);
+    const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
+    const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
+    const [buttonGPS, setButtonGPS] = useState<any>(null);
 
     let mapname_ = document.cookie
     .split('; ')
@@ -228,7 +249,7 @@ function Map ({
 
     
 
-	const onClickNewMarker = (state) => {
+	const onClickNewMarker = (state: boolean) => {
         dispatch(actCheckButtonNewMarker(state))
 
 		if (rxIsMobileDevice && state) {						
@@ -237,7 +258,7 @@ function Map ({
 		}
 	};
 
-	const onClickHeatmap = (state) => {
+	const onClickHeatmap = (state: boolean) => {
 		console.log("onClickHeatmap", state);
 
 		if (state) {
@@ -254,17 +275,19 @@ function Map ({
 
     function SetPanToMap() {        
         const map = useMap()
-        // change map position when current city has been changed
-        if (currentCitySysname !== currentCityInfo["sysname"]) {
-            map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] )
-        }
-        currentCitySysname = currentCityInfo["sysname"]
+        if (currentCityInfo) {
+            // change map position when current city has been changed        
+            if (currentCitySysname !== currentCityInfo["sysname"]) {
+                map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] )
+            }
+            currentCitySysname = currentCityInfo["sysname"]
 
+        }
         return null
     }    
 
 
-    function onClickGPS(state) {
+    function onClickGPS(state: boolean) {
         if (map) {
             if (state){
                 setView_nTimes_gps = 4;
@@ -280,26 +303,30 @@ function Map ({
     }
 
 
-    function markerOnClick(e)
+    function markerOnClick(e: any)
     {
-        let marker = e.target;
-        let geojson = marker.toGeoJSON();
+        let marker: L.Marker = e.target;
+        let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
         onMarkerClick(geojson)
         //console.log(geojson)
         
         
     }
 
-    function pointToLayer(feature, latlng) {
+    //function pointToLayer(feature: Feature, latlng) { 
+        //(geoJsonPoint: Feature<Point, any>, latlng: LatLng) => Layer'
+    function pointToLayer(feature: GeoJSON.Point|GeoJSON.Feature<GeoJSON.Point>, latlng: L.LatLng): any {
+    //function pointToLayer(geoJsonPoint: L.FeatureGroup, latlng: L.LatLng) {    
         //return L.circleMarker(latlng, geojsonMarkerOptions).bindPopup("MESSAGE")
         if (!rxCheckButtonHeatmap) {
             return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
         }
-        
+        //return null;
     }
 
 
-    function onEachFeaturePoint(feature, layer) {
+    //function onEachFeaturePoint(feature, layer) {
+    function onEachFeaturePoint(feature: any, layer: L.Layer) {        
         //console.log('feature: ', feature);
         //console.log('layer: ', layer);
         layer.on({
@@ -314,7 +341,7 @@ function Map ({
 
 
 
-    function NewMarker({newMarkerState}) {          
+    function NewMarker({newMarkerState}: any) {          
         const visible = newMarkerState.visible
 
         const map = useMap()
@@ -322,16 +349,18 @@ function Map ({
         const eventHandlers = useMemo(
             () => ({
                 dragend() {
-                    const marker = newMarkerRef.current
-                    if (!rxIsMobileDevice && marker != null) {
-                        //onDragEndNewMarker(marker.getLatLng())                        
-                        const LatLng = marker.getLatLng()
-                        let coord = { lat: 0, lng: 0 };
-                        coord.lat = LatLng.lat.toFixed(5);
-                        coord.lng = LatLng.lng.toFixed(5);
-                
-                        //setNewMarkerState({ visible: true, position: coord }); 
-                        dispatch(actNewMarkerState({ visible: true, position: coord }))                       
+                    if (newMarkerRef.current) {
+                        const marker: L.Marker = newMarkerRef.current
+                        if (!rxIsMobileDevice && marker != null) {
+                            //onDragEndNewMarker(marker.getLatLng())                        
+                            const LatLng = marker.getLatLng()
+                            let coord = { lat: '0', lng: '0' };
+                            coord.lat = LatLng.lat.toFixed(5);
+                            coord.lng = LatLng.lng.toFixed(5);
+                    
+                            //setNewMarkerState({ visible: true, position: coord }); 
+                            dispatch(actNewMarkerState({ visible: true, position: coord }))                       
+                        }
                     }
                 },
             }),
@@ -381,26 +410,28 @@ function Map ({
             move(e) {               
                 
                 if (rxShowOkCancelMobileMarker) {
-
-                    const marker = newMarkerRef.current
-                    marker.setLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
-                                    
-                    //let coord = { lat: 0, lng: 0 }
-                    //coord.lat = e.target.getCenter().lat.toFixed(5)
-                    //coord.lng = e.target.getCenter().lng.toFixed(5)
+                    if (newMarkerRef.current) {
+                        const marker: L.Marker = newMarkerRef.current
+                        marker.setLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
+                                        
+                        //let coord = { lat: 0, lng: 0 }
+                        //coord.lat = e.target.getCenter().lat.toFixed(5)
+                        //coord.lng = e.target.getCenter().lng.toFixed(5)
+                    }
                 }    
             },
 
             moveend(e) {
                 if (rxShowOkCancelMobileMarker) {
-                    
-                    const marker = newMarkerRef.current
-                    const LatLng = marker.getLatLng()
-                    let coord = { lat: 0, lng: 0 };
-                    coord.lat = LatLng.lat.toFixed(5);
-                    coord.lng = LatLng.lng.toFixed(5);                   
-                    //setNewMarkerState({visible: true, position: coord})                        
-                    dispatch(actNewMarkerState({visible: true, position: coord}))
+                    if (newMarkerRef.current) {
+                        const marker: L.Marker = newMarkerRef.current
+                        const LatLng = marker.getLatLng()
+                        let coord = { lat: '0', lng: '0' };
+                        coord.lat = LatLng.lat.toFixed(5);
+                        coord.lng = LatLng.lng.toFixed(5);                   
+                        //setNewMarkerState({visible: true, position: coord})                        
+                        dispatch(actNewMarkerState({visible: true, position: coord}))
+                    }
                 }
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
 
@@ -413,7 +444,7 @@ function Map ({
                     //setCheckButtonNewMarker(false)
                     dispatch(actCheckButtonNewMarker(false))
         
-                    let coord = { lat: 0, lng: 0 }
+                    let coord = { lat: '0', lng: '0' }
                     coord.lat = e.latlng.lat.toFixed(5)
                     coord.lng = e.latlng.lng.toFixed(5)
         
@@ -482,6 +513,7 @@ function Map ({
 
             if (rxCheckButtonHeatmap) {                
                 if (dataHeatmapPoints) {
+                    // @ts-ignore
                     heatMapLayer = L.heatLayer(dataHeatmapPoints, {
                         gradient: {0.4: '#1E90FF', 0.8: 'white', 1: 'red'},                        
                         //minOpacity: 0.1,
@@ -511,7 +543,7 @@ function Map ({
 
 
 
-    const createClusterCustomIcon  = function (cluster) {
+    const createClusterCustomIcon  = function (cluster: L.MarkerCluster) {
         // get the number of items in the cluster
         let count = cluster.getChildCount();
 
@@ -525,9 +557,9 @@ function Map ({
         if (count > 14) { digits = '5'; }
 
         return L.divIcon({
-          html: count,
+          html: count.toString(),
           className: 'cluster digits-' + digits,
-          iconSize: null
+          iconSize: undefined
         });
       }
 
@@ -537,9 +569,9 @@ function Map ({
     return (
         <>        
         {/* The map rendered before useEffect called, so first we need to load currentCityInfo before to show the map */}
-        { currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
+        { currentCityInfo && currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
 
-            <MapContainer style={{cursor: "crosshair"}} whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={13} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
+            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={13} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
                 <LayersControl position="topleft">                    
                     <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
@@ -550,9 +582,10 @@ function Map ({
                 <SetPanToMap />
 
 
-                {currentZoom < 15 ? (
+                {currentZoom && currentZoom < 15 ? (
                     <GeoJSON key={Date.now()} data={rxDataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
                 ) : (
+                    /* @ts-ignore */
                     <MarkerClusterGroup
                     spiderfyOnMaxZoom={true}
                     showCoverageOnHover={false}

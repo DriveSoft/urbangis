@@ -4,17 +4,19 @@ import { Form, Button, Card, Row, Col, } from 'react-bootstrap';
 import Select from "react-select";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
+import { RootState } from '../reducers/index'
 
-//export const DictionariesContext = createContext({})
+
+interface FormFilterProps {
+	onSubmitFilter: (filter: {}) => void;
+}
 
 
-function FormFilter({
-	onSubmitFilter
-}) {
-    const rxDictManeuvers = useSelector(state => state.dataReducer.dictManeuvers)
-    const rxDictTypeViolations = useSelector(state => state.dataReducer.dictTypeViolations)
-    const rxDictViolators = useSelector(state => state.dataReducer.dictViolators)
-	const rxMinMaxDateData = useSelector(state => state.dataReducer.minMaxDateData)
+const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
+    const rxDictManeuvers = useSelector((state: RootState) => state.dataReducer.dictManeuvers)
+    const rxDictTypeViolations = useSelector((state: RootState) => state.dataReducer.dictTypeViolations)
+    const rxDictViolators = useSelector((state: RootState) => state.dataReducer.dictViolators)
+	const rxMinMaxDateData = useSelector((state: RootState) => state.dataReducer.minMaxDateData)
 	const { t, i18n } = useTranslation();
 
 	// used to set default values for dates control, because when it renders first time, minMaxDateData is still empty, after that I just can't change def values, so do it manually
@@ -81,7 +83,7 @@ function FormFilter({
 	//    optionsViolatorsFilter = arViolators.map((x) => { return {value: x.id, label: x.violatorname} })
 	//}
 
-	let optionsManeuverFilter = [];
+	let optionsManeuverFilter: {value: string; label: string}[] = [];
 	if (Array.isArray(rxDictManeuvers)) {
 		optionsManeuverFilter = rxDictManeuvers.map((x) => {
 			return {
@@ -91,7 +93,8 @@ function FormFilter({
 		});
 	}
 
-	let optionsTypeViolationsFilter = [];
+
+	let optionsTypeViolationsFilter: {value: string; label: string}[] = [];
 	if (Array.isArray(rxDictTypeViolations)) {
 		optionsTypeViolationsFilter = rxDictTypeViolations.map((x) => {
 			return {
@@ -103,7 +106,8 @@ function FormFilter({
 		});
 	}
 
-	let optionsViolatorsFilter = [];
+
+	let optionsViolatorsFilter: {value: string; label: string}[] = [];
 	if (Array.isArray(rxDictViolators)) {
 		optionsViolatorsFilter = rxDictViolators.map((x) => {
 			return {
@@ -113,7 +117,7 @@ function FormFilter({
 		});
 	}
 
-	function onResetButton(e) {
+	function onResetButton() {
 		reset();
 		setDefaultsForDates();
 		onSubmitFilter({});
@@ -124,7 +128,7 @@ function FormFilter({
 			<Form className="m-1" onSubmit={handleSubmit(onSubmitFilter)}>
 				<Row>
 					<Form.Group as={Col} controlId="formDateFromFilter">
-						<Form.Label>{t("sidebar.filterTab.from")}</Form.Label>
+						<Form.Label>{t<string>("sidebar.filterTab.from")}</Form.Label>
 						<Controller
 							name="dateFromFilter"
 							control={control}
@@ -135,7 +139,7 @@ function FormFilter({
 					</Form.Group>
 
 					<Form.Group as={Col} controlId="formDateToFilter">
-						<Form.Label>{t("sidebar.filterTab.to")}</Form.Label>
+						<Form.Label>{t<string>("sidebar.filterTab.to")}</Form.Label>
 						<Controller
 							name="dateToFilter"
 							control={control}
@@ -153,7 +157,7 @@ function FormFilter({
 						style={{ minWidth: "250px" }}
 					>
 						<Form.Label>
-							{t("sidebar.filterTab.vehicleManeuver")}
+							{t<string>("sidebar.filterTab.vehicleManeuver")}
 						</Form.Label>
 						<Controller
 							name="maneuverFilter"
@@ -163,6 +167,7 @@ function FormFilter({
 									{...field}
 									isClearable
 									isSearchable={false}
+									//@ts-ignore
 									options={optionsManeuverFilter}
 								/>
 							)}
@@ -171,7 +176,7 @@ function FormFilter({
 
 					<Form.Group as={Col} controlId="formDescFilter">
 						<Form.Label>
-							{t("sidebar.filterTab.description")}
+							{t<string>("sidebar.filterTab.description")}
 						</Form.Label>
 						<Controller
 							name="descFilter"
@@ -188,7 +193,7 @@ function FormFilter({
 					className="mt-3"
 				>
 					<Form.Label>
-						{t("sidebar.filterTab.violationsType")}
+						{t<string>("sidebar.filterTab.violationsType")}
 					</Form.Label>
 					<Controller
 						name="violationsTypeFilter"
@@ -198,6 +203,7 @@ function FormFilter({
 								{...field}
 								isMulti
 								isSearchable={false}
+								//@ts-ignore
 								options={optionsTypeViolationsFilter}
 							/>
 						)}
@@ -205,7 +211,7 @@ function FormFilter({
 				</Form.Group>
 
 				<Form.Group controlId="formviolatorsFilter" className="mt-3">
-					<Form.Label>{t("sidebar.filterTab.violators")}</Form.Label>
+					<Form.Label>{t<string>("sidebar.filterTab.violators")}</Form.Label>
 					<Controller
 						name="violatorsFilter"
 						control={control}
@@ -214,6 +220,7 @@ function FormFilter({
 								{...field}
 								isMulti
 								isSearchable={false}
+								//@ts-ignore
 								options={optionsViolatorsFilter}
 							/>
 						)}
@@ -222,18 +229,19 @@ function FormFilter({
 
 				<Card body className="mt-3">
 					<Card.Title>
-						<h6>{t("sidebar.filterTab.injured")}</h6>
+						<h6>{t<string>("sidebar.filterTab.injured")}</h6>
 					</Card.Title>
 
 					<Controller
 						name="driverInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.driver")}
+								label={t<string>("sidebar.filterTab.driver")}
 								type="checkbox"
 								id="idDriverInjuredFilter"
 							/>
@@ -244,11 +252,12 @@ function FormFilter({
 						name="motorcyclistInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.motorcyclist")}
+								label={t<string>("sidebar.filterTab.motorcyclist")}
 								type="checkbox"
 								id="idMotorcyclistInjuredFilter"
 							/>
@@ -259,11 +268,12 @@ function FormFilter({
 						name="cyclistInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.cyclist")}
+								label={t<string>("sidebar.filterTab.cyclist")}
 								type="checkbox"
 								id="idCyclistInjuredFilter"
 							/>
@@ -274,11 +284,12 @@ function FormFilter({
 						name="pedestrianInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.pedestrian")}
+								label={t<string>("sidebar.filterTab.pedestrian")}
 								type="checkbox"
 								id="idPedestrianInjuredFilter"
 							/>
@@ -289,11 +300,12 @@ function FormFilter({
 						name="kidsInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.kid")}
+								label={t<string>("sidebar.filterTab.kid")}
 								type="checkbox"
 								id="idKidsInjuredFilter"
 							/>
@@ -304,11 +316,12 @@ function FormFilter({
 						name="pubtrPassengersInjuredFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.pubtrPassenger")}
+								label={t<string>("sidebar.filterTab.pubtrPassenger")}
 								type="checkbox"
 								id="idPubtrPassengersInjuredFilter"
 							/>
@@ -318,18 +331,19 @@ function FormFilter({
 
 				<Card body className="mt-3">
 					<Card.Title>
-						<h6>{t("sidebar.filterTab.killed")}</h6>
+						<h6>{t<string>("sidebar.filterTab.killed")}</h6>
 					</Card.Title>
 
 					<Controller
 						name="driversKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.driver")}
+								label={t<string>("sidebar.filterTab.driver")}
 								type="checkbox"
 								id="idDriversKilledFilter"
 							/>
@@ -340,11 +354,12 @@ function FormFilter({
 						name="motorcyclistsKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.motorcyclist")}
+								label={t<string>("sidebar.filterTab.motorcyclist")}
 								type="checkbox"
 								id="idMotorcyclistsKilledFilter"
 							/>
@@ -355,11 +370,12 @@ function FormFilter({
 						name="cyclistsKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.cyclist")}
+								label={t<string>("sidebar.filterTab.cyclist")}
 								type="checkbox"
 								id="idCyclistsKilledFilter"
 							/>
@@ -370,11 +386,12 @@ function FormFilter({
 						name="pedestrianKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.pedestrian")}
+								label={t<string>("sidebar.filterTab.pedestrian")}
 								type="checkbox"
 								id="idPedestrianKilledFilter"
 							/>
@@ -385,11 +402,12 @@ function FormFilter({
 						name="kidsKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.kid")}
+								label={t<string>("sidebar.filterTab.kid")}
 								type="checkbox"
 								id="idKidsKilledFilter"
 							/>
@@ -400,11 +418,12 @@ function FormFilter({
 						name="pubtrPassengersKilledFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t("sidebar.filterTab.pubtrPassenger")}
+								label={t<string>("sidebar.filterTab.pubtrPassenger")}
 								type="checkbox"
 								id="idPubtrPassengersKilledFilter"
 							/>
@@ -420,11 +439,12 @@ function FormFilter({
 						name="publicTransportInvolvedFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t(
+								label={t<string>(
 									"sidebar.filterTab.publicTransportInvolved"
 								)}
 								type="checkbox"
@@ -442,11 +462,12 @@ function FormFilter({
 						name="showOnlyMyAccidentsFilter"
 						control={control}
 						render={({ field }) => (
+							//@ts-ignore
 							<Form.Check
 								{...field}
 								checked={field["value"] ?? false}
 								inline
-								label={t(
+								label={t<string>(
 									"sidebar.filterTab.showOnlyMyAccidents"
 								)}
 								type="checkbox"
@@ -458,14 +479,14 @@ function FormFilter({
 
 				<div className="mt-4 me-2 float-end">
 					<Button variant="light" onClick={onResetButton}>
-						{t("sidebar.filterTab.clear")}
+						{t<string>("sidebar.filterTab.clear")}
 					</Button>{" "}
 					<Button
 						type="submit"
 						variant="primary"
 						style={{ minWidth: "150px" }}
 					>
-						{t("sidebar.filterTab.search")}
+						{t<string>("sidebar.filterTab.search")}
 					</Button>{" "}
 				</div>
 			</Form>

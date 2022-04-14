@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export default function useAuthToken() {
     
-    const getUsernameFromToken = (json) =>{
+    const getUsernameFromToken = (json: {access: string; refresh: string}) =>{
         let token = json?.access 
 
         if (token) {
@@ -39,7 +39,7 @@ export default function useAuthToken() {
     const [authToken, setAuthToken] = useState(getToken());
 
 
-    const saveToken = userToken => {
+    const saveToken = (userToken: {access: string; refresh: string; username?: string} | null) => {
         if (userToken) {
 
             const rememberme = localStorage.getItem('rememberme')

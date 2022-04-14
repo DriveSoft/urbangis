@@ -16,6 +16,7 @@ import Button from "react-bootstrap/Button";
 import useAuthToken from "./useAuthToken";
 import { useTranslation } from 'react-i18next'
 
+import { RootState, allReducers } from './reducers/index'
 import { useSelector, useDispatch } from 'react-redux'
 import {
 	actNewMarkerState,
@@ -32,30 +33,34 @@ import {
 	actDataFilters,
 	actMinMaxDateData
 } from "./actions";
+import { AccidentItem } from './interfaces'
 
 
-function App(props) {
+
+
+
+function App() {
 	const paramsRouter = useParams();
 	const csrftoken = getCookie("csrftoken");
 
 	// redux
 	const dispatch = useDispatch()
-	const rxShowSidebar = useSelector(state => state.uiReducer.showSidebar)
-	const rxShowOkCancelMobileMarker = useSelector(state => state.uiReducer.showOkCancelMobileMarker)
-	const rxDataFilters = useSelector(state => state.dataReducer.dataFilters)
-	const rxActiveTabKey = useSelector(state => state.uiReducer.activeTabKey)
-	const rxShowAccidentTab = useSelector(state => state.uiReducer.showAccidentTab)
+	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
+	const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker)
+	const rxDataFilters = useSelector((state: RootState) => state.dataReducer.dataFilters)
+	const rxActiveTabKey = useSelector((state: RootState) => state.uiReducer.activeTabKey)
+	const rxShowAccidentTab = useSelector((state: RootState) => state.uiReducer.showAccidentTab)
 
 	const { authToken, setAuthToken } = useAuthToken();
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	//const [isMobileDevice, setIsMobileDevice] = useState(false)
 	const isMobileView = screenWidth <= 768; // show or hide sidebar at startup
 	
-	const [dataAccidentForm, setDataAccidentForm] = useState({});
+	const [dataAccidentForm, setDataAccidentForm] = useState<AccidentItem | null>(null);
 	const { t } = useTranslation()
 
-	let dataHeatmapPoints = [];
-
+	//let dataHeatmapPoints = [];
+	let dataHeatmapPoints: number[][] = []; // [[lat, lng, value],[lat, lng, value]...]	
 
 
 	useEffect(() => {
@@ -153,7 +158,7 @@ function App(props) {
 
 
 
-	const onDragEndNewMarker = (LatLng) => {
+	const onDragEndNewMarker = (LatLng: {lon: number; lat: number}) => {
 		//let coord = { lat: 0, lng: 0 };
 		//coord.lat = LatLng.lat.toFixed(5);
 		//coord.lng = LatLng.lng.toFixed(5);
@@ -161,14 +166,16 @@ function App(props) {
 		//setNewMarkerState({ visible: true, position: coord });
 	};
 
-	const onMarkerClick = (data) => {
+	const onMarkerClick = (data: AccidentItem) => {
+		//console.log('data', data)
 		dispatch(actShowAccidentTab(true))
 		dispatch(actActiveTabKey('accident'))
 		setDataAccidentForm(data);
 		dispatch(actShowSidebar(true))
 	};
 
-	const onSubmitFilter = (filter) => {
+	const onSubmitFilter = (filter: {}) => {
+		console.log(filter)
 		dataHeatmapPoints = [];
 		dispatch(actDataFilters(filter))
 
@@ -177,7 +184,7 @@ function App(props) {
 		}
 	};
 
-	const onSubmitAccident = (data) => {
+	const onSubmitAccident = (data: any) => {
 		console.log("onSubmitAccident", data);
 		let method;
 		let url;
@@ -196,7 +203,7 @@ function App(props) {
 		}
 	};
 
-	const onDeleteAccident = (id) => {
+	const onDeleteAccident = (id: number) => {
 		fetchUrl(
 			`${process.env.REACT_APP_API_URL}roadaccident/${paramsRouter.cityName}/accidents/${id}/`,
 			"DELETE"
@@ -209,7 +216,7 @@ function App(props) {
 		dispatch(actShowAccidentTab(false))
 	};
 
-	const filterMapCallback = (feature, layer) => {
+	const filterMapCallback = (feature: any): boolean => {
 		let dateFrom_Filter = true;
 		let dateTo_Filter = true;
 
@@ -374,10 +381,12 @@ function App(props) {
 		return returnValue;
 	};
 
-	function fetchUrl(url, method, bodyObject) {
+	function fetchUrl(url: string, method: string, bodyObject?: any) {
 		let myHeaders = new Headers();
 		myHeaders.append("Content-type", "application/json");
-		myHeaders.append("X-CSRFToken", csrftoken);
+		if (csrftoken) {
+			myHeaders.append("X-CSRFToken", csrftoken);
+		}	
 		if (authToken?.access) {
 			myHeaders.append("Authorization", "Bearer " + authToken.access);
 		}
@@ -423,6 +432,7 @@ function App(props) {
 
 	return (
 		<div className="main-wrapper">
+		{paramsRouter.cityName ? 	
 			<div id="app">
 				<div className={`d-flex ${rxShowSidebar ? "showed" : "hided"}`} id="wrapper">
 					
@@ -434,7 +444,7 @@ function App(props) {
 							//onSelect={(k) => setKey(k)}
 							className="mb-3"
 						>
-							<Tab eventKey="filter" title={t('sidebar.filterTab.title')}>
+							<Tab eventKey="filter" title={t<string>('sidebar.filterTab.title')}>
 								<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
 									<FormFilter 
 										onSubmitFilter={onSubmitFilter}  
@@ -442,7 +452,7 @@ function App(props) {
 								</div>
 							</Tab>
 
-							<Tab eventKey="accident" title={t('sidebar.accidentTab.title')} tabClassName={!rxShowAccidentTab ? 'd-none' : ''}>
+							<Tab eventKey="accident" title={t<string>('sidebar.accidentTab.title')} tabClassName={!rxShowAccidentTab ? 'd-none' : ''}>
 								<div style={{overflowY: 'auto', overflowX: 'hidden', width: '100%', height: 'calc(100vh - 130px)'}}>
 									<FormAccident 
 										onSubmitAccident={onSubmitAccident}
@@ -459,7 +469,7 @@ function App(props) {
 					
 
 					<div id="page-content-wrapper">
-						<MenuGlobal
+						<MenuGlobal							
 							currentCity={paramsRouter.cityName}
 							//onClickShowMenu={ () => dispatch(actShowSidebar(!rxShowSidebar)) }
 							authToken={authToken}
@@ -491,7 +501,7 @@ function App(props) {
 										dispatch(actShowSidebar(true))
 									}}
 								>
-									{t('words.done')}
+									{t<string>('words.done')}
 								</Button>{" "}
 								<Button
 									variant="secondary"
@@ -511,6 +521,7 @@ function App(props) {
 				</div>
 			</div>
 			
+			: 'You must select a city.'}
 
 			<LoginModalForm setAuthToken={setAuthToken}/>
 			<RegisterModalForm setAuthToken={setAuthToken}/>
@@ -521,7 +532,7 @@ function App(props) {
 
 
 
-	function getCookie(name) {
+	function getCookie(name: string) {
 		var cookieValue = null;
 		if (document.cookie && document.cookie !== "") {
 			var cookies = document.cookie.split(";");
@@ -543,10 +554,12 @@ function App(props) {
 
 
 
-    function refreshAuthToken(refreshToken){
+    function refreshAuthToken(refreshToken: string){
 		let myHeaders = new Headers();
 		myHeaders.append("Content-type", "application/json");
-		myHeaders.append("X-CSRFToken", csrftoken);
+		if (csrftoken) {
+			myHeaders.append("X-CSRFToken", csrftoken);
+		}	
 
         fetch(`${process.env.REACT_APP_API_URL}token/refresh/`, {
             method: "POST",
@@ -572,7 +585,9 @@ function App(props) {
 		let myHeaders = new Headers();
 
 		myHeaders.append("Content-type", "application/json");
-		myHeaders.append("X-CSRFToken", csrftoken);
+		if (csrftoken) {
+			myHeaders.append("X-CSRFToken", csrftoken);
+		}	
 
 		fetch(url, {
 			method: "POST",

@@ -19,7 +19,7 @@ const initialState = {
     isMobileDevice: false
 }
 
-const uiReducer = (state=initialState, action) => {
+const uiReducer = (state=initialState, action: {type: string; payload: any}) => {
     switch (action.type) {
         case 'SHOWSIDEBAR':
             return {

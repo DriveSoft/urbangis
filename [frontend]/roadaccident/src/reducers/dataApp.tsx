@@ -10,7 +10,7 @@ const initialState = {
     }   
 }
 
-const dataReducer = (state=initialState, action) => {
+const dataReducer = (state=initialState, action: {type: string; payload: any}) => {
     switch (action.type) {
         case 'DATAACCIDENTS':
             return {

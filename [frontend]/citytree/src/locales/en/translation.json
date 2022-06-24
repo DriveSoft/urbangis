@@ -1,0 +1,132 @@
+{    
+
+    "menu": {
+        "menu": "Menu",
+        "home": "Home",
+        "appMaps": {
+            "title": "Maps",
+            "roadaccident": "Road traffic accidents",
+            "citytree": "City trees",
+            "urbanobject": "Urban objects"
+        },
+        "city": "City",
+        "signin": "Signin",
+        "logout": "Logout"
+
+    },
+
+    "sidebar": {
+        "filterTab": {
+            "title": "Filters",
+            "species": "Species",
+            "status": "Status",
+            "careType": "Recommendations",
+            "remark": "Remarks",
+            "placeType": "Location",
+            "irrigationMethod": "Irrigation method",
+            "plantedFrom": "Planted from",
+            "plantedTo": "To",   
+            "dateAddedFrom": "Added from",
+            "dateAddedTo": "To", 
+            "height": "Height (m)",
+            "trunkGirth": "Girth (cm)",
+            "crownDiameter": "Crown (m)",            
+            "comment": "Comment", 
+            "from": "From",
+            "to": "To",            
+            "showMyTrees": "Show only my trees",                                           
+            "clear": "Clear",
+            "search": "Search",
+            "maneuversList": {
+                "idLngForward": "Forward",
+                "idLngRightTurn": "Right turn",
+                "idLngLeftTurn": "Left turn",
+                "idLngBackward": "Backward"
+            },
+            "typeViolationsList": {
+                "idLngRunningRedLight": "Running red light",
+                "idLngPriorityViolation": "Priority violation",
+                "idLngSelfCrashed": "Self-crashed",
+                "idLngDrunkDriving": "Drunk driving"
+            },                        
+            "violatorsList": {
+                "idLngDriver": "Driver",
+                "idLngMotorcyclist": "Motorcyclist",
+                "idLngCyclist": "Cyclist",
+                "idLngPedestrian": "Pedestrian"
+            }            
+        },
+
+        "treeTab": {
+            "title": "Tree",
+            "latLng": "Lat/Lng",
+            "species": "Species",
+            "speciescomment": "Comment on species (if you can't find the species in the list above)",
+            "comment": "Comment about the tree",
+            "placetype": "Location",
+            "irrigationmethod": "Irrigation method",
+            "dateplanted": "Tree planted",
+            "googlestreeturl": "Link to Google Street View",
+            "inspActionsTable": "Inspections and Actions",
+            "newInspButton": "New inspection",
+            "newActButton": "New action",  
+            "firstInspection": "Make the first tree inspection", 
+            "heightTree": "Height (m)",
+            "diameterTree": "Crown diameter (m)",
+            "girthTree": "Trunk girth (cm)", 
+            "status": "Status",   
+            "remarks": "Remarks",
+            "careTypes": "Recommendations",                            
+            "delete": "Delete",
+            "close": "Close",
+            "save": "Save",
+            "confirmDeleting": "Are you sure you want to delete this tree?"
+        },
+        "inspTab": {
+            "title": "Inspection",
+            "delete": "Delete",
+            "close": "Close",
+            "save": "Save",
+            "confirmDeleting": "Are you sure you want to delete this inspection?"           
+            
+        }                
+        
+    },    
+
+
+    "loginForm": {
+        "title": "SIGN IN",
+        "username": "Username",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "wrongUsernamePassword.": "Wrong username or password.",
+        "login": "LOGIN",
+        "dontHaveAccount": "Don't have account?",
+        "signUp": "Sign up"
+    },
+
+    "registerForm": {
+        "title": "SIGN UP",
+        "username": "Username",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "email": "E-mail",
+        "firstNameOptional": "Firstname (optional)",
+        "lastNameOptional": "Lastname (optional)",
+        "register": "Register",
+        "alreadyHaveAccount": "Already have an account?",
+        "login": "Login"         
+    },
+
+    "words": {
+        "hello": "Hello",
+        "requiredField": "Required field",
+        "deleting": "Deleting",
+        "confirmDeleting": "Are you sure you want to delete this accident?",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "done": "Done",
+        "select": "Select..."
+
+    }    
+}

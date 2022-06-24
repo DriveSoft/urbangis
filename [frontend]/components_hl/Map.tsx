@@ -4,18 +4,17 @@ import L from 'leaflet'
 import "leaflet.heat"
 
 //import ButtonMap from './ButtonMap'
-import ButtonMap_ from './ButtonMap_'
-import MapTileLayers from './MapTileLayers'
+import ButtonMap_ from './ButtonMap'
+import MapTileLayers from '../components_hl/MapTileLayers'
 
 import "leaflet/dist/leaflet.css";
-import redIconFile from './images/markers/marker-red.png';
-import redIconShadowFile from './images/markers/marker-shadow.png';
+import redIconFile from '../components/images/markers/marker-red.png';
+import redIconShadowFile from '../components/images/markers/marker-shadow.png';
 
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'react-leaflet-markercluster/dist/styles.min.css'; // sass
 //require('leaflet/dist/leaflet.css'); // inside .js file
 //require('react-leaflet-markercluster/dist/styles.min.css'); // inside .js file
-
 
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -25,8 +24,8 @@ import {
 	actMapBaseLayerName,
 	actNewMarkerState,
 	actShowOkCancelMobileMarker,
-    actShowAccidentTab,
-    actActiveTabKey
+    //actShowAccidentTab,
+    //actActiveTabKey
 } from "../actions";
 import { RootState } from '../reducers/index'
 
@@ -55,15 +54,11 @@ let redIcon = L.icon({
   });
 
 
-let geojsonMarkerOptions = {
-    //renderer: myRenderer,
-    radius: 6, //6
-    fillColor: "#402000",//"#ff7800",
-    color: "#000",
-    weight: 0, //2  сильно тормозит на мобильной версии если weight > 0
-    opacity: 0.5,//0.7
-    fillOpacity: 0.6//0.2
-};
+
+
+
+
+
 
 //let buttonNewMarker = null
 //let buttonHeatmap = null
@@ -91,39 +86,47 @@ interface IStateCurrentCity {
 }
 
 interface MapProps {
+    mainData: any;
+    appname: string;
     dataHeatmapPoints: number[][]; // [[lat, lng, value],[lat, lng, value]...]
     currentCity: string;
     onDragEndNewMarker: (LatLng: {lon: number; lat: number}) => void;
-    onMarkerClick: (data: any) => void;
+    onClickMap: (e: any) => void;
+    //onMarkerClick: (data: any) => void;
+    pointToLayerCallback: (feature: any, latlng: L.LatLng) => any;
     filterMapCallback: (feature: any) => boolean;
 }
 
 function Map ({
+                mainData,  
+                appname,          
                 dataHeatmapPoints, 
                 currentCity,                 
-                onDragEndNewMarker,                                
-                onMarkerClick,                 
-                filterMapCallback                
+                onDragEndNewMarker, 
+                onClickMap,                               
+                //onMarkerClick,                 
+                pointToLayerCallback,
+                filterMapCallback               
             }: MapProps) {
 
     const dispatch = useDispatch()
-
-    const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents)
+    const defaultZoom = 13;
+    //const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents)
     
-    const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName)
-    const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice)
-    const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
-    const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState)
-    const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker)
+    const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName);
+    const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);
+    const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar);
+    const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState);
+    const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker);
     
-    const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker)
-    const rxCheckButtonHeatmap = useSelector((state: RootState) => state.uiReducer.checkButtonHeatmap)
-    const rxCheckButtonGPS = useSelector((state: RootState) => state.uiReducer.checkButtonGPS)
+    const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker);
+    const rxCheckButtonHeatmap = useSelector((state: RootState) => state.uiReducer.checkButtonHeatmap);
+    const rxCheckButtonGPS = useSelector((state: RootState) => state.uiReducer.checkButtonGPS);
 
     //const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
     const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null)
     const [map, setMap] = useState<any>(null);  
-    const [currentZoom, setCurrentZoom] = useState(null)  
+    const [currentZoom, setCurrentZoom] = useState(defaultZoom)  
  
 
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
@@ -175,11 +178,12 @@ function Map ({
     useEffect(() => {
 
         const fetchCity = async () => {
-          const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`)
-          const data = await res.json()
-          setCurrentCityInfo(data)
+          const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`);
+          const data = await res.json();
+          setCurrentCityInfo(data);
         }
-        fetchCity()        
+        fetchCity();
+        
    
       }, [currentCity])  //[currentCity]
    
@@ -303,26 +307,100 @@ function Map ({
     }
 
 
-    function markerOnClick(e: any)
-    {
-        let marker: L.Marker = e.target;
-        let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
-        onMarkerClick(geojson)
-        //console.log(geojson)
-        
-        
-    }
+    //function markerOnClick(e: any)
+    //{
+    //    let marker: L.Marker = e.target;
+    //    let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
+    //    onMarkerClick(geojson);
+    //    //console.log(geojson)        
+    //}
 
-    //function pointToLayer(feature: Feature, latlng) { 
-        //(geoJsonPoint: Feature<Point, any>, latlng: LatLng) => Layer'
-    function pointToLayer(feature: GeoJSON.Point|GeoJSON.Feature<GeoJSON.Point>, latlng: L.LatLng): any {
-    //function pointToLayer(geoJsonPoint: L.FeatureGroup, latlng: L.LatLng) {    
-        //return L.circleMarker(latlng, geojsonMarkerOptions).bindPopup("MESSAGE")
-        if (!rxCheckButtonHeatmap) {
-            return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
+
+    //function pointToLayer_roadaccident(feature: GeoJSON.Point|GeoJSON.Feature<GeoJSON.Point>, latlng: L.LatLng): any 
+    //{
+    //    if (!rxCheckButtonHeatmap) {
+    //        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
+    //    }
+    //    //return null;
+    //}
+
+
+    
+    /*
+    function ZoomToRadius (zoom: number, crowndiameter: number) {
+        let r: number = Math.floor(crowndiameter / 2);
+
+        if (zoom > 17) {
+            r = Math.floor(crowndiameter / 2);
+        } else if (zoom == 17){
+            r = 7;
+        } else if (zoom == 16){
+            r = 10;
+        } else if (zoom == 15){
+            r = 14;
+        } else if (zoom == 14){
+            r = 19
+        } else if (zoom == 13){
+            r = 24
+        } else if (zoom == 12){
+            r = 30
+        } else if (zoom == 11){
+            r = 37
+        } else if (zoom < 11){
+            r = 45
         }
-        //return null;
-    }
+    
+        if (r < 2) { r = 2 }
+        return r;
+    }   
+    */ 
+
+    //function pointToLayer_citytree(feature: any, latlng: L.LatLng): any {   
+    //    console.log('123') 
+    //    return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick)
+        /*
+        if (!rxCheckButtonHeatmap && currentZoom !== null) {
+            console.log('currentZoom', currentZoom)   
+            console.log('lastinsp_crowndiameter', feature.properties.lastinsp_crowndiameter)
+
+            geojsonMarkerOptions_citytree.radius = ZoomToRadius(currentZoom, feature.properties.lastinsp_crowndiameter);
+            if (geojsonMarkerOptions_citytree.radius < 2) {
+                geojsonMarkerOptions_citytree.radius = 2;
+            }
+
+            return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick)        
+        }*/
+
+/*
+
+        pointToLayer: function (feature, latlng) {
+
+            geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.lastinsp_crowndiameter);
+
+            if (geojsonMarkerOptions.radius < 2) {
+                geojsonMarkerOptions.radius = 2;
+            }
+
+            {% if status %}
+                {% for statusItem in status %}
+                    if (feature.properties.lastinsp_status == "{{statusItem.id}}")
+                    {
+                        geojsonMarkerOptions.fillColor = "#{{statusItem.hexcolor}}";
+                        geojsonMarkerOptions.color = "#{{statusItem.hexcolor}}";
+                    }
+                {% endfor %}
+            {% endif %}
+
+            return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);
+
+        },
+
+*/
+
+
+
+    //}
+
 
 
     //function onEachFeaturePoint(feature, layer) {
@@ -439,23 +517,25 @@ function Map ({
             },
             
             click(e) {
-                //onClickMap(e)
+                onClickMap(e)
+                /*
                 if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
                     //setCheckButtonNewMarker(false)
-                    dispatch(actCheckButtonNewMarker(false))
+                    dispatch(actCheckButtonNewMarker(false));
         
-                    let coord = { lat: '0', lng: '0' }
-                    coord.lat = e.latlng.lat.toFixed(5)
-                    coord.lng = e.latlng.lng.toFixed(5)
+                    let coord = { lat: '0', lng: '0' };
+                    coord.lat = e.latlng.lat.toFixed(5);
+                    coord.lng = e.latlng.lng.toFixed(5);
         
                     //setNewMarkerState({ visible: true, position: coord })
-                    dispatch(actNewMarkerState({ visible: true, position: coord }))
+                    dispatch(actNewMarkerState({ visible: true, position: coord }));
         
                     //setShowAccidentTab(true)
-                    dispatch(actShowAccidentTab(true))
+                    dispatch(actShowAccidentTab(true));
                     //setActiveTabKey("accident")
-                    dispatch(actActiveTabKey('accident'))
-                }                
+                    dispatch(actActiveTabKey('accident'));
+                } 
+                */               
             }, 
 
             zoomend(e){                
@@ -571,7 +651,7 @@ function Map ({
         {/* The map rendered before useEffect called, so first we need to load currentCityInfo before to show the map */}
         { currentCityInfo && currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
 
-            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={13} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
+            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={defaultZoom} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
                 <LayersControl position="topleft">                    
                     <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
@@ -582,19 +662,30 @@ function Map ({
                 <SetPanToMap />
 
 
-                {currentZoom && currentZoom < 15 ? (
-                    <GeoJSON key={Date.now()} data={rxDataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
-                ) : (
-                    /* @ts-ignore */
-                    <MarkerClusterGroup
-                    spiderfyOnMaxZoom={true}
-                    showCoverageOnHover={false}
-                    zoomToBoundsOnClick={true}
-                    maxClusterRadius={15}
-                    iconCreateFunction={createClusterCustomIcon}>                
-                        <GeoJSON key={Date.now()} data={rxDataAccidents} pointToLayer={pointToLayer} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                
-                    </MarkerClusterGroup>
-                )}
+
+                {appname === 'roadaccident' && <> 
+                    {currentZoom && currentZoom < 15 ? (
+                        <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
+                    ) : (
+                        /* @ts-ignore */
+                        <MarkerClusterGroup
+                        spiderfyOnMaxZoom={true}
+                        showCoverageOnHover={false}
+                        zoomToBoundsOnClick={true}
+                        maxClusterRadius={15}
+                        iconCreateFunction={createClusterCustomIcon}>                
+                            <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                
+                        </MarkerClusterGroup>
+                    )}
+                </>}
+
+
+                {appname === 'citytree' && <> 
+                    <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
+                </>}
+
+
+
 
 
                 <NewMarker newMarkerState={rxNewMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>

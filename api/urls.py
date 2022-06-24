@@ -40,11 +40,21 @@ urlpatterns = [
     path('urbanobject/<str:city>/object/<str:pk>/', views.urbanobjectGetObject, name="urbanobject-restapi-getobject"),
     #path('urbanobject/update/', views.update),
 
+    path('citytree/dictionary/specieses/', views.dictionaryCitytreeSpecies, name="api-dictionary-citytree-species"),
+    path('citytree/dictionary/statuses/', views.dictionaryCitytreeStatus, name="api-dictionary-citytree-status"),
+    path('citytree/dictionary/caretypes/', views.dictionaryCitytreeCareType, name="api-dictionary-citytree-caretype"),
+    path('citytree/dictionary/remarks/', views.dictionaryCitytreeRemark, name="api-dictionary-citytree-remark"),
+    path('citytree/dictionary/placetypes/', views.dictionaryCitytreePlaceType, name="api-dictionary-citytree-placetype"),
+    path('citytree/dictionary/irrigationmethods/', views.dictionaryCitytreeIrrigationMethod, name="api-dictionary-citytree-irrigationmethod"),
+    path('citytree/dictionary/groupspecs/', views.dictionaryCitytreeGroupSpec, name="api-dictionary-citytree-groupspec"),    
+    path('citytree/dictionary/typespecs/', views.dictionaryCitytreeTypeSpec, name="api-dictionary-citytree-typespec"),
     path('citytree/<str:city>/trees/', views.citytreeData, name="citytree-restapi-trees"),
     path('citytree/<str:city>/trees/<str:pk>/', views.citytreeTree, name="citytree-restapi-treeitem"),    
     path('citytree/<str:city>/trees/<str:treeid>/inspections/', views.citytreeInspections, name="citytree-restapi-inspections"),
     path('citytree/<str:city>/trees/<str:treeid>/inspections/<str:inspid>/', views.citytreeInspectionItem, name="citytree-restapi-inspection-item"),
     path('citytree/<str:city>/trees/<str:treeid>/actions/', views.citytreeActions, name="citytree-restapi-actions"),
-    path('citytree/<str:city>/trees/<str:treeid>/actions/<str:actionid>/', views.citytreeActionItem, name="citytree-restapi-action-item"),    
+    path('citytree/<str:city>/trees/<str:treeid>/actions/<str:actionid>/', views.citytreeActionItem, name="citytree-restapi-action-item"), 
+
+    path('citytree/s3/generate_signed_url/', views.getS3SignedUrl, name='generate_signed_url_api'),       
 
 ]

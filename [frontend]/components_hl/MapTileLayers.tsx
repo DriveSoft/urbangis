@@ -20,6 +20,7 @@ function MapTileLayers({ mapBaseLayerName }: MapTileLayersProps) {
 					url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
 					accessToken="pk.eyJ1IjoiZHJpdmVzb2Z0IiwiYSI6ImNqY3hkMzAwNTAwM2IzM28zajFoeG1pamYifQ.w5UaGnR0OMDIa6ARiyWoYQ"
 					id="mapbox/streets-v11"
+					maxZoom={21}
 					tileSize={512}
 					zoomOffset={-1}
 				/>
@@ -110,4 +111,4 @@ function MapTileLayers({ mapBaseLayerName }: MapTileLayersProps) {
 	);
 }
 
-export default MapTileLayers;
+export defau

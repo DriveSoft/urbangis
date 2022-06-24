@@ -17,11 +17,11 @@ interface Credentials {
 
 
 interface LoginModalFormProps {
-	setAuthToken: (userToken: {access: string; refresh: string; username?: string} | null) => void;
+	setAuthToken: (userToken: {access: string; refresh: string; user?: {id: number; name: string}} | null) => void;
 }
 
 
-const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
+const LoginModalForm = ({setAuthToken}: LoginModalFormProps) => {
 	const dispatch = useDispatch();
 	const rxLoginModalShow = useSelector((state: RootState) => state.uiReducer.loginModalShow)
 
@@ -48,7 +48,7 @@ const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 	});
 
 	async function loginUser(credentials: Credentials) {
-		console.log(credentials)
+		//console.log(credentials)
 		return fetch(`${process.env.REACT_APP_API_URL}token/`, {
 			method: "POST",
 			headers: {
@@ -82,7 +82,6 @@ const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 	return (
 		<Modal
 			//{...props}
-			//show={show}
 			show={rxLoginModalShow}
 			//onHide={onHide}
 			onHide={() => dispatch(actLoginModalShow(false))}
@@ -169,8 +168,7 @@ const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 					</Button>
 
 					<Form.Text className="text-muted mb-0">
-						<p className="text-center">
-							{/* {t('loginForm.dontHaveAccount')} <a href="#" onClick={()=> { setLoginModalShow(false); setRegisterModalShow(true) } }>{t('loginForm.signUp')}</a> */}
+						<p className="text-center">							
 							{t<string>("loginForm.dontHaveAccount")}{" "}
 							<a
 								href="#"

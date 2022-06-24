@@ -1,8 +1,10 @@
-from django.urls import path
+from django.urls import path, re_path
 from .views import *
-
+from django.views.generic import TemplateView
 
 urlpatterns = [
+    re_path('.*', TemplateView.as_view(template_name='citytree.html')),
+
     path('<str:city_name>/', Map.as_view(), name='citytree_map_url'),
     path('<str:city_name>/opendata/', OpenData, name='open_data'),
     path('<str:city_name>/geojson/', getGeojson.as_view(), name='citytree_geojson_get'),

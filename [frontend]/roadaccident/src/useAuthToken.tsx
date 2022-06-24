@@ -8,7 +8,12 @@ export default function useAuthToken() {
         if (token) {
             const arToken = token.split('.')
             if (arToken.length > 1) {
-                return JSON.parse(atob(arToken[1])).username
+                //return JSON.parse(atob(arToken[1])).username
+                console.log(JSON.parse(atob(arToken[1])))
+                return {
+                    "name": JSON.parse(atob(arToken[1])).username,
+                    "id": JSON.parse(atob(arToken[1])).user_id
+                }                 
             }
         }
     }
@@ -26,9 +31,9 @@ export default function useAuthToken() {
 
         if (tokenString) {
             let json = JSON.parse(tokenString)
-            const userName = getUsernameFromToken(json)
-            if (userName) {
-                json.username = userName
+            const user = getUsernameFromToken(json)
+            if (user) {
+                json.user = user
             }            
             return json
         } else {
@@ -39,7 +44,7 @@ export default function useAuthToken() {
     const [authToken, setAuthToken] = useState(getToken());
 
 
-    const saveToken = (userToken: {access: string; refresh: string; username?: string} | null) => {
+    const saveToken = (userToken: {access: string; refresh: string; user?: {id: number; name: string}} | null) => {
         if (userToken) {
 
             const rememberme = localStorage.getItem('rememberme')
@@ -51,9 +56,9 @@ export default function useAuthToken() {
             }
             
             
-            const userName = getUsernameFromToken(userToken)
-            if (userName) {
-                userToken.username = userName
+            const user = getUsernameFromToken(userToken)
+            if (user) {
+                userToken.user = user;
             }            
         } else {
             localStorage.removeItem("token")    

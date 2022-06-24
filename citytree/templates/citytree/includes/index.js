@@ -1887,7 +1887,7 @@ function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
 
 
   xhr.onreadystatechange = function() {
-    if(xhr.readyState === 4){
+    if(xhr.readyState === 4){ // done
       if(xhr.status === 200 || xhr.status === 204){
 
       }
@@ -1902,7 +1902,7 @@ function uploadFile(file, s3Data, final_file_name, idElement, id_SubmitButton){
   };
 
 
-  xhr.onload = function () {
+  xhr.onload = function () { // transaction completes successfully.
         //document.getElementById("preview").src = url;
         //document.getElementById("avatar-url").value = url;
         $('#'+idElement+'_loading').hide();

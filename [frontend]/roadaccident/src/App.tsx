@@ -1,17 +1,19 @@
 import "./App.css";
+import L from 'leaflet'
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 
 import MenuGlobal from "./components_hl/MenuGlobal";
+import Map from "./components_hl/Map";
 import Sidebar from "./components/Sidebar";
-import Tabs from 'react-bootstrap/Tabs'
-import Tab from 'react-bootstrap/Tab'
-import FormFilter from './components/FormFilter'
-import FormAccident from './components/FormAccident'
-import Map from "./components/Map";
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
+import Button from "react-bootstrap/Button";
+import FormFilter from './components/FormFilter';
+import FormAccident from './components/FormAccident';
 import LoginModalForm from "./components/LoginModalForm";
 import RegisterModalForm from "./components/RegisterModalForm";
-import Button from "react-bootstrap/Button";
+
 
 import useAuthToken from "./useAuthToken";
 import { useTranslation } from 'react-i18next'
@@ -36,6 +38,16 @@ import {
 import { AccidentItem } from './interfaces'
 
 
+let geojsonMarkerOptions = {
+	//renderer: myRenderer,
+	radius: 6, //6
+	fillColor: "#402000",//"#ff7800",
+	color: "#000",
+	weight: 0, //2  сильно тормозит на мобильной версии если weight > 0
+	opacity: 0.5,//0.7
+	fillOpacity: 0.6//0.2
+};
+
 
 
 
@@ -44,12 +56,17 @@ function App() {
 	const csrftoken = getCookie("csrftoken");
 
 	// redux
-	const dispatch = useDispatch()
-	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
-	const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker)
-	const rxDataFilters = useSelector((state: RootState) => state.dataReducer.dataFilters)
-	const rxActiveTabKey = useSelector((state: RootState) => state.uiReducer.activeTabKey)
-	const rxShowAccidentTab = useSelector((state: RootState) => state.uiReducer.showAccidentTab)
+	const dispatch = useDispatch();
+	const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents);
+	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar);
+	const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker);
+	const rxDataFilters = useSelector((state: RootState) => state.dataReducer.dataFilters);
+	const rxActiveTabKey = useSelector((state: RootState) => state.uiReducer.activeTabKey);
+	const rxShowAccidentTab = useSelector((state: RootState) => state.uiReducer.showAccidentTab);
+	const rxCheckButtonHeatmap = useSelector((state: RootState) => state.uiReducer.checkButtonHeatmap);
+
+	const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker);
+	const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);	
 
 	const { authToken, setAuthToken } = useAuthToken();
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
@@ -133,7 +150,7 @@ function App() {
 	const fetchAccidents = async () => {
 		const url = `${process.env.REACT_APP_API_URL}roadaccident/${paramsRouter.cityName}/accidents/`;
 		const res = await fetch(url);
-		const data = await res.json();
+		let data = await res.json();
 
 		// find min and max dates
 		let datefilter_Min = "2100-01-01";
@@ -153,6 +170,7 @@ function App() {
 			maxDate: datefilter_Max.slice(0, 10),
 		}))
 
+		data.dateTimeGenerated = Date.now();
 		dispatch(actDataAccidents(data))
 	};
 
@@ -173,6 +191,28 @@ function App() {
 		setDataAccidentForm(data);
 		dispatch(actShowSidebar(true))
 	};
+
+
+	const onClickMap = (e: any) => {
+		if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
+			//setCheckButtonNewMarker(false)
+			dispatch(actCheckButtonNewMarker(false));
+
+			let coord = { lat: '0', lng: '0' };
+			coord.lat = e.latlng.lat.toFixed(5);
+			coord.lng = e.latlng.lng.toFixed(5);
+
+			//setNewMarkerState({ visible: true, position: coord })
+			dispatch(actNewMarkerState({ visible: true, position: coord }));
+
+			//setShowAccidentTab(true)
+			dispatch(actShowAccidentTab(true));
+			//setActiveTabKey("accident")
+			dispatch(actActiveTabKey('accident'));
+		} 	
+	}
+
+
 
 	const onSubmitFilter = (filter: {}) => {
 		console.log(filter)
@@ -215,6 +255,29 @@ function App() {
 		dispatch(actActiveTabKey('filter'))
 		dispatch(actShowAccidentTab(false))
 	};
+
+
+	function markerOnClick(e: any)
+	{
+			let marker: L.Marker = e.target;
+			let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
+			
+			dispatch(actShowAccidentTab(true))
+			dispatch(actActiveTabKey('accident'))
+			setDataAccidentForm(geojson);
+			dispatch(actShowSidebar(true))			
+			
+			//onMarkerClick(geojson);
+			//console.log(geojson)        
+	}	
+
+    const pointToLayerRoadaccident = (feature: GeoJSON.Point|GeoJSON.Feature<GeoJSON.Point>, latlng: L.LatLng): any => 
+    {
+        if (!rxCheckButtonHeatmap) {
+            return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
+        }
+    }
+
 
 	const filterMapCallback = (feature: any): boolean => {
 		let dateFrom_Filter = true;
@@ -482,10 +545,14 @@ function App() {
 							style={{ paddingRight: "0px", paddingLeft: "0px" }}
 						>
 							<Map
+								mainData={rxDataAccidents}
+								appname="roadaccident"
 								dataHeatmapPoints={dataHeatmapPoints}
 								currentCity={paramsRouter.cityName}
-								onMarkerClick={onMarkerClick}
+								//onMarkerClick={onMarkerClick}
 								onDragEndNewMarker={onDragEndNewMarker}
+								onClickMap={onClickMap}
+								pointToLayerCallback={pointToLayerRoadaccident}
 								filterMapCallback={filterMapCallback}
 							/>
 

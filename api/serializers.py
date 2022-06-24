@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from roadaccident.models import Accident, Maneuver, TypeViolation, Violator
 from coregis.models import coreUrbanObject, coreUrbanObjectPolygon, coreCity
-from citytree.models import Tree, Inspection, CareActivity
+from citytree.models import Tree, Inspection, CareActivity, Species, Status, CareType, Remark, PlaceType, IrrigationMethod, GroupSpec, TypeSpec
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from rest_framework.validators import UniqueValidator
@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 import json
 import os
-#from django.conf import settings as djangoSettings
+from django.conf import settings as djangoSettings
 #from django.core.files import File
 
 
@@ -80,6 +80,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.groups.add(default_group)    
 
         token = TokenObtainPairSerializer.get_token(user) 
+        # Add custom claims
+        token['username'] = user.username
 
         return {'user': user, 'token': token}
 
@@ -330,6 +332,11 @@ class citytreeSerializerInspection(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['tree', 'user']
 
+    def to_representation(self, instance): #modify json output
+        data = super(citytreeSerializerInspection, self).to_representation(instance)
+        data['photoServer'] = djangoSettings.PHOTO_SERVER # server where stored photos 
+        return data   
+
 
 class citytreeSerializerTree(serializers.ModelSerializer):
     class Meta:
@@ -388,17 +395,53 @@ class citytreeSerializerTreeList(serializers.ModelSerializer):
         return data
 
 
-
-
-
-
-
 class citytreeSerializerAction(serializers.ModelSerializer):
     class Meta:
         model = CareActivity
         fields = '__all__'
         read_only_fields = ['tree', 'user']
 
+
+class dictionaryCitytreeSpeciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Species
+        fields = ['id', 'speciesname', 'localname', 'typespec', 'groupspec']
+
+class dictionaryCitytreeStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Status
+        fields = ['id', 'statusname', 'hexcolor']
+
+class dictionaryCitytreeCareTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CareType
+        fields = ['id', 'carename']
+
+class dictionaryCitytreeRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Remark
+        fields = ['id', 'remarkname']        
+
+
+class dictionaryCitytreePlaceTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaceType
+        fields = ['id', 'placename']   
+
+class dictionaryCitytreeIrrigationMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IrrigationMethod
+        fields = ['id', 'irrigationname']
+
+class dictionaryCitytreeGroupSpecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupSpec
+        fields = ['id', 'groupname']
+
+class dictionaryCitytreeTypeSpecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypeSpec
+        fields = ['id', 'typename']        
 
 
 

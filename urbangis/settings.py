@@ -82,6 +82,7 @@ TEMPLATES = [
         'DIRS': [ 
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, '[frontend]/roadaccident/build'),
+            os.path.join(BASE_DIR, '[frontend]/citytree/build'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -100,11 +101,11 @@ WSGI_APPLICATION = 'urbangis.wsgi.application'
 
 # for whole project we are use jwt auth, therefore user permission works only for roadaccident app
 # temporaly disable jwt auth, we must enable it again when all app will be on React
-#REST_FRAMEWORK = {
-#    'DEFAULT_AUTHENTICATION_CLASSES': [
-#        'rest_framework_simplejwt.authentication.JWTAuthentication',
-#    ]
-#}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -236,8 +237,12 @@ if USE_S3:
 
     # s3 public media settings
     AWS_LOCATION = 'media'
+    
     #PUBLIC_MEDIA_LOCATION = 'media'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+    #MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+    #MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    MEDIA_URL = ''
+    PHOTO_SERVER = f'https://{AWS_S3_CUSTOM_DOMAIN}'
 else:
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -250,7 +255,9 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, '[frontend]/citytree/build/static'),
     os.path.join(BASE_DIR, '[frontend]/roadaccident/build/static'),
+    
 ]
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

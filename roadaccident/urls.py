@@ -4,7 +4,7 @@ from .views import *
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    re_path('.*', TemplateView.as_view(template_name='index.html')), 
+    re_path('.*', TemplateView.as_view(template_name='roadaccident.html')), 
     path('<str:city_name>/', Map.as_view(), name='roadaccident_map_url'),
     path('get/ajax/setmapname/', ajaxSetMapName.as_view(), name = "set_mapname"),
 

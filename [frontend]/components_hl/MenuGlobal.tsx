@@ -27,7 +27,7 @@ interface MenuGlobalProps {
 	currentCity: string;
 	appname: string;
 	authToken: any;
-	setAuthToken: (userToken: {access: string; refresh: string; username?: string} | null) => void;
+	setAuthToken: (userToken: {access: string; refresh: string; user?: {id: number; name: string}} | null) => void;
   }
 
 
@@ -148,7 +148,7 @@ function MenuGlobal({
 							<>
 								<Nav.Link>
 									{`${t("words.hello")}, ${
-										authToken.username
+										authToken?.user?.name
 									}`}
 								</Nav.Link>
 
@@ -181,4 +181,4 @@ function MenuGlobal({
 
 
 
-export default MenuGlobal
+export d

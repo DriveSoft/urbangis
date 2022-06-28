@@ -155,6 +155,14 @@ function App() {
 
 		if (authToken) {
             checkAuthToken()
+        }	
+		
+		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)))
+		dispatch(actShowSidebar(!isMobileView))	
+		
+		window.addEventListener('resize', handleWindowSizeChange);
+        return () => {
+            window.removeEventListener('resize', handleWindowSizeChange);			
         }		
 
 	}, []); /* useEffect triggers when route has been changed too */
@@ -174,6 +182,11 @@ function App() {
 
         return ()=> clearInterval(interval)
     }, [authToken]);
+
+
+    function handleWindowSizeChange() {
+        setScreenWidth(window.innerWidth);
+    }	
 
 
 	const fetchTreesAndStatuses = async () => {

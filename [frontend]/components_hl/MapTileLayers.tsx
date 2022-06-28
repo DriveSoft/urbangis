@@ -111,4 +111,4 @@ function MapTileLayers({ mapBaseLayerName }: MapTileLayersProps) {
 	);
 }
 
-export defau
+export default MapTileLayers;

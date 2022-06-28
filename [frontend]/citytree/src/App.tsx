@@ -158,6 +158,7 @@ function App() {
         }	
 		
 		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)))
+		//dispatch(actIsMobileDevice(true))
 		dispatch(actShowSidebar(!isMobileView))	
 		
 		window.addEventListener('resize', handleWindowSizeChange);

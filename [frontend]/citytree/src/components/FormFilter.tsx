@@ -223,7 +223,10 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 					):(
 						<div>
 						<select {...register("statusFilter")} 							
-							multiple={true}>
+							style={{width: '100%', minHeight: '38px', borderColor: '#CED4DA'}}
+							multiple={true}
+						>
+							<option disabled selected>{t<string>("words.select")}</option>
 							{optionsStatusesFilter.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
 						</select>
 						</div>

@@ -20,13 +20,15 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 	const rxDictPlaceTypes = useSelector((state: RootState) => state.dataReducer.dictPlaceTypes);
 	const rxDictIrrigationMethods = useSelector((state: RootState) => state.dataReducer.dictIrrigationMethods);
 	const rxDictGroupSpecs = useSelector((state: RootState) => state.dataReducer.dictGroupSpec);
+
+	const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);
 	//const rxDictTypeSpecs = useSelector((state: RootState) => state.dataReducer.dictTypeSpec);
 	
 	const { t, i18n } = useTranslation();
 
 
 
-	const { control, handleSubmit, reset, setValue } = useForm({
+	const { control, register, handleSubmit, reset, setValue } = useForm({
 		reValidateMode: "onChange",
 		defaultValues: {
 			speciesFilter: "",
@@ -197,22 +199,37 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 					<Form.Label>
 						{t<string>("sidebar.filterTab.status")}
 					</Form.Label>
-					<Controller
-						name="statusFilter"
-						control={control}
-						render={({ field }) => (
-							<Select
-								{...field}
-								placeholder={t<string>("words.select")}
-								isMulti
-								//@ts-ignore
-								options={optionsStatusesFilter}
-								//@ts-ignore
-								styles={customStyles}
-								components={{ Option }}
-							/>
-						)}
-					/>
+
+					{rxIsMobileDevice ? ( 
+						<Controller
+							name="statusFilter"
+							control={control}
+							render={({ field }) => (
+								
+									<Select
+										{...field}
+										placeholder={t<string>("words.select")}								
+										isMulti
+										isSearchable={false}
+										//@ts-ignore
+										options={optionsStatusesFilter}
+										//@ts-ignore
+										styles={customStyles}
+										components={{ Option }}
+										maxMenuHeight={400}
+									/>
+							)}
+						/>
+					):(
+						<div>
+						<select {...register("statusFilter")} 							
+							multiple={true}>
+							{optionsStatusesFilter.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+						</select>
+						</div>
+					)}					
+
+					
 				</Form.Group>
 
 				<Form.Group controlId="formCareTypeFilter" className="mt-3">
@@ -227,6 +244,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 								{...field}
 								placeholder={t<string>("words.select")}
 								isMulti
+								isSearchable={false}
 								//@ts-ignore
 								options={optionsCareTypesFilter}
 								//@ts-ignore
@@ -249,6 +267,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 								{...field}
 								placeholder={t<string>("words.select")}
 								isMulti
+								isSearchable={false}
 								//@ts-ignore
 								options={optionsRemarksFilter}
 								//@ts-ignore

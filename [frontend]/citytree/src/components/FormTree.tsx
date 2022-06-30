@@ -664,7 +664,7 @@ const FormTree = ({
 
 
 				<Row className="mt-3">
-					<Form.Group as={Col} controlId="formPlaceTypeTree">
+					<Form.Group as={Col} controlId="formPlaceTypeTree" style={{ minWidth: "230px" }}>
 						<Form.Label className="required">
 							{t<string>("sidebar.treeTab.placetype")}
 						</Form.Label>
@@ -686,7 +686,7 @@ const FormTree = ({
                         <p className="requiredField">{errors.placetype?.message}</p>
 					</Form.Group>
 
-					<Form.Group as={Col} controlId="formIrrigationmethodTree">
+					<Form.Group as={Col} controlId="formIrrigationmethodTree" style={{ minWidth: "230px" }}>
 						<Form.Label>
 							{t<string>("sidebar.treeTab.irrigationmethod")}
 						</Form.Label>
@@ -710,7 +710,7 @@ const FormTree = ({
 
 
 				<Row className="mt-3">
-                    <Form.Group as={Col} controlId="formDatePlantedTree">
+                    <Form.Group as={Col} controlId="formDatePlantedTree" style={{ minWidth: "230px" }}>
 						<Form.Label>
 							{t<string>("sidebar.treeTab.dateplanted")}
 						</Form.Label>
@@ -723,7 +723,7 @@ const FormTree = ({
 						/>
 					</Form.Group>
 
-                    <Form.Group as={Col} controlId="formGoogleStreetUrlTree">
+                    <Form.Group as={Col} controlId="formGoogleStreetUrlTree" style={{ minWidth: "230px" }}>
                         <Form.Label>
                             {t<string>("sidebar.treeTab.googlestreeturl")}
                         </Form.Label>

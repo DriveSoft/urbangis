@@ -122,8 +122,8 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
     return (
 
 
-        <Row className="mt-3">
-            <Form.Group as={Col} controlId="formIdInsp1" className="mt-3">
+        <Row className="mt-3" xs={3}>
+            <Form.Group as={Col} controlId="formIdInsp1" className="mt-3 align-self-end">
                 <Controller
                     name="photo1"
                     control={controlFromUseForm}
@@ -145,7 +145,7 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
                 />
             </Form.Group>
 
-            <Form.Group as={Col} controlId="formIdInsp2" className="mt-3">
+            <Form.Group as={Col} controlId="formIdInsp2" className="mt-3 align-self-end">
                 <Controller
                     name="photo2"
                     control={controlFromUseForm}
@@ -166,7 +166,7 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
                 />
             </Form.Group>
 
-            <Form.Group as={Col} controlId="formIdInsp3" className="mt-3">
+            <Form.Group as={Col} controlId="formIdInsp3" className="mt-3 align-self-end">
                 <Controller
                     name="photo3"
                     control={controlFromUseForm}

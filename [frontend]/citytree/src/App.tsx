@@ -463,16 +463,34 @@ function App() {
 
 
 		valueFilter = rxDataFilters?.statusFilter;
-		if (Array.isArray(valueFilter)) {
+		if (Array.isArray(valueFilter) && valueFilter.length > 0) {
 			status_Filter = false;
-			valueFilter.every((x) => {
-				if (feature.properties.lastinsp_status === x.value) {
-					status_Filter = true;
-					return false; // break loop	
-				} else {
-					return true;
-				}
-			});			
+			
+			if (typeof valueFilter[0] === 'object') { // data from react-select component for desktop version
+				valueFilter.every((x) => {				
+					if (feature.properties.lastinsp_status === x.value) {
+						status_Filter = true;
+						return false; // break loop	
+					} else {
+						return true;
+					}
+	
+				});	
+
+			} else if (typeof valueFilter[0] === 'string') { // data from native html select component for mobile version
+				valueFilter.every((x) => {	
+					const parsedId = parseInt(x);
+					if (!isNaN(parsedId)) {
+						if (feature.properties.lastinsp_status === parsedId) {
+							status_Filter = true;
+							return false; // break loop	
+						} else {
+							return true;
+						}
+					}
+				});	
+			}
+		
 		}
 
 

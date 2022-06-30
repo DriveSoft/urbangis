@@ -399,7 +399,7 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     return (
         <div style={{position: "relative"}}>
             <Form.Group>
-                <Image src={imagePhoto} style={{maxWidth: "100%", height: "auto"}} rounded key={imagePhoto} /> {/* key to prevent showing previous loaded photos */}
+                <Image src={imagePhoto} fluid={true} rounded key={imagePhoto} /> {/* key to prevent showing previous loaded photos */}
                 <a href="#">
                     <i className="far fa-times-circle fa-2x" 
                         style={{color: "#BB0000", position: "absolute", top: "-3px", right: "8px"}}

@@ -89,10 +89,7 @@ function App() {
 	const [imageSlider, setImageSlider] = useState<{visible: boolean; images: string[]}>({visible: false, images: []});
 	const { t } = useTranslation();
 
-	let dataHeatmapPoints: number[][] = []; // [[lat, lng, value],[lat, lng, value]...]
-
-
-	
+	let dataHeatmapPoints: number[][] = []; // [[lat, lng, value],[lat, lng, value]...]	
 
 	useEffect(() => {
 		
@@ -466,6 +463,17 @@ function App() {
 		if (Array.isArray(valueFilter) && valueFilter.length > 0) {
 			status_Filter = false;
 			
+			valueFilter.every((x) => {				
+				if (feature.properties.lastinsp_status === x.value) {
+					status_Filter = true;
+					return false; // break loop	
+				} else {
+					return true;
+				}
+
+			});
+
+			/*
 			if (typeof valueFilter[0] === 'object') { // data from react-select component for desktop version
 				valueFilter.every((x) => {				
 					if (feature.properties.lastinsp_status === x.value) {
@@ -489,7 +497,7 @@ function App() {
 						}
 					}
 				});	
-			}
+			}*/
 		
 		}
 
@@ -603,7 +611,7 @@ function App() {
 						 		
 		
 		
-		rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed
+		//rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed
 		return result;
 	};
 
@@ -612,6 +620,8 @@ function App() {
 	const onSubmitFilter = (filter: {}) => {
 		console.log(filter);
 		dataHeatmapPoints = [];
+		
+		rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed. <GeoJSON key={mainData.dateTimeGenerated}...
 		dispatch(actDataFilters(filter));	
 
 		if (isMobileView) {

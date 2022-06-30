@@ -200,7 +200,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 						{t<string>("sidebar.filterTab.status")}
 					</Form.Label>
 
-					{!rxIsMobileDevice ? ( 
+					{/*{!rxIsMobileDevice ? ( */}
 						<Controller
 							name="statusFilter"
 							control={control}
@@ -220,17 +220,17 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 									/>
 							)}
 						/>
-					):(
+					{/*):(
 						<div>
 						<select {...register("statusFilter")} 							
-							style={{width: '100%', minHeight: '38px', borderColor: '#CED4DA'}}
+							style={{width: '100%', minHeight: '38px', borderRadius: '4px', borderColor: 'rgb(204, 204, 204)', backgroundColor: 'rgb(255, 255, 255)'}}
 							multiple={true}
 						>
 							<option disabled selected>{t<string>("words.select")}</option>
 							{optionsStatusesFilter.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
 						</select>
 						</div>
-					)}					
+					)}*/}					
 
 					
 				</Form.Group>

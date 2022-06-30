@@ -162,7 +162,7 @@ function Map ({
 		    if (mapname_) {
                 dispatch(actMapBaseLayerName(mapname_.split("=")[1]))
 		    }            
-        }
+        }        
 
         return () => { 
             buttonNewMarker && buttonNewMarker.remove()
@@ -190,6 +190,7 @@ function Map ({
 
 
       // apply states for buttons
+      
       useEffect(() => {        
         if (buttonNewMarker) {
             if (rxCheckButtonNewMarker) {
@@ -200,7 +201,8 @@ function Map ({
                 buttonNewMarker.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [rxCheckButtonNewMarker])
+      }, [rxCheckButtonNewMarker]);
+
       useEffect(() => {        
         if (buttonHeatmap) {
             if (rxCheckButtonHeatmap) {
@@ -225,10 +227,8 @@ function Map ({
       }, [rxCheckButtonGPS])      
 
 
-
+    
     useEffect(()=>{
-
-
         if (map && !rxIsMobileDevice) {
             if (rxCheckButtonNewMarker) {
                 L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
@@ -236,7 +236,7 @@ function Map ({
                 L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
             }    
         }
-    }, [rxCheckButtonNewMarker])
+    }, [rxCheckButtonNewMarker]); 
       
 
 
@@ -253,17 +253,19 @@ function Map ({
 
     
 
-	const onClickNewMarker = (state: boolean) => {
-        dispatch(actCheckButtonNewMarker(state))
+	const onClickNewMarker = (state: boolean) => {        
+        
+        dispatch(actCheckButtonNewMarker(state));
+        
 
 		if (rxIsMobileDevice && state) {						
-            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }))
-            dispatch(actShowOkCancelMobileMarker(true))
+            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
+            dispatch(actShowOkCancelMobileMarker(true));
 		}
 	};
 
-	const onClickHeatmap = (state: boolean) => {
-		console.log("onClickHeatmap", state);
+	const onClickHeatmap = (state: boolean) => {		
+        console.log("onClickHeatmap", state);
 
 		if (state) {
             dispatch(actMapBaseLayerName('Dark'))
@@ -420,30 +422,30 @@ function Map ({
 
 
     function NewMarker({newMarkerState}: any) {          
-        const visible = newMarkerState.visible
+        const visible = newMarkerState.visible;
 
-        const map = useMap()
+        const map = useMap();
 
         const eventHandlers = useMemo(
             () => ({
                 dragend() {
                     if (newMarkerRef.current) {
-                        const marker: L.Marker = newMarkerRef.current
+                        const marker: L.Marker = newMarkerRef.current;
                         if (!rxIsMobileDevice && marker != null) {
                             //onDragEndNewMarker(marker.getLatLng())                        
-                            const LatLng = marker.getLatLng()
+                            const LatLng = marker.getLatLng();
                             let coord = { lat: '0', lng: '0' };
                             coord.lat = LatLng.lat.toFixed(5);
                             coord.lng = LatLng.lng.toFixed(5);
                     
                             //setNewMarkerState({ visible: true, position: coord }); 
-                            dispatch(actNewMarkerState({ visible: true, position: coord }))                       
+                            dispatch(actNewMarkerState({ visible: true, position: coord }));                       
                         }
                     }
                 },
             }),
             [],
-        )
+        );
 
 
 
@@ -680,7 +682,7 @@ function Map ({
                 </>}
 
 
-                {appname === 'citytree' && <> 
+                {appname === 'citytree' && <>                     
                     <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
                 </>}
 
@@ -724,4 +726,4 @@ export default Map
 //https://newbedev.com/home-button-leaflet-map
 
 //пример без React-Leaflet
-//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outside-useeffect-in-react
+//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outsid

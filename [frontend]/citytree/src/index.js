@@ -20,7 +20,7 @@ const store = createStore(
 
 ReactDOM.render(
   <Provider store={store}>
-  {/*<React.StrictMode>*/}
+  <React.StrictMode>
     <BrowserRouter basename="/citytree">
       <Routes>
         <Route path="/">
@@ -30,7 +30,7 @@ ReactDOM.render(
         </Route>
       </Routes>
     </BrowserRouter>
-  {/*</React.StrictMode>,*/}
+  </React.StrictMode>
   </Provider>,
   document.getElementById('root')
 );

@@ -200,7 +200,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 						{t<string>("sidebar.filterTab.status")}
 					</Form.Label>
 
-					{rxIsMobileDevice ? ( 
+					{!rxIsMobileDevice ? ( 
 						<Controller
 							name="statusFilter"
 							control={control}

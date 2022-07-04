@@ -726,4 +726,4 @@ export default Map
 //https://newbedev.com/home-button-leaflet-map
 
 //пример без React-Leaflet
-//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outsid
+//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outside-useeffect-in-react

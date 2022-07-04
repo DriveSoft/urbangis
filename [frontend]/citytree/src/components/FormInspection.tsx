@@ -396,6 +396,7 @@ const FormInspection = ({
 							<Select
 								{...field}
 								placeholder={t<string>("words.select")}
+								isSearchable={false}
 								//@ts-ignore
 								options={optionsStatusesData}
 							/>
@@ -416,6 +417,7 @@ const FormInspection = ({
 								{...field}
 								isMulti
 								placeholder={t<string>("words.select")}
+								isSearchable={false}
 								//@ts-ignore
 								options={optionsRemarksData}
 							/>
@@ -435,6 +437,7 @@ const FormInspection = ({
 								{...field}
 								isMulti
 								placeholder={t<string>("words.select")}
+								isSearchable={false}
 								//@ts-ignore
 								options={optionsCareTypesData}
 							/>

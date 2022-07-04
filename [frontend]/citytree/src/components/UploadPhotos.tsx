@@ -46,7 +46,7 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
 
     const resizerOptions = {
         enabled: true,
-        autoResize: false, // otherwise resizing will be preform before uploading
+        autoResize: true, // otherwise resizing will be preform before uploading
         maxWidth: 1280,
         maxHeight: 1280,
         compressFormat: "JPEG",

@@ -61,8 +61,8 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     serverPhoto,
     value,
     onChange,
-    buttonCaption='Browse...',
-    resizer=defaultResizingOptions,
+    buttonCaption = 'Browse...',
+    resizer = defaultResizingOptions,
     onFinish,
     onProgress,
     onError,
@@ -116,6 +116,7 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     }, [s3DataState]);  
 
     useEffect(()=>{                
+        
         if (value) {
             
             if (serverPhoto == null) {
@@ -141,6 +142,7 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
           
         } else {
             setImagePhoto(emptyPhoto);
+            setButtonCaptionState(buttonCaption);
         }
                
         setNotLoad(false);
@@ -150,13 +152,13 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     
 
 
-    useEffect(() => {
-        if (status === stateComponent.resizing) {
-            setButtonCaptionState("Resizing...");
-        } else {
-            setButtonCaptionState(buttonCaption);            
-        }   
-    }, [status])
+    //useEffect(() => {
+        //if (status === stateComponent.resizing) {
+        //    setButtonCaptionState("Resizing...");
+        //} else {
+        //    setButtonCaptionState(buttonCaption);            
+        //}   
+    //}, [status])
 
 
         
@@ -202,17 +204,28 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
             if (resizer.enabled && resizer.autoResize) {
                 try {                
                     setStatus(stateComponent.resizing);
+                    setButtonCaptionState("Resizing...")
                     const image = await resizeFile(file);
-                    setCompressedPhoto(image);
-                    setStatus(stateComponent.resized);
 
-                    if (autoUpload) {
-                        startUpload(file.name);     
-                    }
+                    if (image instanceof Blob) {
+                        setCompressedPhoto(image);
+                        setStatus(stateComponent.resized);
+                        setButtonCaptionState("Resized ");
+    
+                        if (autoUpload) {
+                            startUpload(file.name);     
+                        }
+                        //console.log('image.size', humanFileSize(image.size));
+                    } else {
+                        setButtonCaptionState("Error");    
+                    } 
+                    
+
 
                 } catch (err) {
                     console.log(err);
                     setStatus(stateComponent.error);
+                    setButtonCaptionState("Error")
                 }
             } else {
                 if (autoUpload) {
@@ -370,13 +383,16 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
                         try {                
 
                             setStatus(stateComponent.resizing);
+                            setButtonCaptionState("Resizing...")
                             const image = await resizeFile(file);
                             setStatus(stateComponent.resized);
+                            setButtonCaptionState("Resized");
                             //@ts-ignore
                             uploadFile(image, signedUrl.data);                            
                         } catch (err) {
                             console.log(err);
                             setStatus(stateComponent.error);
+                            setButtonCaptionState("Error")
                         }                        
                     }
 
@@ -401,8 +417,8 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
             <Form.Group>
                 <Image src={imagePhoto} fluid={true} rounded key={imagePhoto} /> {/* key to prevent showing previous loaded photos */}
                 <a href="#">
-                    <i className="far fa-times-circle fa-2x" 
-                        style={{color: "#BB0000", position: "absolute", top: "-3px", right: "8px"}}
+                    <i className="far fa-times-circle fa-lg" 
+                        style={{color: "#BB0000", position: "absolute", top: "-3px", right: "8px", textShadow: "0 0 3px white"}}
                         onClick={() => { 
                             //onChange("*will_be_deleted*"); 
                             //setFilename("*will_be_deleted*");
@@ -490,5 +506,16 @@ function makeRandomStr(length: number) {
    }
    return result;
 }
+
+
+
+
+function humanFileSize(size: number) {
+    const i = Math.floor( Math.log(size) / Math.log(1024) );
+    const sSize = ( size / Math.pow(1024, i) ).toFixed(2);
+    return `${sSize} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
+    //return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    
+};
 
 export default ImageS3Upload

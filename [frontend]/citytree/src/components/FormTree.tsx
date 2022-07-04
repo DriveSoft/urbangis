@@ -803,6 +803,7 @@ const FormTree = ({
                             <Form.Label className="required">
                                 {t<string>("sidebar.treeTab.girthTree")}
                             </Form.Label>
+                            <div style={{height: "100%"}}>
                             <Controller
                                 name="trunkgirth"
                                 rules={{ required: t<string>("words.requiredField") }}                                
@@ -816,8 +817,14 @@ const FormTree = ({
                                 )}
                             />
                             <p className="requiredField">{errors.trunkgirth?.message}</p>
+                            </div>
                         </Form.Group>                        
 				    </Row>  
+
+
+
+
+
 
                     <Form.Group controlId="formStatusTree" className="mt-3">
                         <Form.Label className="required">
@@ -831,6 +838,7 @@ const FormTree = ({
                                 <Select
                                     {...field}
                                     placeholder={t<string>("words.select")}
+                                    isSearchable={false}
                                     //@ts-ignore
                                     options={optionsStatusesData}																
                                 />
@@ -851,6 +859,7 @@ const FormTree = ({
                                     {...field}
                                     isMulti
                                     placeholder={t<string>("words.select")}
+                                    isSearchable={false}
                                     //@ts-ignore
                                     options={optionsRemarksData}																
                                 />
@@ -870,6 +879,7 @@ const FormTree = ({
                                     {...field}
                                     isMulti
                                     placeholder={t<string>("words.select")}
+                                    isSearchable={false}
                                     //@ts-ignore
                                     options={optionsCareTypesData}																
                                 />

@@ -23,7 +23,7 @@ import {
 	actCheckButtonNewMarker,
 	actMapBaseLayerName,
 	actNewMarkerState,
-	actShowOkCancelMobileMarker,
+	actShowOkCancelMobileMarker
     //actShowAccidentTab,
     //actActiveTabKey
 } from "../actions";
@@ -92,6 +92,8 @@ interface MapProps {
     currentCity: string;
     onDragEndNewMarker: (LatLng: {lon: number; lat: number}) => void;
     onClickMap: (e: any) => void;
+    onZoomEnd?: (e: any) => void;
+    onEachLayer?: (layer: L.Layer, zoom: number) => void;
     //onMarkerClick: (data: any) => void;
     pointToLayerCallback: (feature: any, latlng: L.LatLng) => any;
     filterMapCallback: (feature: any) => boolean;
@@ -103,7 +105,9 @@ function Map ({
                 dataHeatmapPoints, 
                 currentCity,                 
                 onDragEndNewMarker, 
-                onClickMap,                               
+                onClickMap, 
+                onZoomEnd,  
+                onEachLayer,                            
                 //onMarkerClick,                 
                 pointToLayerCallback,
                 filterMapCallback               
@@ -124,10 +128,10 @@ function Map ({
     const rxCheckButtonGPS = useSelector((state: RootState) => state.uiReducer.checkButtonGPS);
 
     //const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
-    const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null)
+    const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null);
     const [map, setMap] = useState<any>(null);  
-    const [currentZoom, setCurrentZoom] = useState(defaultZoom)  
- 
+    
+    const [currentZoom, setCurrentZoom] = useState(defaultZoom); 
 
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
     const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
@@ -540,8 +544,11 @@ function Map ({
                 */               
             }, 
 
-            zoomend(e){                
-                setCurrentZoom(e.target._zoom)
+            zoomend(e){                                
+                if (onZoomEnd) onZoomEnd(e);
+
+                setCurrentZoom(e.target._zoom)                 
+                //dispatch(actCurrentMapZoom(e.target._zoom));               
             },
 
             locationfound(e){
@@ -572,10 +579,23 @@ function Map ({
 
 
 
+    function MarkersZoomAdjustment(){
+        const map = useMap(); 
+        const zoom = map.getZoom();
+                 
+        if (onEachLayer) {
+            map.eachLayer(function (layer) {
+                onEachLayer(layer, zoom);           
+            });
+        }
+
+        return null
+    }
+
 
 
       function HeatmapFunction(){
-        const map = useMap()
+        const map = useMap();
         //useEffect(() => {
           //const points = addressPoints
           //? addressPoints.map((p) => {
@@ -701,7 +721,7 @@ function Map ({
 
                 <HeatmapFunction />
                 
-
+                {onEachLayer && <MarkersZoomAdjustment />}
                 
             </MapContainer>
         ) : (

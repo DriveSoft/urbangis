@@ -84,9 +84,6 @@ export const actCheckButtonGPS = (value) => {
     }
 }
 
-
-
-
 export const actIsMobileDevice = (value) => {
     return {
         type: 'ISMOBILEDEVICE',

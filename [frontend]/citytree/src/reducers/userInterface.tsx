@@ -89,7 +89,7 @@ const uiReducer = (state=initialState, action: {type: string; payload: any}) => 
                 ...state,
                 checkButtonGPS: action.payload
             }            
-
+                        
 
 
         case 'ISMOBILEDEVICE':

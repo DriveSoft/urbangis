@@ -408,6 +408,20 @@ function App() {
 		}		
 	}
 
+	const onZoomEnd = (e: any) => {
+		//console.log('zoom', e.target._zoom);
+	}
+	
+	const onEachLayer = (layer: L.Layer, zoom: number) => {
+		//@ts-ignore
+		const crowndiameter = layer?.feature?.properties?.lastinsp_crowndiameter;
+		if (crowndiameter) {
+			//@ts-ignore
+		    layer.setRadius(ZoomToRadius(zoom, crowndiameter));                    
+			
+		} 		
+	}	
+	
 
 	const onDragEndNewMarker = (LatLng: { lon: number; lat: number }) => {
 		//let coord = { lat: 0, lng: 0 };
@@ -645,9 +659,18 @@ function App() {
 				}
 			}
 
-			return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
+			//console.log(ZoomToRadius(rxCurrentMapZoom, feature.properties.lastinsp_crowndiameter))
+			//geojsonMarkerOptions_citytree.radius = ZoomToRadius(rxCurrentMapZoom, feature.properties.lastinsp_crowndiameter);			
+			//geojsonMarkerOptions_citytree.radius = 2 + Math.floor(Math.random() * 10)
+
+			
+
+			//return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
+			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
 		}
 			return null;
+
+		
 
 		
 		/*
@@ -690,6 +713,14 @@ function App() {
 		*/
 
 	};
+
+	function ZoomToRadius (zoom: number, crowndiameter: number) {
+		// + 21...13 -
+		let r = Math.floor(crowndiameter / 2);
+		if (zoom < 19) r = r + (18-zoom)*5;
+		if (r < 2) r=2;
+		return r; 		
+	}	
 
 
 
@@ -813,6 +844,8 @@ function App() {
 									dataHeatmapPoints={dataHeatmapPoints}
 									currentCity={paramsRouter.cityName}
 									onClickMap={onClickMap}
+									onZoomEnd={onZoomEnd}
+									onEachLayer={onEachLayer}
 									//={onMarkerClick}
 									onDragEndNewMarker={onDragEndNewMarker}
 									pointToLayerCallback={pointToLayerTrees}

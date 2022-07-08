@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { MapContainer, LayersControl, TileLayer, ZoomControl, useMapEvents, GeoJSON, useMap, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-import "leaflet.heat"
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { MapContainer, LayersControl, TileLayer, ZoomControl, useMapEvents, GeoJSON, useMap, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import "leaflet.heat";
+import "./Map.css";
 
 //import ButtonMap from './ButtonMap'
-import ButtonMap_ from './ButtonMap'
-import MapTileLayers from '../components_hl/MapTileLayers'
+import ButtonMap_ from './ButtonMap';
+import MapTileLayers from '../components_hl/MapTileLayers';
 
 import "leaflet/dist/leaflet.css";
 import redIconFile from '../components/images/markers/marker-red.png';
@@ -16,18 +17,18 @@ import 'react-leaflet-markercluster/dist/styles.min.css'; // sass
 //require('leaflet/dist/leaflet.css'); // inside .js file
 //require('react-leaflet-markercluster/dist/styles.min.css'); // inside .js file
 
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import {
 	actCheckButtonGPS,
 	actCheckButtonHeatmap,
 	actCheckButtonNewMarker,
 	actMapBaseLayerName,
 	actNewMarkerState,
-	actShowOkCancelMobileMarker,
+	actShowOkCancelMobileMarker
     //actShowAccidentTab,
     //actActiveTabKey
 } from "../actions";
-import { RootState } from '../reducers/index'
+import { RootState } from '../reducers/index';
 
 // fix disapeared marker from map
 
@@ -83,6 +84,7 @@ interface IStateCurrentCity {
 	latitude: string;
 	longitude: string;
 	population: number;	
+    zoom: number;
 }
 
 interface MapProps {
@@ -92,6 +94,8 @@ interface MapProps {
     currentCity: string;
     onDragEndNewMarker: (LatLng: {lon: number; lat: number}) => void;
     onClickMap: (e: any) => void;
+    onZoomEnd?: (e: any) => void;
+    onEachLayer?: (layer: L.Layer, zoom: number) => void;
     //onMarkerClick: (data: any) => void;
     pointToLayerCallback: (feature: any, latlng: L.LatLng) => any;
     filterMapCallback: (feature: any) => boolean;
@@ -103,14 +107,17 @@ function Map ({
                 dataHeatmapPoints, 
                 currentCity,                 
                 onDragEndNewMarker, 
-                onClickMap,                               
+                onClickMap, 
+                onZoomEnd,  
+                onEachLayer,                            
                 //onMarkerClick,                 
                 pointToLayerCallback,
                 filterMapCallback               
             }: MapProps) {
+               
 
     const dispatch = useDispatch()
-    const defaultZoom = 13;
+    //const defaultZoom = 13;
     //const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents)
     
     const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName);
@@ -124,10 +131,10 @@ function Map ({
     const rxCheckButtonGPS = useSelector((state: RootState) => state.uiReducer.checkButtonGPS);
 
     //const [currentCityInfo, setCurrentCityInfo] = useState({latitude: "0", longitude: "0"})
-    const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null)
+    const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null);
     const [map, setMap] = useState<any>(null);  
-    const [currentZoom, setCurrentZoom] = useState(defaultZoom)  
- 
+    
+    const [currentZoom, setCurrentZoom] = useState(13); 
 
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
     const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
@@ -162,7 +169,7 @@ function Map ({
 		    if (mapname_) {
                 dispatch(actMapBaseLayerName(mapname_.split("=")[1]))
 		    }            
-        }
+        }        
 
         return () => { 
             buttonNewMarker && buttonNewMarker.remove()
@@ -178,18 +185,30 @@ function Map ({
     useEffect(() => {
 
         const fetchCity = async () => {
-          const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`);
-          const data = await res.json();
-          setCurrentCityInfo(data);
+            const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`);
+            const data = await res.json();
+            setCurrentCityInfo(data);          
         }
+
         fetchCity();
-        
+        console.log('currentCity');
+           
+    }, [currentCity])  //[currentCity]
    
-      }, [currentCity])  //[currentCity]
-   
+
+    //useEffect(() => {
+    //    if (currentCityInfo && map) {
+    //        //map.setZoom(currentCityInfo.zoom);
+    //        if (onZoomEnd) onZoomEnd(currentCityInfo.zoom);          
+    //    }    
+    //
+    //}, [currentCityInfo]);   
+    
+    
 
 
       // apply states for buttons
+      
       useEffect(() => {        
         if (buttonNewMarker) {
             if (rxCheckButtonNewMarker) {
@@ -200,7 +219,8 @@ function Map ({
                 buttonNewMarker.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [rxCheckButtonNewMarker])
+      }, [rxCheckButtonNewMarker]);
+
       useEffect(() => {        
         if (buttonHeatmap) {
             if (rxCheckButtonHeatmap) {
@@ -225,10 +245,8 @@ function Map ({
       }, [rxCheckButtonGPS])      
 
 
-
+    
     useEffect(()=>{
-
-
         if (map && !rxIsMobileDevice) {
             if (rxCheckButtonNewMarker) {
                 L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
@@ -236,7 +254,7 @@ function Map ({
                 L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
             }    
         }
-    }, [rxCheckButtonNewMarker])
+    }, [rxCheckButtonNewMarker]); 
       
 
 
@@ -253,17 +271,19 @@ function Map ({
 
     
 
-	const onClickNewMarker = (state: boolean) => {
-        dispatch(actCheckButtonNewMarker(state))
+	const onClickNewMarker = (state: boolean) => {        
+        
+        dispatch(actCheckButtonNewMarker(state));
+        
 
 		if (rxIsMobileDevice && state) {						
-            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }))
-            dispatch(actShowOkCancelMobileMarker(true))
+            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
+            dispatch(actShowOkCancelMobileMarker(true));
 		}
 	};
 
-	const onClickHeatmap = (state: boolean) => {
-		console.log("onClickHeatmap", state);
+	const onClickHeatmap = (state: boolean) => {		
+        console.log("onClickHeatmap", state);
 
 		if (state) {
             dispatch(actMapBaseLayerName('Dark'))
@@ -278,16 +298,16 @@ function Map ({
 
 
     function SetPanToMap() {        
-        const map = useMap()
+        const map = useMap();
         if (currentCityInfo) {
             // change map position when current city has been changed        
             if (currentCitySysname !== currentCityInfo["sysname"]) {
-                map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] )
+                map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] );
             }
-            currentCitySysname = currentCityInfo["sysname"]
+            currentCitySysname = currentCityInfo["sysname"];
 
         }
-        return null
+        return null;
     }    
 
 
@@ -420,34 +440,30 @@ function Map ({
 
 
     function NewMarker({newMarkerState}: any) {          
-        const visible = newMarkerState.visible
+        const visible = newMarkerState.visible;
 
-        const map = useMap()
+        const map = useMap();
 
         const eventHandlers = useMemo(
             () => ({
                 dragend() {
                     if (newMarkerRef.current) {
-                        const marker: L.Marker = newMarkerRef.current
+                        const marker: L.Marker = newMarkerRef.current;
                         if (!rxIsMobileDevice && marker != null) {
                             //onDragEndNewMarker(marker.getLatLng())                        
-                            const LatLng = marker.getLatLng()
+                            const LatLng = marker.getLatLng();
                             let coord = { lat: '0', lng: '0' };
                             coord.lat = LatLng.lat.toFixed(5);
                             coord.lng = LatLng.lng.toFixed(5);
                     
                             //setNewMarkerState({ visible: true, position: coord }); 
-                            dispatch(actNewMarkerState({ visible: true, position: coord }))                       
+                            dispatch(actNewMarkerState({ visible: true, position: coord }));                       
                         }
                     }
                 },
             }),
             [],
-        )
-
-
-
-
+        );
 
         return (<>
                     {visible && <> 
@@ -538,8 +554,11 @@ function Map ({
                 */               
             }, 
 
-            zoomend(e){                
-                setCurrentZoom(e.target._zoom)
+            zoomend(e){                                
+                if (onZoomEnd) onZoomEnd(e);
+
+                setCurrentZoom(e.target._zoom)                 
+                //dispatch(actCurrentMapZoom(e.target._zoom));               
             },
 
             locationfound(e){
@@ -570,10 +589,23 @@ function Map ({
 
 
 
+    function MarkersZoomAdjustment(){
+        const map = useMap(); 
+        const zoom = map.getZoom();
+                 
+        if (onEachLayer) {
+            map.eachLayer(function (layer) {
+                onEachLayer(layer, zoom);           
+            });
+        }
+
+        return null
+    }
+
 
 
       function HeatmapFunction(){
-        const map = useMap()
+        const map = useMap();
         //useEffect(() => {
           //const points = addressPoints
           //? addressPoints.map((p) => {
@@ -651,7 +683,7 @@ function Map ({
         {/* The map rendered before useEffect called, so first we need to load currentCityInfo before to show the map */}
         { currentCityInfo && currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
 
-            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={defaultZoom} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
+            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={currentCityInfo.zoom} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
                 <LayersControl position="topleft">                    
                     <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
@@ -680,7 +712,7 @@ function Map ({
                 </>}
 
 
-                {appname === 'citytree' && <> 
+                {appname === 'citytree' && <>                     
                     <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
                 </>}
 
@@ -699,7 +731,7 @@ function Map ({
 
                 <HeatmapFunction />
                 
-
+                {onEachLayer && <MarkersZoomAdjustment />}
                 
             </MapContainer>
         ) : (
@@ -716,12 +748,4 @@ export default Map
 
 //https://egghead.io/lessons/react-create-a-new-map-using-react-leaflet
 
-//https://codesandbox.io/s/63wqz?file=/src/LeafletControlGeocoder.jsx
-//https://www.npmjs.com/package/leaflet-control-geocoder
-
-//https://codesandbox.io/s/how-to-add-a-legend-to-the-map-using-react-leaflet-useleaflet-hook-75jnp?file=/src/index.js
-
-//https://newbedev.com/home-button-leaflet-map
-
-//пример без React-Leaflet
-//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outside-useeffect-in-react
+//https://codesandbox.io/s/63wqz?file=/src/LeafletControlGe

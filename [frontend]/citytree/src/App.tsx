@@ -6,10 +6,12 @@ import { useState, useEffect, useRef } from "react";
 
 import MenuGlobal from "./components_hl/MenuGlobal";
 import Map from "./components_hl/Map";
+import MainWrapper from "./components/MainWrapper";
 import Sidebar from "./components/Sidebar";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import Button from "react-bootstrap/Button";
+import ButtonOkCancelMobileMarker from "./components/ButtonOkCancelMobileMarker";
 
 import FormFilter from './components/FormFilter';
 import FormTree from './components/FormTree';
@@ -79,10 +81,13 @@ function App() {
 	const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker);
 	const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);
 
+	const [currentZoomMap, setCurrentZoomMap] = useState(13);
+
 	const { authToken, setAuthToken } = useAuthToken();
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	//const [isMobileDevice, setIsMobileDevice] = useState(false)
 	const isMobileView = screenWidth <= 768; // show or hide sidebar at startup
+
 
 	const [dataTreeForm, setDataTreeForm] = useState<TreeItem | null>(null);
 	const [dataInspForm, setDataInspForm] = useState<InspItem | {tree: number} | null>(null);
@@ -374,13 +379,7 @@ function App() {
 
 		if (images.length > 0) {
 			setImageSlider({visible: true, images: images});
-		}
-		
-		
-		//setDataInspForm({...data}); //таким образом передается копия объекта, которая указывает на другой участок памяти, иначе useEffect не срабатывает у формы, а значит форма не перезаполняется, когда например чтото поменяли на форме, затем ее закрыли без сохранения и снова открыли, видим вместо актуальных данных, старые, которые не сохранялись
-		//dispatch(actShowInspTab(true));
-		//dispatch(actActiveTabKey('insp'));									
-		//dispatch(actShowSidebar(true));			
+		}					
 	}		
 
 		
@@ -388,7 +387,6 @@ function App() {
 
 	const onClickMap = (e: any) => {
 		if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
-			//setCheckButtonNewMarker(false)
 			dispatch(actCheckButtonNewMarker(false));
 
 			let coord = { lat: '0', lng: '0' };
@@ -400,16 +398,12 @@ function App() {
 			dispatch(actShowTreeTab(true));
 			dispatch(actActiveTabKey('tree'));									
 			dispatch(actShowSidebar(true));	
-
-			//setShowAccidentTab(true)
-			//dispatch(actShowTreeTab(true));
-			//setActiveTabKey("accident")
-			//dispatch(actActiveTabKey('tree'));
 		}		
 	}
 
 	const onZoomEnd = (e: any) => {
-		//console.log('zoom', e.target._zoom);
+		console.log('zoom', e.target._zoom);
+		setCurrentZoomMap(e.target._zoom);
 	}
 	
 	const onEachLayer = (layer: L.Layer, zoom: number) => {
@@ -432,139 +426,85 @@ function App() {
 
 	const filterMapCallback = (feature: any): boolean => {
 		
-		let species_Filter = true;
-		let status_Filter = true;
-		let recommendations_Filter = true;
-		let remarks_Filter = true;
-		let placetype_Filter = true;
-		let irrigationmethod_Filter = true;
-
-		let plantedDateFrom_Filter = true;
-		let plantedDateTo_Filter = true;
-		let addedDateFrom_Filter = true;
-		let addedDateTo_Filter = true;
-		let comment_Filter = true;
-
-		let heightFrom_Filter = true;
-		let heightTo_Filter = true;
-		let trunkGirthFrom_Filter = true;
-		let trunkGirthTo_Filter = true;
-		let crownDiameterFrom_Filter = true;
-		let crownDiameterTo_Filter = true;
-
-		let showOnlyMyTrees_Filter = true;
+		const objectSearchResult = {
+			species: true,
+			status: true,
+			recommendations: true,
+			remarks: true,
+			placetype: true,
+			irrigationmethod: true,
+	
+			plantedDateFrom: true,
+			plantedDateTo: true,
+			addedDateFrom: true,
+			addedDateTo: true,
+			comment: true,
+	
+			heightFrom: true,
+			heightTo: true,
+			trunkGirthFrom: true,
+			trunkGirthTo: true,
+			crownDiameterFrom: true,
+			crownDiameterTo: true,
+	
+			showOnlyMyTrees: true			
+		}
 
 		let valueFilter;
 
-
+				
 		valueFilter = rxDataFilters?.speciesFilter;
-		//console.log('valueFilter', valueFilter)
-		//console.log('feature.properties', feature.properties)
 		if (Array.isArray(valueFilter)) {
-			species_Filter = false;
-			valueFilter.every((x) => {
-				if (feature.properties.species === x.value) {
-					species_Filter = true;
-					return false; // break loop	
-				} else {
-					return true;
-				}
-			});			
+			objectSearchResult.species = isFoundArrayInValue(valueFilter, feature.properties.species);			
 		}
 
-
 		valueFilter = rxDataFilters?.statusFilter;
-		if (Array.isArray(valueFilter) && valueFilter.length > 0) {
-			status_Filter = false;
-			
-			valueFilter.every((x) => {				
-				if (feature.properties.lastinsp_status === x.value) {
-					status_Filter = true;
-					return false; // break loop	
-				} else {
-					return true;
-				}
-
-			});
-
-			/*
-			if (typeof valueFilter[0] === 'object') { // data from react-select component for desktop version
-				valueFilter.every((x) => {				
-					if (feature.properties.lastinsp_status === x.value) {
-						status_Filter = true;
-						return false; // break loop	
-					} else {
-						return true;
-					}
-	
-				});	
-
-			} else if (typeof valueFilter[0] === 'string') { // data from native html select component for mobile version
-				valueFilter.every((x) => {	
-					const parsedId = parseInt(x);
-					if (!isNaN(parsedId)) {
-						if (feature.properties.lastinsp_status === parsedId) {
-							status_Filter = true;
-							return false; // break loop	
-						} else {
-							return true;
-						}
-					}
-				});	
-			}*/
-		
+		if (Array.isArray(valueFilter)) {
+			objectSearchResult.status = isFoundArrayInValue(valueFilter, feature.properties.lastinsp_status);			
 		}
 
 
 		valueFilter = rxDataFilters?.careTypeFilter;
 		if (Array.isArray(valueFilter)) {
-			recommendations_Filter = false;
-			let intersection = valueFilter.filter((x) =>
-				feature.properties.recommendations.includes(String(x.value))
-			);
-			recommendations_Filter = intersection.length > 0;
-		}
-
-
+			objectSearchResult.recommendations = isFoundArrayInArray(valueFilter, feature.properties.recommendations);
+		}	
+		
 		valueFilter = rxDataFilters?.remarkFilter;
 		if (Array.isArray(valueFilter)) {
-			remarks_Filter = false;
-			let intersection = valueFilter.filter((x) =>
-				feature.properties.remarks.includes(String(x.value))
-			);
-			remarks_Filter = intersection.length > 0;
+			objectSearchResult.remarks = isFoundArrayInArray(valueFilter, feature.properties.remarks);
 		}		
+
 
 
 		valueFilter = rxDataFilters?.placeTypeFilter?.value;
 		if (valueFilter) {
-			placetype_Filter = valueFilter === feature.properties.placetype;
+			objectSearchResult.placetype = valueFilter === feature.properties.placetype;
 		}
 
 		valueFilter = rxDataFilters?.irrigationMethodFilter?.value;
 		if (valueFilter) {
-			irrigationmethod_Filter = valueFilter === feature.properties.irrigationmethod;
+			objectSearchResult.irrigationmethod = valueFilter === feature.properties.irrigationmethod;
 		}	
 		
 		valueFilter = rxDataFilters?.datePlantedFromFilter;
 		if (valueFilter) {
-			plantedDateFrom_Filter =
+			objectSearchResult.plantedDateFrom =
 				feature.properties.dateplanted >= valueFilter;
 		}
 		valueFilter = rxDataFilters?.datePlantedToFilter;
 		if (valueFilter) {
-			plantedDateTo_Filter =
+			objectSearchResult.plantedDateTo =
 				feature.properties.dateplanted <= valueFilter;
 		}	
 		
 		valueFilter = rxDataFilters?.dateAddedFromFilter;
 		if (valueFilter) {
-			addedDateFrom_Filter =
+			objectSearchResult.addedDateFrom =
 				feature.properties.datetimeadded >= valueFilter;
 		}
 		valueFilter = rxDataFilters?.dateAddedToFilter;
 		if (valueFilter) {
-			addedDateTo_Filter =
+			objectSearchResult.addedDateTo =
 				feature.properties.datetimeadded <= valueFilter;
 		}	
 		
@@ -575,7 +515,7 @@ function App() {
 					.toLowerCase()
 					.indexOf(valueFilter.toLowerCase()) === -1
 			) {
-				comment_Filter = false;
+				objectSearchResult.comment = false;
 			}
 		}		
 
@@ -583,51 +523,67 @@ function App() {
 		
 		valueFilter = rxDataFilters?.heightFromFilter;
 		if (valueFilter) {
-			heightFrom_Filter = feature.properties.lastinsp_height >= valueFilter;
+			objectSearchResult.heightFrom = feature.properties.lastinsp_height >= valueFilter;
 		}
 		valueFilter = rxDataFilters?.heightToFilter;
 		if (valueFilter) {
-			heightTo_Filter = feature.properties.lastinsp_height <= valueFilter;
+			objectSearchResult.heightTo = feature.properties.lastinsp_height <= valueFilter;
 		}	
 		
 		valueFilter = rxDataFilters?.trunkGirthFromFilter;
 		if (valueFilter) {
-			trunkGirthFrom_Filter = feature.properties.lastinsp_trunkgirth >= valueFilter;
+			objectSearchResult.trunkGirthFrom = feature.properties.lastinsp_trunkgirth >= valueFilter;
 		}
 		valueFilter = rxDataFilters?.trunkGirthToFilter;
 		if (valueFilter) {
-			trunkGirthTo_Filter = feature.properties.lastinsp_trunkgirth <= valueFilter;
+			objectSearchResult.trunkGirthTo = feature.properties.lastinsp_trunkgirth <= valueFilter;
 		}	
 		
 		valueFilter = rxDataFilters?.crownDiameterFromFilter;
 		if (valueFilter) {
-			crownDiameterFrom_Filter = feature.properties.lastinsp_crowndiameter >= valueFilter;
+			objectSearchResult.crownDiameterFrom = feature.properties.lastinsp_crowndiameter >= valueFilter;
 		}
 		valueFilter = rxDataFilters?.crownDiameterToFilter;
 		if (valueFilter) {
-			crownDiameterTo_Filter = feature.properties.lastinsp_crowndiameter <= valueFilter;
+			objectSearchResult.crownDiameterTo = feature.properties.lastinsp_crowndiameter <= valueFilter;
 		}		
 
 
 
 		valueFilter = rxDataFilters?.showMyTreesFilter;
 		if (valueFilter && authToken?.user) {
-			showOnlyMyTrees_Filter = authToken.user.id === feature.properties.useradded;	
+			objectSearchResult.showOnlyMyTrees = authToken.user.id === feature.properties.useradded;	
 		}
 
 
-
-		let result = species_Filter && status_Filter && recommendations_Filter && remarks_Filter &&
-					 placetype_Filter && irrigationmethod_Filter &&
-					 plantedDateFrom_Filter && plantedDateTo_Filter && addedDateFrom_Filter && addedDateTo_Filter &&
-					 comment_Filter && showOnlyMyTrees_Filter && 
-					 heightFrom_Filter && heightTo_Filter && trunkGirthFrom_Filter && trunkGirthTo_Filter && crownDiameterFrom_Filter && crownDiameterTo_Filter;		
-						 		
-		
-		
+		let result = true;
+		for (const el in objectSearchResult) {
+			//@ts-ignore
+			if (objectSearchResult[el] === false) {
+				result = false;
+				break;
+			}			
+		}
+			 		
 		//rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed
 		return result;
 	};
+
+	function isFoundArrayInValue(array: {value: number}[], value: number) {
+		for (let el of array) {
+			if (el.value === value) {
+				return true;				
+			}				
+		}
+		return false;
+	}
+
+	function isFoundArrayInArray(arraySearch: {value: number}[], arrayTree: string[]){
+		const intersection = arraySearch.filter((x) => {
+			return arrayTree.includes(String(x.value));
+		});
+		return intersection.length > 0;
+	}	
 
 
 
@@ -654,64 +610,15 @@ function App() {
 					if (element.id === feature.properties.lastinsp_status) {
 						geojsonMarkerOptions_citytree.fillColor = `#${element.hexcolor}`;
 						geojsonMarkerOptions_citytree.color = `#${element.hexcolor}`;
+						geojsonMarkerOptions_citytree.radius = ZoomToRadius(currentZoomMap, feature.properties.lastinsp_crowndiameter);
 					}	
 				});
 				}
 			}
-
-			//console.log(ZoomToRadius(rxCurrentMapZoom, feature.properties.lastinsp_crowndiameter))
-			//geojsonMarkerOptions_citytree.radius = ZoomToRadius(rxCurrentMapZoom, feature.properties.lastinsp_crowndiameter);			
-			//geojsonMarkerOptions_citytree.radius = 2 + Math.floor(Math.random() * 10)
-
-			
-
-			//return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
+			 
 			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
 		}
 			return null;
-
-		
-
-		
-		/*
-		if (!rxCheckButtonHeatmap && currentZoom !== null) {
-				console.log('currentZoom', currentZoom)   
-				console.log('lastinsp_crowndiameter', feature.properties.lastinsp_crowndiameter)
-
-				geojsonMarkerOptions_citytree.radius = ZoomToRadius(currentZoom, feature.properties.lastinsp_crowndiameter);
-				if (geojsonMarkerOptions_citytree.radius < 2) {
-						geojsonMarkerOptions_citytree.radius = 2;
-				}
-
-				return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick)        
-		}*/
-
-		/*
-
-				pointToLayer: function (feature, latlng) {
-
-						geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.lastinsp_crowndiameter);
-
-						if (geojsonMarkerOptions.radius < 2) {
-								geojsonMarkerOptions.radius = 2;
-						}
-
-						{% if status %}
-								{% for statusItem in status %}
-										if (feature.properties.lastinsp_status == "{{statusItem.id}}")
-										{
-												geojsonMarkerOptions.fillColor = "#{{statusItem.hexcolor}}";
-												geojsonMarkerOptions.color = "#{{statusItem.hexcolor}}";
-										}
-								{% endfor %}
-						{% endif %}
-
-						return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);
-
-				},
-
-		*/
-
 	};
 
 	function ZoomToRadius (zoom: number, crowndiameter: number) {
@@ -724,209 +631,128 @@ function App() {
 
 
 
-	return (
-		<div className="main-wrapper">
-			{paramsRouter.cityName ? (
-				<div id="app">
-					<div
-						className={`d-flex ${
-							rxShowSidebar ? "showed" : "hided"
-						}`}
-						id="wrapper"
+	return (		
+		<MainWrapper cityName={paramsRouter.cityName}>
+			<>									
+				<Sidebar>
+					<Tabs
+						id="controlled-tab-example"
+						activeKey={rxActiveTabKey}
+						onSelect={(k) => dispatch(actActiveTabKey(k))}								
+						className="mb-3"
 					>
-						<Sidebar>
-							<Tabs
-								id="controlled-tab-example"
-								activeKey={rxActiveTabKey}
-								onSelect={(k) => dispatch(actActiveTabKey(k))}
-								//onSelect={(k) => setKey(k)}
-								className="mb-3"
-							>
-								<Tab
-									eventKey="filter"
-									title={t<string>("sidebar.filterTab.title")}
-								>
-									<div
-										style={{
-											overflowY: "auto",
-											overflowX: "hidden",
-											width: "100%",
-											height: "calc(100vh - 130px)",
-										}}
-									>
-										<FormFilter onSubmitFilter={onSubmitFilter}  
-									/>
-									</div>
-								</Tab>
-
-								<Tab
-									eventKey="tree"
-									title={t<string>(
-										"sidebar.treeTab.title"
-									)}
-									tabClassName={
-										!rxShowTreeTab ? "d-none" : ""
-									}
-								>
-									<div
-										style={{
-											overflowY: "auto",
-											overflowX: "hidden",
-											width: "100%",
-											height: "calc(100vh - 130px)",
-										}}
-									>
-										<FormTree 
-											onSubmitTree={onSubmitTree}
-											onDeleteTree={onDeleteTree}
-											onCloseTree={onCloseTree} 
-											onNewInsp={onNewInsp}
-											onEditInsp={onEditInsp}
-											onClickInspPhotos={onClickInspPhotos}
-											dataTreeForm={dataTreeForm}
-											city={paramsRouter.cityName}
-											signingS3Url={signingS3Url}
-											//currentCity={paramsRouter.cityName}
-										/>										
-									</div>
-								</Tab>
-
-								<Tab
-									eventKey="insp"
-									title={t<string>(
-										"sidebar.inspTab.title"
-									)}
-									tabClassName={
-										!rxShowInspTab ? "d-none" : ""
-									}
-								>
-									<div
-										style={{
-											overflowY: "auto",
-											overflowX: "hidden",
-											width: "100%",
-											height: "calc(100vh - 130px)",
-										}}
-									>
-										<FormInspection 
-											onSubmitInsp={onSubmitInsp}
-											onDeleteInsp={onDeleteInsp}
-											onCloseInsp={onCloseInsp} 
-											dataInspForm={dataInspForm}
-											city={paramsRouter.cityName}
-											signingS3Url={signingS3Url}
-											//currentCity={paramsRouter.cityName}
-										/>										
-									</div>
-								</Tab>								
-							</Tabs>
-						</Sidebar>
-
-						<div id="page-content-wrapper">
-							<MenuGlobal
-								currentCity={paramsRouter.cityName}
-								//onClickShowMenu={ () => dispatch(actShowSidebar(!rxShowSidebar)) }
-								authToken={authToken}
-								setAuthToken={setAuthToken}
-								appname="citytree"
+						<Tab
+							eventKey="filter"
+							title={t<string>("sidebar.filterTab.title")}
+						>
+							<div className="form-wrapper">
+								<FormFilter onSubmitFilter={onSubmitFilter}  
 							/>
-
-							<div
-								className="container-fluid"
-								style={{
-									paddingRight: "0px",
-									paddingLeft: "0px",
-								}}
-							>
-								<Map
-									mainData={rxDataTrees}
-									appname="citytree"
-									dataHeatmapPoints={dataHeatmapPoints}
-									currentCity={paramsRouter.cityName}
-									onClickMap={onClickMap}
-									onZoomEnd={onZoomEnd}
-									onEachLayer={onEachLayer}
-									//={onMarkerClick}
-									onDragEndNewMarker={onDragEndNewMarker}
-									pointToLayerCallback={pointToLayerTrees}
-									filterMapCallback={filterMapCallback}
-								/>
-
-								{rxShowOkCancelMobileMarker && (
-									<>
-										<Button
-											variant="success"
-											id="doneEditMarkerMobile"
-											onClick={() => {
-												dispatch(
-													actCheckButtonNewMarker(
-														false
-													)
-												);
-												dispatch(
-													actShowOkCancelMobileMarker(
-														false
-													)
-												);
-												dispatch(
-													actShowTreeTab(true)
-												);
-												dispatch(
-													actActiveTabKey("tree")
-												);
-												dispatch(actShowSidebar(true));
-											}}
-										>
-											{t<string>("words.done")}
-										</Button>{" "}
-										<Button
-											variant="secondary"
-											id="cancelMarkerMobile"
-											onClick={() => {
-												dispatch(
-													actNewMarkerState({
-														visible: false,
-														position: {
-															lat: 0,
-															lng: 0,
-														},
-													})
-												);
-												dispatch(
-													actShowOkCancelMobileMarker(
-														false
-													)
-												);
-												dispatch(
-													actCheckButtonNewMarker(
-														false
-													)
-												);
-											}}
-										>
-											&#x2715;
-										</Button>{" "}
-									</>
-								)}
 							</div>
-						</div>
+						</Tab>
+
+						<Tab
+							eventKey="tree"
+							title={t<string>(
+								"sidebar.treeTab.title"
+							)}
+							tabClassName={
+								!rxShowTreeTab ? "d-none" : ""
+							}
+						>
+							<div className="form-wrapper">
+								<FormTree 
+									onSubmitTree={onSubmitTree}
+									onDeleteTree={onDeleteTree}
+									onCloseTree={onCloseTree} 
+									onNewInsp={onNewInsp}
+									onEditInsp={onEditInsp}
+									onClickInspPhotos={onClickInspPhotos}
+									dataTreeForm={dataTreeForm}											
+									//@ts-ignore
+									city={paramsRouter.cityName}
+									signingS3Url={signingS3Url}
+									//currentCity={paramsRouter.cityName}
+								/>										
+							</div>
+						</Tab>
+
+						<Tab
+							eventKey="insp"
+							title={t<string>(
+								"sidebar.inspTab.title"
+							)}
+							tabClassName={
+								!rxShowInspTab ? "d-none" : ""
+							}
+						>
+							<div className="form-wrapper">
+								<FormInspection 
+									onSubmitInsp={onSubmitInsp}
+									onDeleteInsp={onDeleteInsp}
+									onCloseInsp={onCloseInsp} 
+									dataInspForm={dataInspForm}
+									//@ts-ignore
+									city={paramsRouter.cityName}
+									signingS3Url={signingS3Url}
+									//currentCity={paramsRouter.cityName}
+								/>										
+							</div>
+						</Tab>								
+					</Tabs>
+				</Sidebar>
+
+				<div id="page-content-wrapper">
+					<MenuGlobal
+						//@ts-ignore
+						currentCity={paramsRouter.cityName}
+						//onClickShowMenu={ () => dispatch(actShowSidebar(!rxShowSidebar)) }
+						authToken={authToken}
+						setAuthToken={setAuthToken}
+						appname="citytree"
+					/>
+
+					<div
+						className="container-fluid"
+						style={{
+							paddingRight: "0px",
+							paddingLeft: "0px",
+						}}
+					>
+						<Map
+							mainData={rxDataTrees}
+							appname="citytree"
+							dataHeatmapPoints={dataHeatmapPoints}
+							//@ts-ignore
+							currentCity={paramsRouter.cityName}
+							onClickMap={onClickMap}
+							onZoomEnd={onZoomEnd}
+							onEachLayer={onEachLayer}
+							//={onMarkerClick}
+							onDragEndNewMarker={onDragEndNewMarker}
+							pointToLayerCallback={pointToLayerTrees}
+							filterMapCallback={filterMapCallback}
+						/>
+
 					</div>
 				</div>
-			) : (
-				"You must select a city."
-			)}
 
-			
-			<ImageSlider 
-				visible={imageSlider.visible} 
-				setVisible={setImageSlider} 
-				images={imageSlider.images}
-			/>
 
-			<LoginModalForm setAuthToken={setAuthToken}/>
-			<RegisterModalForm setAuthToken={setAuthToken}/>
-                
-		</div>
+				{rxShowOkCancelMobileMarker && (
+					<ButtonOkCancelMobileMarker/>
+				)}
+
+				<ImageSlider 
+					visible={imageSlider.visible} 
+					setVisible={setImageSlider} 
+					images={imageSlider.images}
+				/>
+
+				<LoginModalForm setAuthToken={setAuthToken}/>
+				<RegisterModalForm setAuthToken={setAuthToken}/> 			
+			</>
+		</MainWrapper>
+
 	);
 
 

@@ -1,1 +1,8 @@
+mklink /h <link> <target>
+
 mklink /h c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\roadaccident\src\components_hl\MapTileLayers.tsx c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\components_hl\MapTileLayers.tsx
+
+
+mklink /h c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\citytree\src\components_hl\Map.css c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\components_hl\Map.css
+
+mklink /h c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\roadaccident\src\components_hl\Map.css c:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\[frontend]\components_hl\Map.css

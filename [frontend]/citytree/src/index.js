@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import './index.css';
 import './sidebar.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -23,7 +22,7 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter basename="/citytree">
       <Routes>
-        <Route path="/">
+        <Route path="/" element={<App />}>
           <Route path=":cityName" element={<App />} >
             <Route path=":treeId" element={<App />} />
           </Route>               

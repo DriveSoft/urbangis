@@ -108,7 +108,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class citySerializer(serializers.ModelSerializer):
     class Meta:
         model = coreCity
-        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population']
+        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population', 'zoom']
 
 
 class dictionaryRoadaccidentManeuversSerializer(serializers.ModelSerializer):

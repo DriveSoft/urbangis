@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { MapContainer, LayersControl, TileLayer, ZoomControl, useMapEvents, GeoJSON, useMap, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-import "leaflet.heat"
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { MapContainer, LayersControl, TileLayer, ZoomControl, useMapEvents, GeoJSON, useMap, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import "leaflet.heat";
+import "./Map.css";
 
 //import ButtonMap from './ButtonMap'
-import ButtonMap_ from './ButtonMap'
-import MapTileLayers from '../components_hl/MapTileLayers'
+import ButtonMap_ from './ButtonMap';
+import MapTileLayers from '../components_hl/MapTileLayers';
 
 import "leaflet/dist/leaflet.css";
 import redIconFile from '../components/images/markers/marker-red.png';
@@ -16,7 +17,7 @@ import 'react-leaflet-markercluster/dist/styles.min.css'; // sass
 //require('leaflet/dist/leaflet.css'); // inside .js file
 //require('react-leaflet-markercluster/dist/styles.min.css'); // inside .js file
 
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import {
 	actCheckButtonGPS,
 	actCheckButtonHeatmap,
@@ -27,7 +28,7 @@ import {
     //actShowAccidentTab,
     //actActiveTabKey
 } from "../actions";
-import { RootState } from '../reducers/index'
+import { RootState } from '../reducers/index';
 
 // fix disapeared marker from map
 
@@ -83,6 +84,7 @@ interface IStateCurrentCity {
 	latitude: string;
 	longitude: string;
 	population: number;	
+    zoom: number;
 }
 
 interface MapProps {
@@ -112,9 +114,10 @@ function Map ({
                 pointToLayerCallback,
                 filterMapCallback               
             }: MapProps) {
+               
 
     const dispatch = useDispatch()
-    const defaultZoom = 13;
+    //const defaultZoom = 13;
     //const rxDataAccidents = useSelector((state: RootState) => state.dataReducer.dataAccidents)
     
     const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName);
@@ -131,7 +134,7 @@ function Map ({
     const [currentCityInfo, setCurrentCityInfo] = useState<IStateCurrentCity | null>(null);
     const [map, setMap] = useState<any>(null);  
     
-    const [currentZoom, setCurrentZoom] = useState(defaultZoom); 
+    const [currentZoom, setCurrentZoom] = useState(13); 
 
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
     const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
@@ -182,15 +185,26 @@ function Map ({
     useEffect(() => {
 
         const fetchCity = async () => {
-          const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`);
-          const data = await res.json();
-          setCurrentCityInfo(data);
+            const res = await fetch(`${process.env.REACT_APP_API_URL}cities/${currentCity}`);
+            const data = await res.json();
+            setCurrentCityInfo(data);          
         }
+
         fetchCity();
-        
+        console.log('currentCity');
+           
+    }, [currentCity])  //[currentCity]
    
-      }, [currentCity])  //[currentCity]
-   
+
+    //useEffect(() => {
+    //    if (currentCityInfo && map) {
+    //        //map.setZoom(currentCityInfo.zoom);
+    //        if (onZoomEnd) onZoomEnd(currentCityInfo.zoom);          
+    //    }    
+    //
+    //}, [currentCityInfo]);   
+    
+    
 
 
       // apply states for buttons
@@ -284,16 +298,16 @@ function Map ({
 
 
     function SetPanToMap() {        
-        const map = useMap()
+        const map = useMap();
         if (currentCityInfo) {
             // change map position when current city has been changed        
             if (currentCitySysname !== currentCityInfo["sysname"]) {
-                map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] )
+                map.panTo( [parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])] );
             }
-            currentCitySysname = currentCityInfo["sysname"]
+            currentCitySysname = currentCityInfo["sysname"];
 
         }
-        return null
+        return null;
     }    
 
 
@@ -450,10 +464,6 @@ function Map ({
             }),
             [],
         );
-
-
-
-
 
         return (<>
                     {visible && <> 
@@ -673,7 +683,7 @@ function Map ({
         {/* The map rendered before useEffect called, so first we need to load currentCityInfo before to show the map */}
         { currentCityInfo && currentCityInfo["longitude"] !== "0" && currentCityInfo["latitude"]!=="0" ? ( 
 
-            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={defaultZoom} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
+            <MapContainer whenCreated={setMap} center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} zoom={currentCityInfo.zoom} zoomControl={false} scrollWheelZoom={true} style={{ height: 'calc(100vh - 60px)', width: '100%' }} >                
                 <LayersControl position="topleft">                    
                     <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
@@ -745,5 +755,4 @@ export default Map
 
 //https://newbedev.com/home-button-leaflet-map
 
-//пример без React-Leaflet
-//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outside-useeffect-in-react
+//пример �

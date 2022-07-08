@@ -1,5 +1,6 @@
 import Carousel from "react-bootstrap/Carousel";
 import Modal from "react-bootstrap/Modal";
+import "./ImageSlider.css";
 
 
 interface ImageSliderProps {

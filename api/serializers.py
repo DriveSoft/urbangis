@@ -303,7 +303,7 @@ class citytreeSerializerGetTreeObject(serializers.ModelSerializer):
         data['species_id'] = data['species']
         data['species'] = instance.species.speciesname
         data['localname'] = instance.species.localname
-        
+        data['photoServer'] = djangoSettings.PHOTO_SERVER # server where stored photos 
         
         if instance.lastinsp_status:
             data['lastinsp_status'] = instance.lastinsp_status.statusname
@@ -322,6 +322,7 @@ class citytreeSerializerGetTreeObject(serializers.ModelSerializer):
         
         data['id'] = instance.id
         return data
+
 
 
 

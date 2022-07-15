@@ -2,7 +2,7 @@ import Button from "react-bootstrap/Button";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import {
-	actNewMarkerState,
+	actMapMarkerState,
 	actShowSidebar,
 	actCheckButtonNewMarker,
 	actShowOkCancelMobileMarker,
@@ -50,7 +50,7 @@ const ButtonOkCancelMobileMarker = () => {
             id="cancelMarkerMobile"
             onClick={() => {
                 dispatch(
-                    actNewMarkerState({
+                    actMapMarkerState({
                         visible: false,
                         position: {
                             lat: 0,

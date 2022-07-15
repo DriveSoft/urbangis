@@ -1,4 +1,11 @@
 // userInterface actions ================================================
+export const actNewAccidentCreation= (value) => {
+    return {
+        type: 'NEWACCIDENTCREATION',
+        payload: value
+    }
+}
+
 export const actShowSidebar = (value) => {
     return {
         type: 'SHOWSIDEBAR',
@@ -44,9 +51,9 @@ export const actMapBaseLayerName = (value) => {
     }
 }
 
-export const actNewMarkerState = (value) => {
+export const actMapMarkerState = (value) => {
     return {
-        type: 'NEWMARKERSTATE',
+        type: 'MAPMARKERSTATE',
         payload: value
     }
 }

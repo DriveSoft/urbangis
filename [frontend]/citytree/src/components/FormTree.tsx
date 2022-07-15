@@ -21,6 +21,7 @@ interface FormTreeProps {
     onNewInsp:(idTree: number) => void;
     onEditInsp: (data: {}) => void;
     onClickInspPhotos: (data: {}) => void;
+    onClickEditCoords: (coord: {lat: string; lng: string}) => void;
         	
     dataTreeForm: TreeItem | null;
     city: string;
@@ -35,12 +36,14 @@ const FormTree = ({
     onNewInsp,
     onEditInsp,
     onClickInspPhotos,
+    onClickEditCoords,
 	dataTreeForm,
     city,
     signingS3Url
 }: FormTreeProps) => {
 
-    const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState);
+    const rxMapMarkerState = useSelector((state: RootState) => state.uiReducer.mapMarkerState);
+    const rxNewTreeCreation = useSelector((state: RootState) => state.uiReducer.newTreeCreation);
     const [showModalDelete, setShowModalDelete] = useState(false);
 
     const rxDictSpecieses = useSelector((state: RootState) => state.dataReducer.dictSpecieses);
@@ -74,23 +77,21 @@ const FormTree = ({
     const dateTimeRef = useRef(null);
     const { t } = useTranslation();
 
-    // rxNewMarkerState
+
 	useEffect(() => {
-		if (rxNewMarkerState.visible) {
-			reset();
-
-			// perhaps a bug of component, value is not reset, so reset it manually
-			//@ts-ignore
-			//dateTimeRef.current.state.inputValue = "";
-			//@ts-ignore
-			//dateTimeRef.current.state.selectedDate = undefined;
-
-			setValue("latitude", rxNewMarkerState.position.lat);
-			setValue("longitude", rxNewMarkerState.position.lng);            
-            //@ts-ignore
-            setValue("irrigationmethod", optionsIrrigationMethodsData[0]);            
+        reset();
+        //@ts-ignore
+        setValue("irrigationmethod", optionsIrrigationMethodsData[0]);                 
+        setValue("latitude", rxMapMarkerState.position.lat);
+        setValue("longitude", rxMapMarkerState.position.lng);                  
+	}, [rxNewTreeCreation]);  
+    
+	useEffect(() => {
+		if (rxMapMarkerState.visible) {
+			setValue("latitude", rxMapMarkerState.position.lat);
+			setValue("longitude", rxMapMarkerState.position.lng);                       
 		}
-	}, [rxNewMarkerState]);    
+	}, [rxMapMarkerState]);    
 
 
 
@@ -407,7 +408,7 @@ const FormTree = ({
             data.dateplanted = null;    
         }
 
-        if (rxNewMarkerState?.visible === true) {
+        if (rxNewTreeCreation === true) {
             // new record                
             data.species = data.species.value;
             data.placetype = data.placetype.value;
@@ -544,7 +545,7 @@ const FormTree = ({
 						<Form.Label>
 							{t<string>("sidebar.treeTab.latLng")}{" "}
 							<a href="#">
-								<i className="fas fa-edit align-middle"></i>
+								<i className="fas fa-edit align-middle" onClick={() => onClickEditCoords({lat:getValues("latitude"), lng:getValues("longitude")})}></i>
 							</a>
 						</Form.Label>
 					</Form.Group>
@@ -741,7 +742,7 @@ const FormTree = ({
 				</Row>
 
 
-                {rxNewMarkerState.visible ? 
+                {rxNewTreeCreation ? 
                 <>
                     <Form.Group className="mt-4" controlId="formFirstInspectionTree">
                         <Form.Label>
@@ -989,7 +990,7 @@ const FormTree = ({
 					</Button>{" "}
 					<Button                        
 						type="submit"
-                        onClick={ rxNewMarkerState.visible ? onSubmitBefore : undefined }
+                        onClick={ rxNewTreeCreation ? onSubmitBefore : undefined }
 						variant="primary"
 						style={{ minWidth: "110px" }}
 					>

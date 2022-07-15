@@ -10,15 +10,15 @@ import MainWrapper from "./components/MainWrapper";
 import Sidebar from "./components/Sidebar";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import Button from "react-bootstrap/Button";
 import ButtonOkCancelMobileMarker from "./components/ButtonOkCancelMobileMarker";
 
 import FormFilter from './components/FormFilter';
 import FormTree from './components/FormTree';
 import FormInspection from './components/FormInspection';
 import ImageSlider from './components/ImageSlider';
+import TreePreviewModal from "./components/TreePreviewModal";
 
-import useAuthToken from "./useAuthToken";
+import { useAuthToken, checkAuthToken, getNewAccessRefreshAuthToken } from "./useAuthToken";
 import LoginModalForm from "./components/LoginModalForm";
 import RegisterModalForm from "./components/RegisterModalForm";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,8 @@ import { useTranslation } from "react-i18next";
 import { RootState, allReducers } from "./reducers/index";
 import { useSelector, useDispatch } from "react-redux";
 import {
-	actNewMarkerState,
+	actMapMarkerState,
+	actNewTreeCreation,
 	actIsMobileDevice,
 	actShowSidebar,
 	actCheckButtonNewMarker,
@@ -47,7 +48,18 @@ import {
 } from "./actions";
 import { TreeItem, InspItem } from "./interfaces";
 
-const signingS3Url = `${process.env.REACT_APP_API_URL}citytree/s3/generate_signed_url/`;
+import { filterDataMap } from "./utils/filterDataMap"
+import { getCookie } from "./utils/misc"
+import { fetchAllDictionariesData } from "./utils/fetchAllDictionariesData"
+import { 
+	URL_REFRESH_TOKEN, 
+	URL_VERIFY_TOKEN, 
+	URL_GET_DICT_STATUSES, 
+	URL_GENERATE_S3_URLKEY, 
+	urlTreesByCity, 
+	urlTreeByCityAndID 
+} from './constants/urlsAPI';
+
 
 let geojsonMarkerOptions_citytree = {
     //renderer: myRenderer,
@@ -91,184 +103,185 @@ function App() {
 
 	const [dataTreeForm, setDataTreeForm] = useState<TreeItem | null>(null);
 	const [dataInspForm, setDataInspForm] = useState<InspItem | {tree: number} | null>(null);
-	const [imageSlider, setImageSlider] = useState<{visible: boolean; images: string[]}>({visible: false, images: []});
+	const [imageSlider, setImageSlider] = useState<{visible: boolean; images: string[]}> ({visible: false, images: []});
+	const [treePreview, setTreePreview] = useState<{visible: boolean; data: {}}>({visible: false, data:{}});
 	const { t } = useTranslation();
 
 	let dataHeatmapPoints: number[][] = []; // [[lat, lng, value],[lat, lng, value]...]	
 
+
+
 	useEffect(() => {
-		
-		const fetchSpecieses = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/specieses/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictSpecieses(data));
-		}		
-
-		const fetchCareTypes = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/caretypes/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictCareTypes(data));
-		}	
-
-		const fetchRemarks = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/remarks/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictRemarks(data));
-		}	
-		
-		const fetchPlaceTypes = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/placetypes/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictPlaceTypes(data));
-		}		
-
-		const fetchIrrigationMethods = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/irrigationmethods/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictIrrigationMethods(data));
-		}	
-		
-		const fetchGroupSpecs = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/groupspecs/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictGroupSpecs(data));
-		}	
-		
-		const fetchTypeSpecs = async () => {			
-			const url = `${process.env.REACT_APP_API_URL}citytree/dictionary/typespecs/`;
-			const res = await fetch(url);
-			const data = await res.json();
-			dispatch(actDictTypeSpecs(data));
-		}		
-
-		fetchSpecieses();
-		fetchCareTypes();
-		fetchRemarks();
-		fetchPlaceTypes();
-		fetchIrrigationMethods();
-		fetchGroupSpecs();
-		fetchTypeSpecs();
-
-		if (authToken) {
-            checkAuthToken()
-        }	
-		
-		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)))
-		//dispatch(actIsMobileDevice(true))
-		dispatch(actShowSidebar(!isMobileView))	
+		fetchAllDictionariesDataWrapper();
+		userAuthentication();
+		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)));
+		dispatch(actShowSidebar(!isMobileView));	
 		
 		window.addEventListener('resize', handleWindowSizeChange);
         return () => {
             window.removeEventListener('resize', handleWindowSizeChange);			
         }		
-
 	}, []); /* useEffect triggers when route has been changed too */
+
+	const fetchAllDictionariesDataWrapper = () => {
+		fetchAllDictionariesData().then(([specieses, caretypes, remarks, placetypes, irrigationmethods, groupspecs, typespecs]) => {
+			dispatch(actDictSpecieses(specieses));
+			dispatch(actDictCareTypes(caretypes));
+			dispatch(actDictRemarks(remarks));
+			dispatch(actDictPlaceTypes(placetypes));
+			dispatch(actDictIrrigationMethods(irrigationmethods));
+			dispatch(actDictGroupSpecs(groupspecs));
+			dispatch(actDictTypeSpecs(typespecs));
+		}).catch(error => {			
+			console.log('fetchAllDictionariesData error: ', error);
+		});	
+	}
+
+    function handleWindowSizeChange() {
+        setScreenWidth(window.innerWidth);
+    }
+
+
 
 
 	useEffect(() => {
 		fetchTreesAndStatuses();
 	}, [paramsRouter]); /* useEffect triggers when route has been changed too */
 
-    useEffect(() => {
-        let periodUpdate = 240000 //4 min
-        let interval = setInterval(() => {
-            if (authToken) {
-                refreshAuthToken(authToken.refresh)    
-            }
-        }, periodUpdate)
-
-        return ()=> clearInterval(interval)
-    }, [authToken]);
-
-
-    function handleWindowSizeChange() {
-        setScreenWidth(window.innerWidth);
-    }	
-
-
 	const fetchTreesAndStatuses = async () => {
 		//first of all, we must fetch dictionary with statuse, otherwise we can't draw points of trees in diferent color depends of them statuses.
-		let url = `${process.env.REACT_APP_API_URL}citytree/dictionary/statuses`;
-		let res = await fetch(url);
+		let res = await fetch(URL_GET_DICT_STATUSES);
 		let data = await res.json();
 		dispatch(actDictStatuses(data));
 						
-		url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/`;
-		res = await fetch(url);
-		data = await res.json();
-		data.dateTimeGenerated = Date.now();
-		
-		dispatch(actDataTrees(data));
+		if (paramsRouter.cityName) {
+			const URL = urlTreesByCity(paramsRouter.cityName);//`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/`;
+			res = await fetch(URL);
+			data = await res.json();
+			data.dateTimeGenerated = Date.now();
+			
+			dispatch(actDataTrees(data));
+		}
 	};
 
-	//const onMarkerClick = (data: AccidentItem) => {
-		//console.log('data', data)
-	//	dispatch(actShowAccidentTab(true));
-	//	dispatch(actActiveTabKey("accident"));
-	//	setDataAccidentForm(data);
-	//	dispatch(actShowSidebar(true));
-	//};
+
+    useEffect(() => {
+        let periodUpdate = 240000 //4 min
+        let interval = setInterval(() => {
+            if (authToken) {    
+				refreshTokens();
+            }
+        }, periodUpdate)
+
+        return () => clearInterval(interval)
+    }, [authToken]);
+
+	async function userAuthentication() {
+		if (authToken) {
+			const isTokenValid = await checkAuthToken(URL_VERIFY_TOKEN, authToken.access);
+			console.log('isTokenValid', isTokenValid);
+			if (!isTokenValid) {
+				refreshTokens();
+			}
+
+		}
+	}	
+
+	async function refreshTokens() {
+		const accessRefreshToken = await getNewAccessRefreshAuthToken(URL_REFRESH_TOKEN, authToken.refresh);
+		setAuthToken(accessRefreshToken);		
+	}
+
+
+
 
 	function markerOnClick(e: any) {
-		const fetchTreeData = async (idTree: number) => {
-			
-				let url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${idTree}/`;
-				let res = await fetch(url);
-				let data = await res.json();
+		// const fetchTreeData = async (idTree: number) => {
+		// 	if (paramsRouter.cityName) {					
+		// 		const url = urlTreeByCityAndID(paramsRouter.cityName, idTree);
+		// 		let res = await fetch(url);
+		// 		let data = await res.json();
 	
-				setDataTreeForm(data);
-				dispatch(actShowTreeTab(true));
-				dispatch(actActiveTabKey('tree'));									
-				dispatch(actShowSidebar(true));			
-				
-				//onMarkerClick(geojson);
-				//console.log(geojson) 
-			
-		}
+		// 		console.log('markerOnClick',data);
+		// 		//setTreePreview({visible: true, data: data});
+
+		// 		setDataTreeForm(data);
+		// 		dispatch(actShowTreeTab(true));
+		// 		dispatch(actActiveTabKey('tree'));									
+		// 		dispatch(actShowSidebar(true));			
+		// 	}
+		// }
 
 
 		let marker: L.Marker = e.target;
 		let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
-		//console.log(geojson);
+
 		if (geojson?.properties?.id) {
-			fetchTreeData(geojson?.properties?.id);
+			//fetchTreeData(geojson?.properties?.id);			
+			showTreePreview(geojson?.properties?.id);
 		}   
 	}	
 
+	// async function fetchTreeData (idTree: number) {
+	// 	if (paramsRouter.cityName) {					
+	// 		const url = urlTreeByCityAndID(paramsRouter.cityName, idTree);
+	// 		let res = await fetch(url);
+	// 		let data = await res.json();
 
+	// 		console.log('markerOnClick',data);
+	// 		setTreePreview({visible: true, data: data});
 
+	// 		//setDataTreeForm(data);
+	// 		//dispatch(actShowTreeTab(true));
+	// 		//dispatch(actActiveTabKey('tree'));									
+	// 		//dispatch(actShowSidebar(true));			
+	// 	}
+	// }
+	
+	const onButtonEditClick = (idTree: number) => {
+		editTree(idTree);
+	}
 
+	const editTree = (idTree: number) => {
+		fetchTreeData(idTree).then((data) => setDataTreeForm(data));		
+		dispatch(actShowTreeTab(true));
+		dispatch(actActiveTabKey('tree'));									
+		dispatch(actShowSidebar(true));	
+	}
 
+	const showTreePreview = (idTree: number) => {
+		fetchTreeData(idTree).then((data) =>
+			setTreePreview({ visible: true, data: data })
+		);
+	};
 	
 	const onSubmitTree = (data: any) => {
-		let method;
-		let url;
-		if (data.id) {
-			url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${data.id}/`;
-			method = "PUT";
-		} else {
-			url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/`;
-			method = "POST";
+		if (paramsRouter.cityName) {
+			let method;
+			let url;
+			if (data.id) {
+				//url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${data.id}/`;
+				url = urlTreeByCityAndID(paramsRouter.cityName, data.id);
+				method = "PUT";
+			} else {
+				//url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/`;
+				url = urlTreesByCity(paramsRouter.cityName);
+				method = "POST";
+			}
+
+			const succeedCallBack = () => {
+				fetchTreesAndStatuses();
+				dispatch(actMapMarkerState({ visible: false, position: {} }));
+				dispatch(actNewTreeCreation(false));
+				dispatch(actActiveTabKey('filter'));
+				dispatch(actShowTreeTab(false));
+
+				if (isMobileView) {
+					dispatch(actShowSidebar(false))
+				}			
+			}		
+			fetchUrl(url, method, data, succeedCallBack);
 		}
-
-		const succeedCallBack = () => {
-			fetchTreesAndStatuses();
-			dispatch(actNewMarkerState({ visible: false, position: {} }));
-			dispatch(actActiveTabKey('filter'));
-			dispatch(actShowTreeTab(false));
-
-			if (isMobileView) {
-				dispatch(actShowSidebar(false))
-			}			
-		}		
-		fetchUrl(url, method, data, succeedCallBack);
-		
 		
 	};
 
@@ -281,12 +294,16 @@ function App() {
 			fetchTreesAndStatuses();				
 		}
 
-		fetchUrl(`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${id}`, "DELETE", {}, succeedCallBack);
+		//fetchUrl(`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${id}`, "DELETE", {}, succeedCallBack);
+		if (paramsRouter.cityName) {
+			fetchUrl(urlTreeByCityAndID(paramsRouter.cityName, id), "DELETE", {}, succeedCallBack);
+		}
 	};
 
 
-	const onCloseTree = () => {
-		dispatch(actNewMarkerState({ visible: false, position: {} }));
+	const onCloseTree = () => {	
+		dispatch(actMapMarkerState({ visible: false, position: {} }));
+		dispatch(actNewTreeCreation(false));
 		dispatch(actActiveTabKey('filter'));
 		dispatch(actShowTreeTab(false));
 	};
@@ -299,7 +316,8 @@ function App() {
 		let url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${idTree}/`;
 		let res = await fetch(url);
 		let data = await res.json();
-		setDataTreeForm(data);		
+		return data;
+		//setDataTreeForm(data);		
 	}
 
 	const onSubmitInsp = (data: any) => {
@@ -314,7 +332,7 @@ function App() {
 		}
 
 		const succeedCallBack = () => {
-			fetchTreeData(data.treeId);		
+			fetchTreeData(data.treeId).then(data => setDataTreeForm(data));		
 			fetchTreesAndStatuses();
 			dispatch(actActiveTabKey('tree'));
 			dispatch(actShowInspTab(false));			
@@ -328,7 +346,7 @@ function App() {
 	const onDeleteInsp = (data: InspItem | null) => {
 		const succeedCallBack = () => {
 			if (data) {
-				fetchTreeData(data.tree);
+				fetchTreeData(data.tree).then(data => setDataTreeForm(data));	;
 				dispatch(actActiveTabKey('tree'));
 				dispatch(actShowInspTab(false));						
 				fetchTreesAndStatuses();
@@ -382,6 +400,9 @@ function App() {
 		}					
 	}		
 
+	const onClickEditCoords = (coord: {lat: string; lng: string}) => {		
+		dispatch(actMapMarkerState({ visible: true, position: coord }));
+	}
 		
 
 
@@ -393,7 +414,8 @@ function App() {
 			coord.lat = e.latlng.lat.toFixed(5);
 			coord.lng = e.latlng.lng.toFixed(5);
 			
-			dispatch(actNewMarkerState({ visible: true, position: coord }));
+			dispatch(actMapMarkerState({ visible: true, position: coord }));
+			dispatch(actNewTreeCreation(true));
 
 			dispatch(actShowTreeTab(true));
 			dispatch(actActiveTabKey('tree'));									
@@ -417,174 +439,19 @@ function App() {
 	}	
 	
 
-	const onDragEndNewMarker = (LatLng: { lon: number; lat: number }) => {
-		//let coord = { lat: 0, lng: 0 };
+	const onDragEndNewMarker = (LatLng: { lat: number; lng: number }) => {
+		//console.log('onDragEndNewMarker',LatLng);
+		//let coord = { lat: '0', lng: '0' };
 		//coord.lat = LatLng.lat.toFixed(5);
 		//coord.lng = LatLng.lng.toFixed(5);
 		//setNewMarkerState({ visible: true, position: coord });
+		dispatch(actMapMarkerState({ visible: true, position: LatLng }));
+
 	};
 
 	const filterMapCallback = (feature: any): boolean => {
-		
-		const objectSearchResult = {
-			species: true,
-			status: true,
-			recommendations: true,
-			remarks: true,
-			placetype: true,
-			irrigationmethod: true,
-	
-			plantedDateFrom: true,
-			plantedDateTo: true,
-			addedDateFrom: true,
-			addedDateTo: true,
-			comment: true,
-	
-			heightFrom: true,
-			heightTo: true,
-			trunkGirthFrom: true,
-			trunkGirthTo: true,
-			crownDiameterFrom: true,
-			crownDiameterTo: true,
-	
-			showOnlyMyTrees: true			
-		}
-
-		let valueFilter;
-
-				
-		valueFilter = rxDataFilters?.speciesFilter;
-		if (Array.isArray(valueFilter)) {
-			objectSearchResult.species = isFoundArrayInValue(valueFilter, feature.properties.species);			
-		}
-
-		valueFilter = rxDataFilters?.statusFilter;
-		if (Array.isArray(valueFilter)) {
-			objectSearchResult.status = isFoundArrayInValue(valueFilter, feature.properties.lastinsp_status);			
-		}
-
-
-		valueFilter = rxDataFilters?.careTypeFilter;
-		if (Array.isArray(valueFilter)) {
-			objectSearchResult.recommendations = isFoundArrayInArray(valueFilter, feature.properties.recommendations);
-		}	
-		
-		valueFilter = rxDataFilters?.remarkFilter;
-		if (Array.isArray(valueFilter)) {
-			objectSearchResult.remarks = isFoundArrayInArray(valueFilter, feature.properties.remarks);
-		}		
-
-
-
-		valueFilter = rxDataFilters?.placeTypeFilter?.value;
-		if (valueFilter) {
-			objectSearchResult.placetype = valueFilter === feature.properties.placetype;
-		}
-
-		valueFilter = rxDataFilters?.irrigationMethodFilter?.value;
-		if (valueFilter) {
-			objectSearchResult.irrigationmethod = valueFilter === feature.properties.irrigationmethod;
-		}	
-		
-		valueFilter = rxDataFilters?.datePlantedFromFilter;
-		if (valueFilter) {
-			objectSearchResult.plantedDateFrom =
-				feature.properties.dateplanted >= valueFilter;
-		}
-		valueFilter = rxDataFilters?.datePlantedToFilter;
-		if (valueFilter) {
-			objectSearchResult.plantedDateTo =
-				feature.properties.dateplanted <= valueFilter;
-		}	
-		
-		valueFilter = rxDataFilters?.dateAddedFromFilter;
-		if (valueFilter) {
-			objectSearchResult.addedDateFrom =
-				feature.properties.datetimeadded >= valueFilter;
-		}
-		valueFilter = rxDataFilters?.dateAddedToFilter;
-		if (valueFilter) {
-			objectSearchResult.addedDateTo =
-				feature.properties.datetimeadded <= valueFilter;
-		}	
-		
-		valueFilter = rxDataFilters?.commentFilter;
-		if (valueFilter) {
-			if (
-				feature.properties.comment
-					.toLowerCase()
-					.indexOf(valueFilter.toLowerCase()) === -1
-			) {
-				objectSearchResult.comment = false;
-			}
-		}		
-
-
-		
-		valueFilter = rxDataFilters?.heightFromFilter;
-		if (valueFilter) {
-			objectSearchResult.heightFrom = feature.properties.lastinsp_height >= valueFilter;
-		}
-		valueFilter = rxDataFilters?.heightToFilter;
-		if (valueFilter) {
-			objectSearchResult.heightTo = feature.properties.lastinsp_height <= valueFilter;
-		}	
-		
-		valueFilter = rxDataFilters?.trunkGirthFromFilter;
-		if (valueFilter) {
-			objectSearchResult.trunkGirthFrom = feature.properties.lastinsp_trunkgirth >= valueFilter;
-		}
-		valueFilter = rxDataFilters?.trunkGirthToFilter;
-		if (valueFilter) {
-			objectSearchResult.trunkGirthTo = feature.properties.lastinsp_trunkgirth <= valueFilter;
-		}	
-		
-		valueFilter = rxDataFilters?.crownDiameterFromFilter;
-		if (valueFilter) {
-			objectSearchResult.crownDiameterFrom = feature.properties.lastinsp_crowndiameter >= valueFilter;
-		}
-		valueFilter = rxDataFilters?.crownDiameterToFilter;
-		if (valueFilter) {
-			objectSearchResult.crownDiameterTo = feature.properties.lastinsp_crowndiameter <= valueFilter;
-		}		
-
-
-
-		valueFilter = rxDataFilters?.showMyTreesFilter;
-		if (valueFilter && authToken?.user) {
-			objectSearchResult.showOnlyMyTrees = authToken.user.id === feature.properties.useradded;	
-		}
-
-
-		let result = true;
-		for (const el in objectSearchResult) {
-			//@ts-ignore
-			if (objectSearchResult[el] === false) {
-				result = false;
-				break;
-			}			
-		}
-			 		
-		//rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed
-		return result;
+		return filterDataMap(feature, rxDataFilters, authToken);
 	};
-
-	function isFoundArrayInValue(array: {value: number}[], value: number) {
-		for (let el of array) {
-			if (el.value === value) {
-				return true;				
-			}				
-		}
-		return false;
-	}
-
-	function isFoundArrayInArray(arraySearch: {value: number}[], arrayTree: string[]){
-		const intersection = arraySearch.filter((x) => {
-			return arrayTree.includes(String(x.value));
-		});
-		return intersection.length > 0;
-	}	
-
 
 
 	const onSubmitFilter = (filter: {}) => {
@@ -668,10 +535,11 @@ function App() {
 									onNewInsp={onNewInsp}
 									onEditInsp={onEditInsp}
 									onClickInspPhotos={onClickInspPhotos}
+									onClickEditCoords={onClickEditCoords}
 									dataTreeForm={dataTreeForm}											
 									//@ts-ignore
 									city={paramsRouter.cityName}
-									signingS3Url={signingS3Url}
+									signingS3Url={URL_GENERATE_S3_URLKEY}
 									//currentCity={paramsRouter.cityName}
 								/>										
 							</div>
@@ -694,7 +562,7 @@ function App() {
 									dataInspForm={dataInspForm}
 									//@ts-ignore
 									city={paramsRouter.cityName}
-									signingS3Url={signingS3Url}
+									signingS3Url={URL_GENERATE_S3_URLKEY}
 									//currentCity={paramsRouter.cityName}
 								/>										
 							</div>
@@ -748,6 +616,13 @@ function App() {
 					images={imageSlider.images}
 				/>
 
+				<TreePreviewModal 
+					visible={treePreview.visible} 
+					data={treePreview.data}
+					setTreePreview={setTreePreview}
+					onButtonEditClick={onButtonEditClick} 					
+				/>				
+
 				<LoginModalForm setAuthToken={setAuthToken}/>
 				<RegisterModalForm setAuthToken={setAuthToken}/> 			
 			</>
@@ -756,23 +631,7 @@ function App() {
 	);
 
 
-	function getCookie(name: string) {
-		var cookieValue = null;
-		if (document.cookie && document.cookie !== "") {
-			var cookies = document.cookie.split(";");
-			for (var i = 0; i < cookies.length; i++) {
-				var cookie = cookies[i].trim();
-				// Does this cookie string begin with the name we want?
-				if (cookie.substring(0, name.length + 1) === name + "=") {
-					cookieValue = decodeURIComponent(
-						cookie.substring(name.length + 1)
-					);
-					break;
-				}
-			}
-		}
-		return cookieValue;
-	}
+
 
 
 
@@ -816,69 +675,7 @@ function App() {
 			}
 		});
 	};
-
-
-
-    function refreshAuthToken(refreshToken: string){
-		let myHeaders = new Headers();
-		myHeaders.append("Content-type", "application/json");
-		if (csrftoken) {
-			myHeaders.append("X-CSRFToken", csrftoken);
-		}	
-
-        fetch(`${process.env.REACT_APP_API_URL}token/refresh/`, {
-            method: "POST",
-            headers: myHeaders,
-            body: JSON.stringify({ refresh: refreshToken }),
-
-        }).then(function (response) {
-            if (response.status == 200) {
-                response.json().then((data) => {    
-                    //setAuthToken({access: data.access, refresh: authToken.refresh})
-                    setAuthToken(data)
-                });
-            } else if (response.status >= 400) {
-                setAuthToken(null)    
-            }
-        });
-    };
-
-
-    function checkAuthToken() {
-		let body = { token: authToken.access }
-		let url = `${process.env.REACT_APP_API_URL}token/verify/`;
-		let myHeaders = new Headers();
-
-		myHeaders.append("Content-type", "application/json");
-		if (csrftoken) {
-			myHeaders.append("X-CSRFToken", csrftoken);
-		}	
-
-		fetch(url, {
-			method: "POST",
-			headers: myHeaders,
-			body: JSON.stringify(body),
-
-		}).then(function (response) {
-			if (response.status >= 400) {
-				response.json().then((data) => {
-					console.log(">= 400", data);
-
-                    refreshAuthToken(authToken.refresh)
-
-				});
-			} else {
-				response.json().then((data) => {
-					console.log("ok", data);
-				});
-			}
-		});
-
-	};
-
-
 }
-
 
 
 export default App;

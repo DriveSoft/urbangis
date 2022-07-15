@@ -93,6 +93,20 @@
 
     },
 
+    "TreePreviewModal": {
+        "status": "Оценка",
+        "parameters": "Параметри",
+        "dateplanted": "Засадено",
+        "googlestreeturl": "Google Street View",
+        "remarks": "Бележки",
+        "careTypes": "Препоръки",
+        "comment": "Коментар",
+        "heightTree": "Височина (м)",
+        "girthTree": "Стволът (см)",
+        "diameterTree": "Короната (м)",
+        "edit": "Редактиране",
+        "close": "Изход"       
+    },
 
     "loginForm": {
         "title": "Вход",

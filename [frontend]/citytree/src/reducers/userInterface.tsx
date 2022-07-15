@@ -7,11 +7,12 @@ const initialState = {
     registerModalShow: false,
 
     mapBaseLayerName: 'Default',
-    newMarkerState: {
+    mapMarkerState: {
 		visible: false,
 		position: {},
 		isMobile: false
 	},
+    newTreeCreation: false,
     showOkCancelMobileMarker: false,
     checkButtonNewMarker: false,
     checkButtonHeatmap: false,
@@ -62,11 +63,17 @@ const uiReducer = (state=initialState, action: {type: string; payload: any}) => 
                 mapBaseLayerName: action.payload
             } 
             
-        case 'NEWMARKERSTATE':
+        case 'MAPMARKERSTATE':
             return {
                 ...state,
-                newMarkerState: action.payload
+                mapMarkerState: action.payload
             } 
+
+        case 'NEWTREECREATION':
+            return {
+                ...state,
+                newTreeCreation: action.payload
+            }             
 
         case 'SHOWOKCANCELMOBILEMARKER':
             return {

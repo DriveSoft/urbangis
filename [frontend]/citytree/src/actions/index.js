@@ -1,4 +1,11 @@
 // userInterface actions ================================================
+export const actNewTreeCreation= (value) => {
+    return {
+        type: 'NEWTREECREATION',
+        payload: value
+    }
+}
+
 export const actShowSidebar = (value) => {
     return {
         type: 'SHOWSIDEBAR',
@@ -51,9 +58,9 @@ export const actMapBaseLayerName = (value) => {
     }
 }
 
-export const actNewMarkerState = (value) => {
+export const actMapMarkerState = (value) => {
     return {
-        type: 'NEWMARKERSTATE',
+        type: 'MAPMARKERSTATE',
         payload: value
     }
 }

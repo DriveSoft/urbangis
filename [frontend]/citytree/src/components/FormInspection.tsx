@@ -315,7 +315,7 @@ const FormInspection = ({
 		<div>
 			<Form className="m-1" onSubmit={handleSubmit(prepareOnSubmitInsp)}>				
 				<Row className="mt-3">
-					<Form.Group as={Col} controlId="formHeightTree">
+					<Form.Group as={Col} controlId="formHeightTreeInsp">
 						<Form.Label className="required">
 							{t<string>("sidebar.treeTab.heightTree")}
 						</Form.Label>
@@ -334,7 +334,7 @@ const FormInspection = ({
 						<p className="requiredField">{errors.height?.message}</p>
 					</Form.Group>
 
-					<Form.Group as={Col} controlId="formDiameterTree">
+					<Form.Group as={Col} controlId="formDiameterTreeInsp">
 						<Form.Label className="required">
 							{t<string>("sidebar.treeTab.diameterTree")}
 						</Form.Label>
@@ -364,7 +364,7 @@ const FormInspection = ({
 
 					</Form.Group>
 
-					<Form.Group as={Col} controlId="formGirthTree">
+					<Form.Group as={Col} controlId="formGirthTreeInsp">
 						<Form.Label className="required">
 							{t<string>("sidebar.treeTab.girthTree")}
 						</Form.Label>

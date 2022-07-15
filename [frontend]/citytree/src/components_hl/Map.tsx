@@ -23,7 +23,7 @@ import {
 	actCheckButtonHeatmap,
 	actCheckButtonNewMarker,
 	actMapBaseLayerName,
-	actNewMarkerState,
+	actMapMarkerState,
 	actShowOkCancelMobileMarker
     //actShowAccidentTab,
     //actActiveTabKey
@@ -92,7 +92,7 @@ interface MapProps {
     appname: string;
     dataHeatmapPoints: number[][]; // [[lat, lng, value],[lat, lng, value]...]
     currentCity: string;
-    onDragEndNewMarker: (LatLng: {lon: number; lat: number}) => void;
+    onDragEndNewMarker: (LatLng: {lat: number; lng: number}) => void;
     onClickMap: (e: any) => void;
     onZoomEnd?: (e: any) => void;
     onEachLayer?: (layer: L.Layer, zoom: number) => void;
@@ -123,7 +123,7 @@ function Map ({
     const rxMapBaseLayerName = useSelector((state: RootState) => state.uiReducer.mapBaseLayerName);
     const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);
     const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar);
-    const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState);
+    const rxMapMarkerState = useSelector((state: RootState) => state.uiReducer.mapMarkerState);
     const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker);
     
     const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker);
@@ -139,6 +139,7 @@ function Map ({
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
     const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
     const [buttonGPS, setButtonGPS] = useState<any>(null);
+
 
     let mapname_ = document.cookie
     .split('; ')
@@ -277,7 +278,7 @@ function Map ({
         
 
 		if (rxIsMobileDevice && state) {						
-            dispatch(actNewMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
+            dispatch(actMapMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
             dispatch(actShowOkCancelMobileMarker(true));
 		}
 	};
@@ -439,31 +440,45 @@ function Map ({
 
 
 
-    function NewMarker({newMarkerState}: any) {          
-        const visible = newMarkerState.visible;
-
+    function NewMarker({mapMarkerState}: any) {  
+        const visible = mapMarkerState.visible;
         const map = useMap();
 
         const eventHandlers = useMemo(
             () => ({
                 dragend() {
+                    
                     if (newMarkerRef.current) {
                         const marker: L.Marker = newMarkerRef.current;
-                        if (!rxIsMobileDevice && marker != null) {
-                            //onDragEndNewMarker(marker.getLatLng())                        
+                        if (!rxIsMobileDevice && marker != null) {                                                    
                             const LatLng = marker.getLatLng();
-                            let coord = { lat: '0', lng: '0' };
+                            const coord = { lat: '0', lng: '0' };
                             coord.lat = LatLng.lat.toFixed(5);
                             coord.lng = LatLng.lng.toFixed(5);
-                    
+                            
+                            //const cordFloat = {lat: parseFloat(coord.lat), lng: parseFloat(coord.lng)}
+                            //onDragEndNewMarker(cordFloat);
                             //setNewMarkerState({ visible: true, position: coord }); 
-                            dispatch(actNewMarkerState({ visible: true, position: coord }));                       
+                            //console.log('123', { visible: true, position: coord });
+                            
+                            // I don't know why, but that prevent the error for citytree app, when user try to move the marker
+                            sleep(0).then(() => {
+                                //console.log('onDragEndNewMarker timer', { visible: true, position: coord });
+                                    dispatch(actMapMarkerState({ visible: true, position: coord })); 
+                            });
+
+                                                                        
                         }
                     }
-                },
+                }
             }),
             [],
         );
+        function sleep (time: number) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }          
+
+         
 
         return (<>
                     {visible && <> 
@@ -473,7 +488,7 @@ function Map ({
                                 icon={redIcon}
                                 key='newMarker'
                                 draggable={true}
-                                position={newMarkerState.position}
+                                position={mapMarkerState.position}                                                                
                                 ref={newMarkerRef}
                                 eventHandlers={eventHandlers}                    
                             />                    
@@ -483,7 +498,7 @@ function Map ({
                                 key='newMarker'
                                 draggable={false}
                                 //position={map.getCenter()}
-                                position={newMarkerState.position.lat==0 ? map.getCenter() : newMarkerState.position }
+                                position={mapMarkerState.position.lat==0 ? map.getCenter() : mapMarkerState.position }
                                 ref={newMarkerRef}                 
                             />
                         } 
@@ -524,7 +539,7 @@ function Map ({
                         coord.lat = LatLng.lat.toFixed(5);
                         coord.lng = LatLng.lng.toFixed(5);                   
                         //setNewMarkerState({visible: true, position: coord})                        
-                        dispatch(actNewMarkerState({visible: true, position: coord}))
+                        dispatch(actMapMarkerState({visible: true, position: coord}))
                     }
                 }
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
@@ -589,7 +604,7 @@ function Map ({
 
 
 
-    function MarkersZoomAdjustment(){
+    function MarkersZoomAdjustment(){    
         const map = useMap(); 
         const zoom = map.getZoom();
                  
@@ -720,7 +735,7 @@ function Map ({
 
 
 
-                <NewMarker newMarkerState={rxNewMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
+                <NewMarker mapMarkerState={rxMapMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
                 
                 <MapEvents />
                 

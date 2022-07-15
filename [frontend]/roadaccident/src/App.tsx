@@ -21,7 +21,8 @@ import { useTranslation } from 'react-i18next'
 import { RootState, allReducers } from './reducers/index'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-	actNewMarkerState,
+	actMapMarkerState,
+	actNewAccidentCreation,
 	actIsMobileDevice,
 	actShowSidebar,
 	actCheckButtonNewMarker,
@@ -176,7 +177,7 @@ function App() {
 
 
 
-	const onDragEndNewMarker = (LatLng: {lon: number; lat: number}) => {
+	const onDragEndNewMarker = (LatLng: {lng: number; lat: number}) => {
 		//let coord = { lat: 0, lng: 0 };
 		//coord.lat = LatLng.lat.toFixed(5);
 		//coord.lng = LatLng.lng.toFixed(5);
@@ -201,13 +202,10 @@ function App() {
 			let coord = { lat: '0', lng: '0' };
 			coord.lat = e.latlng.lat.toFixed(5);
 			coord.lng = e.latlng.lng.toFixed(5);
-
-			//setNewMarkerState({ visible: true, position: coord })
-			dispatch(actNewMarkerState({ visible: true, position: coord }));
-
-			//setShowAccidentTab(true)
+			
+			dispatch(actMapMarkerState({ visible: true, position: coord }));	
+			dispatch(actNewAccidentCreation(true));	
 			dispatch(actShowAccidentTab(true));
-			//setActiveTabKey("accident")
 			dispatch(actActiveTabKey('accident'));
 		} 	
 	}
@@ -251,10 +249,15 @@ function App() {
 	};
 
 	const onCloseAccident = () => {
-		dispatch(actNewMarkerState({ visible: false, position: {} }))
-		dispatch(actActiveTabKey('filter'))
-		dispatch(actShowAccidentTab(false))
+		dispatch(actMapMarkerState({ visible: false, position: {} }));
+		dispatch(actNewAccidentCreation(false));	
+		dispatch(actActiveTabKey('filter'));
+		dispatch(actShowAccidentTab(false));
 	};
+
+	const onClickEditCoords = (coord: {lat: string; lng: string}) => {		
+		dispatch(actMapMarkerState({ visible: true, position: coord }));
+	}	
 
 
 	function markerOnClick(e: any)
@@ -479,9 +482,10 @@ function App() {
 				response.json().then((data) => {
 					console.log(data);
 					fetchAccidents();
-					dispatch(actNewMarkerState({ visible: false, position: {} }))
-					dispatch(actActiveTabKey('filter'))
-					dispatch(actShowAccidentTab(false))					
+					dispatch(actMapMarkerState({ visible: false, position: {} }));
+					dispatch(actNewAccidentCreation(false));
+					dispatch(actActiveTabKey('filter'));
+					dispatch(actShowAccidentTab(false));
 				});
 			}
 		});
@@ -521,6 +525,7 @@ function App() {
 										onSubmitAccident={onSubmitAccident}
 										onDeleteAccident={onDeleteAccident}
 										onCloseAccident={onCloseAccident} 
+										onClickEditCoords={onClickEditCoords}
 										dataAccidentForm={dataAccidentForm}
 										//currentCity={paramsRouter.cityName}
 									/>
@@ -574,9 +579,10 @@ function App() {
 									variant="secondary"
 									id="cancelMarkerMobile"
 									onClick={() => {
-										dispatch(actNewMarkerState({ visible: false, position: {lat: 0, lng: 0} }))
-										dispatch(actShowOkCancelMobileMarker(false))
-										dispatch(actCheckButtonNewMarker(false))
+										dispatch(actMapMarkerState({ visible: false, position: {lat: 0, lng: 0} }));
+										dispatch(actNewAccidentCreation(false));
+										dispatch(actShowOkCancelMobileMarker(false));
+										dispatch(actCheckButtonNewMarker(false));
 									}}									
 								>
 									&#x2715;

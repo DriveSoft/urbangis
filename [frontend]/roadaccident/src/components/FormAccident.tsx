@@ -21,7 +21,8 @@ interface FormAccidentProps {
 	onSubmitAccident: (data: {}) => void;
 	onDeleteAccident: (id: number) => void;
 	onCloseAccident: () => void;
-	dataAccidentForm: AccidentItem | null;
+	onClickEditCoords: (coord: {lat: string; lng: string}) => void;
+	dataAccidentForm: AccidentItem | null;	
 }
 
 
@@ -29,13 +30,15 @@ function FormAccident({
 	onSubmitAccident,
 	onDeleteAccident,
 	onCloseAccident,
+	onClickEditCoords,
 	dataAccidentForm,
 }: FormAccidentProps) {
 
-	const rxNewMarkerState = useSelector((state: RootState) => state.uiReducer.newMarkerState)
-	const rxDictManeuvers = useSelector((state: RootState) => state.dataReducer.dictManeuvers)
-    const rxDictTypeViolations = useSelector((state: RootState) => state.dataReducer.dictTypeViolations)
-    const rxDictViolators = useSelector((state: RootState) => state.dataReducer.dictViolators)	
+	const rxMapMarkerState = useSelector((state: RootState) => state.uiReducer.mapMarkerState);
+	const rxNewAccidentCreation = useSelector((state: RootState) => state.uiReducer.newAccidentCreation);
+	const rxDictManeuvers = useSelector((state: RootState) => state.dataReducer.dictManeuvers);
+    const rxDictTypeViolations = useSelector((state: RootState) => state.dataReducer.dictTypeViolations);
+    const rxDictViolators = useSelector((state: RootState) => state.dataReducer.dictViolators);
 
 	const [showModalDelete, setShowModalDelete] = useState(false);
 	const dateTimeRef = useRef(null);
@@ -44,7 +47,7 @@ function FormAccident({
 	//const handleShowModalDeleteClose = () => setShowModalDelete(false);
 
 	useEffect(() => {
-		if (rxNewMarkerState.visible) {
+		//if (rxMapMarkerState.visible) {
 			reset();
 
 			// perhaps a bug of component, value is not reset, so reset it manually
@@ -53,10 +56,26 @@ function FormAccident({
 			//@ts-ignore
 			dateTimeRef.current.state.selectedDate = undefined;
 
-			setValue("latAccidentForm", rxNewMarkerState.position.lat);
-			setValue("lngAccidentForm", rxNewMarkerState.position.lng);
+			setValue("latAccidentForm", rxMapMarkerState.position.lat);
+			setValue("lngAccidentForm", rxMapMarkerState.position.lng);
+		//}
+	}, [rxNewAccidentCreation]);
+
+	useEffect(() => {
+		if (rxMapMarkerState.visible) {
+			//reset();
+
+			// perhaps a bug of component, value is not reset, so reset it manually
+			//@ts-ignore
+			//dateTimeRef.current.state.inputValue = "";
+			//@ts-ignore
+			//dateTimeRef.current.state.selectedDate = undefined;
+
+			setValue("latAccidentForm", rxMapMarkerState.position.lat);
+			setValue("lngAccidentForm", rxMapMarkerState.position.lng);
 		}
-	}, [rxNewMarkerState]);
+	}, [rxMapMarkerState]);
+
 
 	useEffect(() => {
 		let formData: any = {};
@@ -258,7 +277,7 @@ function FormAccident({
 						<Form.Label>
 							{t<string>("sidebar.accidentTab.latLng")}{" "}
 							<a href="#">
-								<i className="fas fa-edit align-middle"></i>
+								<i className="fas fa-edit align-middle" onClick={() => onClickEditCoords({lat: getValues("latAccidentForm"), lng: getValues("lngAccidentForm")})}></i>
 							</a>
 						</Form.Label>
 					</Form.Group>

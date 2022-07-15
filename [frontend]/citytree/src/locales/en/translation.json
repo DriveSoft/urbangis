@@ -93,6 +93,20 @@
         
     },    
 
+    "TreePreviewModal": {
+        "status": "Status",
+        "parameters": "Parameters",
+        "dateplanted": "Tree planted",
+        "googlestreeturl": "Google Street View",
+        "remarks": "Remarks",
+        "careTypes": "Recommendations",
+        "comment": "Comment",
+        "heightTree": "Height (m)",
+        "girthTree": "Trunk girth (cm)",
+        "diameterTree": "Crown D.(m)",
+        "edit": "Edit",
+        "close": "Close"
+    },    
 
     "loginForm": {
         "title": "SIGN IN",

@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
 import { useForm, Controller  } from 'react-hook-form'
-import { Form, Button, Card, Row, Col, } from 'react-bootstrap';
+import { Form, Button, Row, Col, } from 'react-bootstrap';
 import Select, { components } from "react-select";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
@@ -20,15 +19,12 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 	const rxDictPlaceTypes = useSelector((state: RootState) => state.dataReducer.dictPlaceTypes);
 	const rxDictIrrigationMethods = useSelector((state: RootState) => state.dataReducer.dictIrrigationMethods);
 	const rxDictGroupSpecs = useSelector((state: RootState) => state.dataReducer.dictGroupSpec);
-
-	const rxIsMobileDevice = useSelector((state: RootState) => state.uiReducer.isMobileDevice);
-	//const rxDictTypeSpecs = useSelector((state: RootState) => state.dataReducer.dictTypeSpec);
 	
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 
 
 
-	const { control, register, handleSubmit, reset, setValue } = useForm({
+	const { control, handleSubmit, reset } = useForm({
 		reValidateMode: "onChange",
 		defaultValues: {
 			speciesFilter: "",
@@ -60,23 +56,37 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 	//let optionsSpeciesesFilter: {label: string; options: {value: number; label: string}[] | undefined}[] = [];
 	let optionsSpeciesesFilter: any = [];
 	if (Array.isArray(rxDictSpecieses) && Array.isArray(rxDictGroupSpecs)) {
+		let unknownTreeItem = null;
 
 		optionsSpeciesesFilter = rxDictGroupSpecs.map(itemGroup => {
-			return {
+			return {				
 				label: itemGroup.groupname,
 				options: rxDictSpecieses.map(spec => {
 					if (itemGroup.id === spec.groupspec) {
-						return {
-							value: spec.id,
-							label: spec.localname,
-							speciesname: spec.speciesname,
-							typespec: spec.typespec
-							//color: '#FF8B00'
+						if (spec.id !== 1) { // unknow tree item has id = 1
+							return {
+								value: spec.id,
+								label: spec.localname,
+								speciesname: spec.speciesname,
+								typespec: spec.typespec
+								//color: '#FF8B00'
+							}
+						} else {
+							unknownTreeItem = {
+								value: spec.id,
+								label: spec.localname
+							}
+							return null;	
 						}
 					}
+					return null;
 				}).filter(e => e) // removes all undefined items in result array			 
 			}
 		})
+		
+		if (unknownTreeItem) {
+			optionsSpeciesesFilter.unshift(unknownTreeItem);
+		}				
 	}
 
 

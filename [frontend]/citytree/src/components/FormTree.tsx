@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useForm, Controller  } from 'react-hook-form';
-import { Form, Button, Card, Row, Col, Modal} from 'react-bootstrap';
-import Datetime from 'react-datetime';
+import { Form, Button, Row, Col, Modal} from 'react-bootstrap';
 import Select, { components } from "react-select";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '../reducers/index'
 import { TreeItem } from "../interfaces";
-import moment from 'moment';
-import TableList from './TableList'
+//import TableList from './TableList'
+import InspectionsList from './InspectionsList';
 import UploadPhotos from "./UploadPhotos"
 //import ImageS3Upload from "./ImageS3Upload";
 //import noPhotoImage from "./images/no-photo.png";
@@ -66,17 +65,14 @@ const FormTree = ({
     const uploadPhotosRef = useRef();
 
 
-    interface IInspections {
-		id: number;
-		[key: string]: any | {iconFA?: string; iconFASize?: string; text?: string; idButton: string};
-	};
+    // interface IInspections {
+	// 	id: number;
+	// 	[key: string]: any | {iconFA?: string; iconFASize?: string; text?: string; idButton: string};
+	// };
 
-    const [inspections, setInspections] = useState<IInspections[] | undefined>(undefined);
+    //const [inspections, setInspections] = useState<IInspections[] | undefined>(undefined);
 
-
-    const dateTimeRef = useRef(null);
     const { t } = useTranslation();
-
 
 	useEffect(() => {
         reset();
@@ -153,74 +149,95 @@ const FormTree = ({
 
         reset(formData, { keepDefaultValues: true });
 
-        const fetchInpections = async () => {
-		    //@ts-ignore
-            let url = `${process.env.REACT_APP_API_URL}citytree/${city}/trees/${dataTreeForm.id}/inspections/`;
-    		let res = await fetch(url);
-		    let data = await res.json(); 
+        // const fetchInpections = async () => {
+		//     //@ts-ignore
+        //     let url = `${process.env.REACT_APP_API_URL}citytree/${city}/trees/${dataTreeForm.id}/inspections/`;
+    	// 	let res = await fetch(url);
+		//     let data = await res.json(); 
             
-            // adding buttons
-            data = data.map((element: any) => {
-                element.buttons = [];
-                element.buttons.push({iconFA: 'fas fa-edit', iconFASize: '15pt', idButton: 'edit'});
+        //     // adding buttons
+        //     data = data.map((element: any) => {
+        //         element.buttons = [];
+        //         element.buttons.push({iconFA: 'fas fa-edit', iconFASize: '15pt', idButton: 'edit'});
                 
-                if (element?.photo1 || element?.photo2 || element?.photo3) {
-                    element.buttons.push({iconFA: 'fa fa-camera', iconFASize: '15pt', idButton: 'photo'});                       
+        //         if (element?.photo1 || element?.photo2 || element?.photo3) {
+        //             element.buttons.push({iconFA: 'fa fa-camera', iconFASize: '15pt', idButton: 'photo'});                       
                     
-                }
-                element.typeData = 'Inspection';
-                return element;
+        //         }
+        //         element.typeData = 'Inspection';
+        //         return element;
                     
-            });
+        //     });
             
-            console.log('inspections',data);
-            setInspections(data);       
-        };
+        //     console.log('inspections',data);
+        //     setInspections(data);       
+        // };
 
-        if (dataTreeForm?.id) {
-            fetchInpections();    
-        }
+        // if (dataTreeForm?.id) {
+        //     fetchInpections();    
+        // }
 
 
 	}, [dataTreeForm]);
 
 
 
-    /*
-	useEffect(() => {
-		if (uploadedPhoto1 && uploadedPhoto2 && uploadedPhoto3) {
-			setUploadedPhoto1(false);
-			setUploadedPhoto2(false);
-			setUploadedPhoto3(false);
+    // let optionsSpeciesesData: any = [];
+    // if (Array.isArray(rxDictSpecieses) && Array.isArray(rxDictGroupSpecs)) {
 
-			handleSubmit(prepareOnSubmitTree)();
-		}
-	}, [uploadedPhoto1, uploadedPhoto2, uploadedPhoto3]);
-    */
+    //     optionsSpeciesesData = rxDictGroupSpecs.map(itemGroup => {
+    //         return {
+    //             label: itemGroup.groupname,
+    //             options: rxDictSpecieses.map(spec => {
+    //                 if (itemGroup.id === spec.groupspec) {
+    //                     return {
+    //                         value: spec.id,
+    //                         label: spec.localname,
+    //                         speciesname: spec.speciesname,
+    //                         typespec: spec.typespec
+    //                         //color: '#FF8B00'
+    //                     }
+    //                 }
+    //             }).filter(e => e) // removes all undefined items in result array			 
+    //         }
+    //     })
+    // }
 
+	//let optionsSpeciesesFilter: {label: string; options: {value: number; label: string}[] | undefined}[] = [];
+	let optionsSpeciesesData: any = [];
+	if (Array.isArray(rxDictSpecieses) && Array.isArray(rxDictGroupSpecs)) {
+		let unknownTreeItem = null;
 
-
-
-    let optionsSpeciesesData: any = [];
-    if (Array.isArray(rxDictSpecieses) && Array.isArray(rxDictGroupSpecs)) {
-
-        optionsSpeciesesData = rxDictGroupSpecs.map(itemGroup => {
-            return {
-                label: itemGroup.groupname,
-                options: rxDictSpecieses.map(spec => {
-                    if (itemGroup.id === spec.groupspec) {
-                        return {
-                            value: spec.id,
-                            label: spec.localname,
-                            speciesname: spec.speciesname,
-                            typespec: spec.typespec
-                            //color: '#FF8B00'
-                        }
-                    }
-                }).filter(e => e) // removes all undefined items in result array			 
-            }
-        })
-    }
+		optionsSpeciesesData = rxDictGroupSpecs.map(itemGroup => {
+			return {				
+				label: itemGroup.groupname,
+				options: rxDictSpecieses.map(spec => {
+					if (itemGroup.id === spec.groupspec) {
+						if (spec.id !== 1) { // unknow tree item has id = 1
+							return {
+								value: spec.id,
+								label: spec.localname,
+								speciesname: spec.speciesname,
+								typespec: spec.typespec
+								//color: '#FF8B00'
+							}
+						} else {
+							unknownTreeItem = {
+								value: spec.id,
+								label: spec.localname
+							}
+							return null;	
+						}
+					}
+					return null;
+				}).filter(e => e) // removes all undefined items in result array			 
+			}
+		})
+		
+		if (unknownTreeItem) {
+			optionsSpeciesesData.unshift(unknownTreeItem);
+		}				
+	}    
 
 
     let optionsStatusesData: {value: number; label: string}[] = [];
@@ -904,31 +921,11 @@ const FormTree = ({
                             {t<string>("sidebar.treeTab.inspActionsTable")}
                         </Form.Label>
                         
-                        <TableList columns={
-                            [
-                                {
-                                    field: "#",
-                                    headerName: "",
-                                },                            
-                                {
-                                    field: "datetime",
-                                    headerName: "Дата",
-                                    width: "40%",
-                                    sortable: true,
-                                    dateTimeOption: "onlyDate",
-                                },
-                                {
-                                    field: "typeData",
-                                    headerName: "Тип",
-                                    width: "35%"
-                                },    
-                                {
-                                    field: "buttons",
-                                    headerName: "Actions",
-                                    width: "25%"
-                                },             
-                            ]
-                        } data={inspections} sortField={"datetime"} sortAsc={false} size={"sm"} OnClickButtons={OnButtonTableClick}/>
+                        <InspectionsList 
+                            idTree={dataTreeForm?.id}
+                            //data={inspections} 
+                            OnClickButtons={OnButtonTableClick}
+                        />
 
                     </Form.Group>
 

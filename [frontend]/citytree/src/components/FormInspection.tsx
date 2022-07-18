@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Form, Button, Card, Row, Col, Modal } from "react-bootstrap";
-import Datetime from "react-datetime";
-import Select, { components } from "react-select";
+import { Form, Button, Row, Col, Modal } from "react-bootstrap";
+import Select from "react-select";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../reducers/index";
@@ -24,8 +23,6 @@ interface FormInspProps {
 }
 
 
-let test = 1;
-
 const FormInspection = ({
 	onSubmitInsp,
 	onDeleteInsp,
@@ -43,13 +40,6 @@ const FormInspection = ({
 	const rxDictRemarks = useSelector((state: RootState) => state.dataReducer.dictRemarks);    
     const { t } = useTranslation();
 
-	//const [uploadedPhoto1, setUploadedPhoto1] = useState(false);
-	//const [uploadedPhoto2, setUploadedPhoto2] = useState(false);
-	//const [uploadedPhoto3, setUploadedPhoto3] = useState(false);	
-	
-	//const photo1Ref = useRef(); // to be able to call method uploadFile
-	//const photo2Ref = useRef();
-	//const photo3Ref = useRef();
 
 	const uploadPhotosRef = useRef();
 

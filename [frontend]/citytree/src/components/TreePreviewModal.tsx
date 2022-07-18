@@ -1,30 +1,47 @@
-import { Form, Button, Card, Row, Col, } from 'react-bootstrap';
+import { Form, Button, Row, Col, } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
 import Carousel from "react-bootstrap/Carousel";
 import Modal from "react-bootstrap/Modal";
+import InspectionsList from './InspectionsList';
 import { useTranslation } from 'react-i18next';
 import "./TreePreviewModal.css";
+import { useEffect } from 'react';
 
 interface TreePreviewModalProps {
     visible: boolean;
     data: any;
     setTreePreview: any; 
-    onButtonEditClick: (idTree: number) => void;
+    onButtonEditTreeClick: (idTree: number) => void;
+    onEditInsp: (data: {}) => void;
 } 
 
 function TreePreviewModal({
     visible,
     data,
     setTreePreview,
-    onButtonEditClick,
+    onButtonEditTreeClick,
+    onEditInsp
 }: TreePreviewModalProps) {
 
     const { t } = useTranslation();    
     const handleClose = () => setTreePreview({visible: false, data: {photos:[]}});    
     const handleEditTree = () => {
         setTreePreview({visible: false, data: {photos:[]}}); 
-        onButtonEditClick(data.id)   
+        onButtonEditTreeClick(data.id)   
     }
+
+
+    function OnButtonTableClick (rowData: any, idButton: string) {    
+        console.log(idButton, rowData);
+        if (idButton==='edit') {
+            setTreePreview({visible: false, data: {photos:[]}}); 
+            onEditInsp(rowData);
+        } else if (idButton==='photo') {
+            //onClickInspPhotos(rowData);
+        }
+        
+    }
+
 
     return (    
     
@@ -52,7 +69,7 @@ function TreePreviewModal({
                             {data?.lastinsp_photo1 && data.lastinsp_photo1 && (
                                 <Carousel.Item key={data.lastinsp_photo1} >
                                     <img
-                                        className="d-block w-100"
+                                        className="d-block w-100" alt="photo1"
                                         src={data.photoServer+data.lastinsp_photo1}                                               
                                     />
                                 </Carousel.Item>                     
@@ -61,7 +78,7 @@ function TreePreviewModal({
                             {data?.lastinsp_photo2 && data.lastinsp_photo2 && (
                                 <Carousel.Item key={data.lastinsp_photo2} >
                                     <img
-                                        className="d-block w-100"
+                                        className="d-block w-100" alt="photo2"
                                         src={data.photoServer+data.lastinsp_photo2}                                               
                                     />
                                 </Carousel.Item>                     
@@ -70,7 +87,7 @@ function TreePreviewModal({
                             {data?.lastinsp_photo3 && data.lastinsp_photo3 && (
                                 <Carousel.Item key={data.lastinsp_photo3} >
                                     <img
-                                        className="d-block w-100"
+                                        className="d-block w-100" alt="photo3"
                                         src={data.photoServer+data.lastinsp_photo3}                                               
                                     />
                                 </Carousel.Item>                     
@@ -94,6 +111,14 @@ function TreePreviewModal({
                                 <RowTable title={t<string>("TreePreviewModal.comment")} value={data.comment} />                                
                             </tbody>
                         </Table>
+
+
+                        <p className="mt-5" id="captionInspectsActions">Прегледи и Дейности</p>
+
+                        <InspectionsList 
+                            idTree={data?.id} 
+                            OnClickButtons={OnButtonTableClick}                            
+                        />
 
                     </Form.Group>                
                 </Row>
@@ -141,7 +166,7 @@ function dateTimeToDate(dateTimeStr: string) {
         const dateTime = new Date(dateTimeStr);
         if (dateTime) {
             const arDateTime = dateTime.toISOString().split("T");
-            if (arDateTime.length==2) {
+            if (arDateTime.length === 2) {
                 return arDateTime[0];
             } 
             return dateTimeStr;

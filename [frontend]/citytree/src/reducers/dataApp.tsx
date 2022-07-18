@@ -8,7 +8,8 @@ const initialState = {
     dictPlaceTypes: [],
     dictIrrigationMethods: [], 
     dictGroupSpec: [],
-    dictTypeSpec: [] 
+    dictTypeSpec: [],
+    dataLastEditedTreeId: {treeId: 0} 
 }
 
 const dataReducer = (state=initialState, action: {type: string; payload: any}) => {
@@ -19,6 +20,12 @@ const dataReducer = (state=initialState, action: {type: string; payload: any}) =
                 dataTrees: action.payload
             }
 
+        case 'DATALASTEDITEDTREEID':
+            return {
+                ...state,
+                dataLastEditedTreeId: action.payload
+            }
+                        
         case 'DICTSTATUSES':
             return {
                 ...state,

@@ -111,6 +111,13 @@ export const actDataTrees= (value) => {
     }
 }
 
+export const actDataLastEditedTreeId= (value) => {
+    return {
+        type: 'DATALASTEDITEDTREEID',
+        payload: value
+    }
+}
+
 export const actDictStatuses = (value) => {
     return {
         type: 'DICTSTATUSES',

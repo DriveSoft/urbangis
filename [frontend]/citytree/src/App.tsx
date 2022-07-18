@@ -2,7 +2,7 @@ import "./App.css";
 import L from 'leaflet'
 
 import { useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 import MenuGlobal from "./components_hl/MenuGlobal";
 import Map from "./components_hl/Map";
@@ -23,7 +23,7 @@ import LoginModalForm from "./components/LoginModalForm";
 import RegisterModalForm from "./components/RegisterModalForm";
 import { useTranslation } from "react-i18next";
 
-import { RootState, allReducers } from "./reducers/index";
+import { RootState } from "./reducers/index";
 import { useSelector, useDispatch } from "react-redux";
 import {
 	actMapMarkerState,
@@ -31,9 +31,9 @@ import {
 	actIsMobileDevice,
 	actShowSidebar,
 	actCheckButtonNewMarker,
-	actShowOkCancelMobileMarker,
 	actShowTreeTab,
 	actActiveTabKey,
+	actDataLastEditedTreeId,
 	actDictStatuses,
 	actDictSpecieses,
 	actDictCareTypes,
@@ -81,7 +81,6 @@ function App() {
 	// redux
 	const dispatch = useDispatch();
 	const rxDataTrees = useSelector((state: RootState) => state.dataReducer.dataTrees);
-	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar);
 	const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker);
 	const rxDataFilters = useSelector((state: RootState) => state.dataReducer.dataFilters);
 	const rxActiveTabKey = useSelector((state: RootState) => state.uiReducer.activeTabKey);
@@ -238,7 +237,7 @@ function App() {
 	// 	}
 	// }
 	
-	const onButtonEditClick = (idTree: number) => {
+	const onButtonEditTreeClick = (idTree: number) => {
 		editTree(idTree);
 	}
 
@@ -334,8 +333,14 @@ function App() {
 		const succeedCallBack = () => {
 			fetchTreeData(data.treeId).then(data => setDataTreeForm(data));		
 			fetchTreesAndStatuses();
-			dispatch(actActiveTabKey('tree'));
-			dispatch(actShowInspTab(false));			
+			if (rxShowTreeTab === true) {
+				dispatch(actActiveTabKey('tree'));				
+			} else {
+				dispatch(actActiveTabKey('filter'));	
+			}
+			dispatch(actShowInspTab(false));
+			
+			updateInspectionListsWithSpecificTreeId(data.treeId);					
 		}
 
 		console.log('insp', data, url);
@@ -343,13 +348,23 @@ function App() {
 			
 	};
 
+	
+	function updateInspectionListsWithSpecificTreeId (id: number) {
+		dispatch(actDataLastEditedTreeId({treeId: id})); 
+	}
+
 	const onDeleteInsp = (data: InspItem | null) => {
 		const succeedCallBack = () => {
 			if (data) {
-				fetchTreeData(data.tree).then(data => setDataTreeForm(data));	;
-				dispatch(actActiveTabKey('tree'));
+				fetchTreeData(data.tree).then(data => setDataTreeForm(data));	;				
+				if (rxShowTreeTab === true) {
+					dispatch(actActiveTabKey('tree'));				
+				} else {
+					dispatch(actActiveTabKey('filter'));	
+				}				
 				dispatch(actShowInspTab(false));						
 				fetchTreesAndStatuses();
+				updateInspectionListsWithSpecificTreeId(data.tree);
 			}		
 		}
 
@@ -620,7 +635,8 @@ function App() {
 					visible={treePreview.visible} 
 					data={treePreview.data}
 					setTreePreview={setTreePreview}
-					onButtonEditClick={onButtonEditClick} 					
+					onButtonEditTreeClick={onButtonEditTreeClick}
+					onEditInsp={onEditInsp} 					
 				/>				
 
 				<LoginModalForm setAuthToken={setAuthToken}/>

@@ -1,32 +1,28 @@
 import Table from "react-bootstrap/Table";
 import {useState, useEffect} from 'react';
 
-
-interface TableListProps {
-	// columns in the table
-	columns: {
-		field: string;
-		headerName: string;
-		width?: string;
-		sortable?: boolean;
-		dateTimeOption?: 'onlyDate' | 'onlyTime' | 'dateTime'; // for Date fields you can choose format
-	}[];
-
-	sortField?: string;
-	sortAsc?: boolean;
-
-	data: {
-		id: number;
-		[key: string]: any | {iconFA?: string; iconFASize?: string; text?: string; idButton: string}[]; // array of buttons, where key is field name of a column
-	}[] | undefined;
-
-	size?: string; // sm
-	variant?: string; // dark
-
-  	OnClickButtons?: (rowData: any, idButton: string) => void;
+export interface ColumnsStructureTableList {
+	field: string;
+	headerName: string;
+	width?: string;
+	sortable?: boolean;
+	dateTimeOption?: 'onlyDate' | 'onlyTime' | 'dateTime'; // for Date fields you can choose format	
 }
 
+export interface DataStructureTableList {
+	id: number;	
+	[key: string]: any | {iconFA?: string; iconFASize?: string; text?: string; idButton: string}[]; // array of buttons, where key is field name of a column
+}
 
+interface TableListProps {	
+	columns: ColumnsStructureTableList[];
+	data: DataStructureTableList[] | undefined;
+	sortField?: string;
+	sortAsc?: boolean;	
+	size?: string; // sm
+	variant?: string; // dark
+  	OnClickButtons?: (rowData: any, idButton: string) => void;
+}
 
 function TableList({columns, data, sortField, sortAsc=true, size, variant, OnClickButtons}: TableListProps) {
 
@@ -116,12 +112,11 @@ function TableList({columns, data, sortField, sortAsc=true, size, variant, OnCli
 		row: any;
 		indexRow: number;
 	}	
+
 	function DataRow({row, indexRow}: DataRowProps): any {	
 		const getUniqKey = (row: any, index: number): string => (`${String(row.id)}.${String(index)}`);
-		
-		
+				
 		const result = columns.map((col, index) => {
-
 			
 			if (typeof row[col.field] !== "object") { //if it's not object, then it's just value of field, else it's button
 							

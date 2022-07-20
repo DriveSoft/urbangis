@@ -8,6 +8,7 @@ import {
 	actShowOkCancelMobileMarker,
 	actShowTreeTab,
 	actActiveTabKey,
+    actNewTreeCreation
 } from "../actions";
 
 
@@ -23,23 +24,12 @@ const ButtonOkCancelMobileMarker = () => {
             variant="success"
             id="doneEditMarkerMobile"
             onClick={() => {
-                dispatch(
-                    actCheckButtonNewMarker(
-                        false
-                    )
-                );
-                dispatch(
-                    actShowOkCancelMobileMarker(
-                        false
-                    )
-                );
-                dispatch(
-                    actShowTreeTab(true)
-                );
-                dispatch(
-                    actActiveTabKey("tree")
-                );
-                dispatch(actShowSidebar(true));
+                dispatch(actCheckButtonNewMarker(false));
+                dispatch(actShowOkCancelMobileMarker(false));
+                dispatch(actNewTreeCreation(true));
+                dispatch(actShowTreeTab(true));
+                dispatch(actActiveTabKey("tree"));
+                dispatch(actShowSidebar(true));                
             }}
         >
             {t<string>("words.done")}

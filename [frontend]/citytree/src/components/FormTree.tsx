@@ -6,10 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '../reducers/index'
 import { TreeItem } from "../interfaces";
-//import TableList from './TableList'
 import InspectionsList from './InspectionsList';
 import UploadPhotos from "./UploadPhotos"
-//import ImageS3Upload from "./ImageS3Upload";
 //import noPhotoImage from "./images/no-photo.png";
 
 interface FormTreeProps {
@@ -18,7 +16,7 @@ interface FormTreeProps {
 	onCloseTree: () => void;
     
     onNewInsp:(idTree: number) => void;
-    onEditInsp: (data: {}) => void;
+    onClickInspEdit: (data: {}) => void;
     onClickInspPhotos: (data: {}) => void;
     onClickEditCoords: (coord: {lat: string; lng: string}) => void;
         	
@@ -33,7 +31,7 @@ const FormTree = ({
 	onDeleteTree,
 	onCloseTree,
     onNewInsp,
-    onEditInsp,
+    onClickInspEdit,
     onClickInspPhotos,
     onClickEditCoords,
 	dataTreeForm,
@@ -515,38 +513,16 @@ const FormTree = ({
 	  };
 
 
-
+    
 
     function OnButtonTableClick (rowData: any, idButton: string) {    
-        console.log(idButton, rowData);
         if (idButton==='edit') {
-            onEditInsp(rowData);
+            //onClickInspEdit(rowData);
         } else if (idButton==='photo') {
-            onClickInspPhotos(rowData);
-        }
-        
+            //onClickInspPhotos(rowData);
+        }        
     }
 
-
-    /*
-	const onFinishPhoto1 = () => {
-		console.log('onFinishPhoto1');
-		setUploadedPhoto1(true);
-		//setPhotosUploaded({...photosUploaded, photo1: true});	
-	}
-	const onFinishPhoto2 = () => {
-		console.log('onFinishPhoto2');
-		setUploadedPhoto2(true);
-	
-		//setPhotosUploaded({photo1: photosUploaded.photo1, photo2: true, photo3: photosUploaded.photo3, data: photosUploaded.data});
-		//setPhotosUploaded({...photosUploaded, photo2: true});
-	}
-	const onFinishPhoto3 = () => {
-		console.log('onFinishPhoto3');
-		//setPhotosUploaded({...photosUploaded, photo3: true});
-		setUploadedPhoto3(true);
-	}	    
-    */
 
 
 
@@ -924,7 +900,9 @@ const FormTree = ({
                         <InspectionsList 
                             idTree={dataTreeForm?.id}
                             //data={inspections} 
-                            OnClickButtons={OnButtonTableClick}
+                            //OnClickButtons={OnButtonTableClick}
+                            onClickButtonEditInsp={onClickInspEdit}
+                            onClickButtonPhotosInsp={onClickInspPhotos}
                         />
 
                     </Form.Group>

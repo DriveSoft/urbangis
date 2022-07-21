@@ -5,14 +5,16 @@ import Modal from "react-bootstrap/Modal";
 import InspectionsList from './InspectionsList';
 import { useTranslation } from 'react-i18next';
 import "./TreePreviewModal.css";
-import { useEffect } from 'react';
+import noPhotoImage from "./images/no-photo.png";
 
 interface TreePreviewModalProps {
     visible: boolean;
     data: any;
     setTreePreview: any; 
     onButtonEditTreeClick: (idTree: number) => void;
-    onEditInsp: (data: {}) => void;
+    onClickInspEdit: (data: {}) => void;
+    onClickButtonEditInsp: (inspData: any) => void;
+    onClickButtonPhotosInsp: (inspData: any) => void;    
 } 
 
 function TreePreviewModal({
@@ -20,7 +22,8 @@ function TreePreviewModal({
     data,
     setTreePreview,
     onButtonEditTreeClick,
-    onEditInsp
+    onClickButtonEditInsp,
+    onClickButtonPhotosInsp
 }: TreePreviewModalProps) {
 
     const { t } = useTranslation();    
@@ -30,16 +33,62 @@ function TreePreviewModal({
         onButtonEditTreeClick(data.id)   
     }
 
+    const onClickButtonEditInspBefore = (inspData: any) => {
+        setTreePreview({visible: false, data: {photos:[]}});
+        onClickButtonEditInsp(inspData);
+    }
 
-    function OnButtonTableClick (rowData: any, idButton: string) {    
-        console.log(idButton, rowData);
-        if (idButton==='edit') {
-            setTreePreview({visible: false, data: {photos:[]}}); 
-            onEditInsp(rowData);
-        } else if (idButton==='photo') {
-            //onClickInspPhotos(rowData);
-        }
+    const isPrevNextControlsEnable = () => {
+        return numberOfPhotos() > 1;
+    }
+
+    function numberOfPhotos() {
+        let result = 0;
+        if (data?.lastinsp_photo1 && data.lastinsp_photo1) result++;
+        if (data?.lastinsp_photo2 && data.lastinsp_photo2) result++;
+        if (data?.lastinsp_photo3 && data.lastinsp_photo3) result++;
         
+        return result;        
+    }
+
+
+
+    function itemPhoto(photoIndex: string){
+        const photoKeyName = 'lastinsp_photo'+photoIndex;
+        
+        return (            
+            (data.hasOwnProperty(photoKeyName) && data[photoKeyName]) && (
+                <Carousel.Item key={data[photoKeyName]} className="carouselItem">
+                    <img
+                        className="d-block w-100 imgItem" alt={"photo"+photoIndex}
+                        src={data.photoServer+data[photoKeyName]}                                               
+                    />
+                </Carousel.Item> 
+            )
+        )         
+    }
+
+    function imgPhotoItem() {        
+       
+        if (numberOfPhotos() > 0) {
+            return (
+                <Carousel interval={null} controls={isPrevNextControlsEnable()}>
+                    
+                    {itemPhoto('1')}
+                    {itemPhoto('2')}
+                    {itemPhoto('3')}
+                    
+                </Carousel>                
+            )
+        } else {
+            return (
+                <Carousel interval={null} controls={isPrevNextControlsEnable()}>
+                    <Carousel.Item className="carouselItem">
+                        <img className="d-block w-100 imgItem" alt="" src={noPhotoImage} />
+                    </Carousel.Item>   
+                </Carousel>   
+            )
+        }
     }
 
 
@@ -63,42 +112,18 @@ function TreePreviewModal({
                     <Form.Group
                             as={Col}
                             controlId="formTreePreviewLeftSide"
-                            style={{ minWidth: "230px" }}
+                            style={{ minWidth: "300px" }}
                     >
-                        <Carousel interval={null}>
-                            {data?.lastinsp_photo1 && data.lastinsp_photo1 && (
-                                <Carousel.Item key={data.lastinsp_photo1} >
-                                    <img
-                                        className="d-block w-100" alt="photo1"
-                                        src={data.photoServer+data.lastinsp_photo1}                                               
-                                    />
-                                </Carousel.Item>                     
-                            )}
-
-                            {data?.lastinsp_photo2 && data.lastinsp_photo2 && (
-                                <Carousel.Item key={data.lastinsp_photo2} >
-                                    <img
-                                        className="d-block w-100" alt="photo2"
-                                        src={data.photoServer+data.lastinsp_photo2}                                               
-                                    />
-                                </Carousel.Item>                     
-                            )}   
-
-                            {data?.lastinsp_photo3 && data.lastinsp_photo3 && (
-                                <Carousel.Item key={data.lastinsp_photo3} >
-                                    <img
-                                        className="d-block w-100" alt="photo3"
-                                        src={data.photoServer+data.lastinsp_photo3}                                               
-                                    />
-                                </Carousel.Item>                     
-                            )}                              
-                        </Carousel>
+                        
+                            {imgPhotoItem()}
+                        
+                     
                     </Form.Group>
 
                     <Form.Group
                             as={Col}
                             controlId="formTreePreviewRightSide"
-                            style={{ minWidth: "230px" }}
+                            //style={{ minWidth: "230px" }}
                     >
                         <Table striped>
                             <tbody>
@@ -116,8 +141,9 @@ function TreePreviewModal({
                         <p className="mt-5" id="captionInspectsActions">Прегледи и Дейности</p>
 
                         <InspectionsList 
-                            idTree={data?.id} 
-                            OnClickButtons={OnButtonTableClick}                            
+                            idTree={data?.id}                             
+                            onClickButtonEditInsp={onClickButtonEditInspBefore}
+                            onClickButtonPhotosInsp={onClickButtonPhotosInsp}                          
                         />
 
                     </Form.Group>                

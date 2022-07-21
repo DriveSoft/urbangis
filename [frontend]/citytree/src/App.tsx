@@ -28,6 +28,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
 	actMapMarkerState,
 	actNewTreeCreation,
+	actShowOkCancelMobileMarker,
 	actIsMobileDevice,
 	actShowSidebar,
 	actCheckButtonNewMarker,
@@ -377,7 +378,11 @@ function App() {
 
 	const onCloseInsp = () => {		
 		dispatch(actShowInspTab(false));
-		dispatch(actActiveTabKey('tree'));		
+		if (rxShowTreeTab === true) {
+			dispatch(actActiveTabKey('tree'));				
+		} else {
+			dispatch(actActiveTabKey('filter'));	
+		}					
 	};	
 
 	const onNewInsp = (idTree: number) => {
@@ -388,9 +393,10 @@ function App() {
 
 	}
 
-	const onEditInsp = (data: any) => {
-		console.log('onEditInsp', data);		
-		setDataInspForm({...data}); //таким образом передается копия объекта, которая указывает на другой участок памяти, иначе useEffect не срабатывает у формы, а значит форма не перезаполняется, когда например чтото поменяли на форме, затем ее закрыли без сохранения и снова открыли, видим вместо актуальных данных, старые, которые не сохранялись
+	const onClickInspEdit = (data: any) => {
+		console.log('onClickInspEdit', data);		
+		//setDataInspForm({...data}); //таким образом передается копия объекта, которая указывает на другой участок памяти, иначе useEffect не срабатывает у формы, а значит форма не перезаполняется, когда например чтото поменяли на форме, затем ее закрыли без сохранения и снова открыли, видим вместо актуальных данных, старые, которые не сохранялись
+		setDataInspForm(data);
 		dispatch(actShowInspTab(true));
 		dispatch(actActiveTabKey('insp'));									
 		dispatch(actShowSidebar(true));			
@@ -415,14 +421,21 @@ function App() {
 		}					
 	}		
 
-	const onClickEditCoords = (coord: {lat: string; lng: string}) => {		
-		dispatch(actMapMarkerState({ visible: true, position: coord }));
+	const onClickEditCoords = (coord: {lat: string; lng: string}) => {	
+		
+		if (rxIsMobileDevice) {	
+			dispatch(actShowSidebar(false));					            
+            dispatch(actShowOkCancelMobileMarker(true));
+		}
+		
+		dispatch(actMapMarkerState({ visible: true, position: coord }));						
 	}
 		
 
 
 	const onClickMap = (e: any) => {
 		if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
+			dispatch(actNewTreeCreation(true));
 			dispatch(actCheckButtonNewMarker(false));
 
 			let coord = { lat: '0', lng: '0' };
@@ -548,7 +561,7 @@ function App() {
 									onDeleteTree={onDeleteTree}
 									onCloseTree={onCloseTree} 
 									onNewInsp={onNewInsp}
-									onEditInsp={onEditInsp}
+									onClickInspEdit={onClickInspEdit}
 									onClickInspPhotos={onClickInspPhotos}
 									onClickEditCoords={onClickEditCoords}
 									dataTreeForm={dataTreeForm}											
@@ -636,7 +649,9 @@ function App() {
 					data={treePreview.data}
 					setTreePreview={setTreePreview}
 					onButtonEditTreeClick={onButtonEditTreeClick}
-					onEditInsp={onEditInsp} 					
+					onClickInspEdit={onClickInspEdit} 
+					onClickButtonEditInsp={onClickInspEdit}
+					onClickButtonPhotosInsp={onClickInspPhotos}										
 				/>				
 
 				<LoginModalForm setAuthToken={setAuthToken}/>

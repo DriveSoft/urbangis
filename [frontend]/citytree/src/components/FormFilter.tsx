@@ -463,7 +463,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 									type="number"
 									size="sm"
 									min="0"
-									max="99"
+									max="999"
 									{...field}
 								/>
 							)}
@@ -534,7 +534,7 @@ const FormFilter = ({onSubmitFilter}: FormFilterProps) => {
 									type="number"
 									size="sm"
 									min="0"
-									max="99"
+									max="999"
 									{...field}
 								/>
 							)}

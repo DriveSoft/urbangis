@@ -276,7 +276,6 @@ function Map ({
         
         dispatch(actCheckButtonNewMarker(state));
         
-
 		if (rxIsMobileDevice && state) {						
             dispatch(actMapMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
             dispatch(actShowOkCancelMobileMarker(true));

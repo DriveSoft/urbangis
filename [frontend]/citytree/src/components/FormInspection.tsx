@@ -131,21 +131,6 @@ const FormInspection = ({
     }, [dataInspForm]);
 
 
-	/*
-	useEffect(() => {
-		if (uploadedPhoto1 && uploadedPhoto2 && uploadedPhoto3) {			
-			setUploadedPhoto1(false);
-			setUploadedPhoto2(false);
-			setUploadedPhoto3(false);
-
-			handleSubmit(prepareOnSubmitInsp)();
-		}
-	}, [uploadedPhoto1, uploadedPhoto2, uploadedPhoto3]);	
-	*/
-
-
-
-
     let optionsStatusesData: {value: number; label: string}[] = [];
     if (Array.isArray(rxDictStatuses)) {
         optionsStatusesData = rxDictStatuses.map((x) => {
@@ -189,43 +174,6 @@ const FormInspection = ({
 			//@ts-ignore
 			uploadPhotosRef.current.uploadPhotos(); // component uploadPhotos has a callback to start a submit of the form, when uploading has been finished.
 		}
-		
-		
-		/*
-		let p1 = false;
-		let p2 = false;
-		let p3 = false;
-		//@ts-ignore
-		if (photo1Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p1=photo1Ref.current.uploadFile();
-		}	
-
-		//@ts-ignore
-		if (photo2Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p2=photo2Ref.current.uploadFile();
-		}
-		
-		//@ts-ignore
-		if (photo3Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p3=photo3Ref.current.uploadFile();
-		}		
-
-
-		console.log('p', p1, p2, p3);
-		if (!p1 && !p2 && !p3) { // there is no photo to upload, so just submit form
-			//handleSubmit(prepareOnSubmitInsp)()
-		} else {
-			e.preventDefault();
-			setUploadedPhoto1(!p1);
-			setUploadedPhoto2(!p2);
-			setUploadedPhoto3(!p3);
-		}		
-		
-		//handleSubmit(prepareOnSubmitInsp)()
-		*/
 	}
 
 	function prepareOnSubmitInsp(data: {
@@ -268,27 +216,6 @@ const FormInspection = ({
 		onSubmitInsp(data);
 
     };
-
-
-	/*
-	const onFinishPhoto1 = () => {
-		console.log('onFinishPhoto1');
-		setUploadedPhoto1(true);
-		//setPhotosUploaded({...photosUploaded, photo1: true});	
-	}
-	const onFinishPhoto2 = () => {
-		console.log('onFinishPhoto2');
-		setUploadedPhoto2(true);
-	
-		//setPhotosUploaded({photo1: photosUploaded.photo1, photo2: true, photo3: photosUploaded.photo3, data: photosUploaded.data});
-		//setPhotosUploaded({...photosUploaded, photo2: true});
-	}
-	const onFinishPhoto3 = () => {
-		console.log('onFinishPhoto3');
-		//setPhotosUploaded({...photosUploaded, photo3: true});
-		setUploadedPhoto3(true);
-	}	
-	*/
 
 
 	const onUploadError = (e: any) => {
@@ -461,72 +388,6 @@ const FormInspection = ({
 					onCallbackDone={onCallbackDone}	
 					ref={uploadPhotosRef}
 				/>
-
-				{/*
-				<Row className="mt-3">
-					<Form.Group as={Col} controlId="formIdInsp1" className="mt-3">
-						<Controller
-							name="photo1"
-							control={control}
-							render={({ field }) => (
-
-								<ImageS3Upload  
-									signingUrl={signingS3Url}
-									autoUpload={false}
-									//startUploadState={photo1StateUpload.start}
-									emptyPhoto={noPhotoImage}
-									serverPhoto={dataInspForm?.photoServer}	
-									onFinish={onFinishPhoto1}																	
-									{...field}
-									ref={photo1Ref}
-								/>
-
-							)}
-						/>
-					</Form.Group>
-
-					<Form.Group as={Col} controlId="formIdInsp2" className="mt-3">
-						<Controller
-							name="photo2"
-							control={control}
-							render={({ field }) => (
-
-								<ImageS3Upload  
-									signingUrl={signingS3Url}
-									autoUpload={false}	
-									emptyPhoto={noPhotoImage}
-									serverPhoto={dataInspForm?.photoServer}
-									onFinish={onFinishPhoto2}
-									{...field}
-									ref={photo2Ref}
-								/>
-
-							)}
-						/>
-					</Form.Group>
-
-					<Form.Group as={Col} controlId="formIdInsp3" className="mt-3">
-						<Controller
-							name="photo3"
-							control={control}
-							render={({ field }) => (
-
-								<ImageS3Upload  
-									signingUrl={signingS3Url}
-									autoUpload={false}
-									emptyPhoto={noPhotoImage}
-									serverPhoto={dataInspForm?.photoServer}
-									onFinish={onFinishPhoto3}
-									{...field}
-									ref={photo3Ref}
-								/>
-
-							)}
-						/>
-					</Form.Group>	
-															
-				</Row>
-				*/}
 
 				<Form.Group controlId="formIdTreeInsp" className="mt-3">
 					<Controller

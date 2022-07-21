@@ -1,6 +1,6 @@
 import Button from "react-bootstrap/Button";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
 	actMapMarkerState,
 	actShowSidebar,
@@ -10,12 +10,14 @@ import {
 	actActiveTabKey,
     actNewTreeCreation
 } from "../actions";
+import { RootState } from "../reducers/index";
 
 
 const ButtonOkCancelMobileMarker = () => {
 
     const dispatch = useDispatch();
     const { t } = useTranslation();
+    const rxCheckButtonNewMarker = useSelector((state: RootState) => state.uiReducer.checkButtonNewMarker);
 
 
     return (
@@ -24,9 +26,10 @@ const ButtonOkCancelMobileMarker = () => {
             variant="success"
             id="doneEditMarkerMobile"
             onClick={() => {
+                if (rxCheckButtonNewMarker) dispatch(actNewTreeCreation(true));
+                
                 dispatch(actCheckButtonNewMarker(false));
-                dispatch(actShowOkCancelMobileMarker(false));
-                dispatch(actNewTreeCreation(true));
+                dispatch(actShowOkCancelMobileMarker(false));                
                 dispatch(actShowTreeTab(true));
                 dispatch(actActiveTabKey("tree"));
                 dispatch(actShowSidebar(true));                

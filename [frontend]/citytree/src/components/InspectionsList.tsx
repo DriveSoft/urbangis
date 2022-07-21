@@ -4,16 +4,15 @@ import { useSelector } from "react-redux";
 import { RootState } from "../reducers/index";
 
 interface InspectionsListProps {
-    idTree: number | undefined;
-    //data: DataStructureTableList[] | undefined;
-    OnClickButtons?: (rowData: any, idButton: string) => void;
+    idTree: number | undefined;  
+    onClickButtonEditInsp: (inspData: any) => void;
+    onClickButtonPhotosInsp: (inspData: any) => void;
 }
 
 const InspectionsList = (props: InspectionsListProps) => {
 
     const [inspectionsData, setInspectionsData] = useState<DataStructureTableList[] | undefined>(undefined);
     const rxDataLastEditetTreeId = useSelector((state: RootState) => state.dataReducer.dataLastEditedTreeId);
-
 
     const fetchInpections = async () => {
         //@ts-ignore
@@ -54,10 +53,15 @@ const InspectionsList = (props: InspectionsListProps) => {
     }, [rxDataLastEditetTreeId]);
 
 
+    const OnClickInspButtons = (rowData: any, idButton: string) => {            
+        if (idButton==='edit') props.onClickButtonEditInsp(rowData);        
+        if (idButton==='photo') props.onClickButtonPhotosInsp(rowData);                 
+    }
+
   return (
     <TableList 
         data={inspectionsData} 
-        OnClickButtons={props.OnClickButtons} 
+        OnClickButtons={OnClickInspButtons} 
         sortField={"datetime"} 
         sortAsc={false} 
         size={"sm"}        

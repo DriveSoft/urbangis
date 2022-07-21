@@ -1,9 +1,27 @@
 .modal-90w{
-    min-width: 90%;
+    min-width: 90%;       
 }
+
+
+.carouselItem{
+    /* height: 75vh */
+    max-height: 75vh;
+}
+
+.imgItem{
+    max-height: 75vh;     
+    object-fit: contain;
+}
+
+
 
 #captionInspectsActions {
     font-size:xx-large;
     font-weight: 100;
     color: darkcyan;
+}
+
+.carousel-control-next,
+.carousel-control-prev /*, .carousel-indicators */ {
+    filter: invert(100%);    
 }

@@ -56,6 +56,15 @@ def usersData(request):
         return Response(serializer.data)         
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def userPermissionsData(request):
+    if request.method == 'GET':        
+        data = getUserPermissions(request.user)
+        return Response(data) 
+
+
+
 
 
 

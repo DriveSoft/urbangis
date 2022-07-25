@@ -94,6 +94,7 @@ interface MapProps {
     currentCity: string;
     onDragEndNewMarker: (LatLng: {lat: number; lng: number}) => void;
     onClickMap: (e: any) => void;
+    onClickCreateNewMarker?: (state: boolean) => void;
     onZoomEnd?: (e: any) => void;
     onEachLayer?: (layer: L.Layer, zoom: number) => void;
     //onMarkerClick: (data: any) => void;
@@ -108,6 +109,7 @@ function Map ({
                 currentCity,                 
                 onDragEndNewMarker, 
                 onClickMap, 
+                onClickCreateNewMarker,
                 onZoomEnd,  
                 onEachLayer,                            
                 //onMarkerClick,                 
@@ -197,16 +199,7 @@ function Map ({
     }, [currentCity])  //[currentCity]
    
 
-    //useEffect(() => {
-    //    if (currentCityInfo && map) {
-    //        //map.setZoom(currentCityInfo.zoom);
-    //        if (onZoomEnd) onZoomEnd(currentCityInfo.zoom);          
-    //    }    
-    //
-    //}, [currentCityInfo]);   
     
-    
-
 
       // apply states for buttons
       
@@ -267,16 +260,12 @@ function Map ({
 
 
 
-
-
-
     
 
 	const onClickNewMarker = (state: boolean) => {        
-        
+        if (onClickCreateNewMarker) onClickCreateNewMarker(state);
         dispatch(actCheckButtonNewMarker(state));
         
-
 		if (rxIsMobileDevice && state) {						
             dispatch(actMapMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
             dispatch(actShowOkCancelMobileMarker(true));
@@ -287,15 +276,12 @@ function Map ({
         console.log("onClickHeatmap", state);
 
 		if (state) {
-            dispatch(actMapBaseLayerName('Dark'))
+            dispatch(actMapBaseLayerName('Dark'));
 		} else {
-            dispatch(actMapBaseLayerName('Default'))
+            dispatch(actMapBaseLayerName('Default'));
 		}
-        dispatch(actCheckButtonHeatmap(state))
+        dispatch(actCheckButtonHeatmap(state));
 	};
-
-
-
 
 
     function SetPanToMap() {        
@@ -319,112 +305,14 @@ function Map ({
                 map.locate({maxZoom: 20, enableHighAccuracy: true, watch:true, maximumAge: 20000});
             } else {
                 map.stopLocate();
-                map.removeLayer(circle_geolocation);
+                if (circle_geolocation && map.hasLayer(circle_geolocation)) map.removeLayer(circle_geolocation);
                 setView_nTimes_gps = 4;
             }
 
         }
-        dispatch(actCheckButtonGPS(state))
+        dispatch(actCheckButtonGPS(state));
     }
 
-
-    //function markerOnClick(e: any)
-    //{
-    //    let marker: L.Marker = e.target;
-    //    let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
-    //    onMarkerClick(geojson);
-    //    //console.log(geojson)        
-    //}
-
-
-    //function pointToLayer_roadaccident(feature: GeoJSON.Point|GeoJSON.Feature<GeoJSON.Point>, latlng: L.LatLng): any 
-    //{
-    //    if (!rxCheckButtonHeatmap) {
-    //        return L.circleMarker(latlng, geojsonMarkerOptions).on('click', markerOnClick)        
-    //    }
-    //    //return null;
-    //}
-
-
-    
-    /*
-    function ZoomToRadius (zoom: number, crowndiameter: number) {
-        let r: number = Math.floor(crowndiameter / 2);
-
-        if (zoom > 17) {
-            r = Math.floor(crowndiameter / 2);
-        } else if (zoom == 17){
-            r = 7;
-        } else if (zoom == 16){
-            r = 10;
-        } else if (zoom == 15){
-            r = 14;
-        } else if (zoom == 14){
-            r = 19
-        } else if (zoom == 13){
-            r = 24
-        } else if (zoom == 12){
-            r = 30
-        } else if (zoom == 11){
-            r = 37
-        } else if (zoom < 11){
-            r = 45
-        }
-    
-        if (r < 2) { r = 2 }
-        return r;
-    }   
-    */ 
-
-    //function pointToLayer_citytree(feature: any, latlng: L.LatLng): any {   
-    //    console.log('123') 
-    //    return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick)
-        /*
-        if (!rxCheckButtonHeatmap && currentZoom !== null) {
-            console.log('currentZoom', currentZoom)   
-            console.log('lastinsp_crowndiameter', feature.properties.lastinsp_crowndiameter)
-
-            geojsonMarkerOptions_citytree.radius = ZoomToRadius(currentZoom, feature.properties.lastinsp_crowndiameter);
-            if (geojsonMarkerOptions_citytree.radius < 2) {
-                geojsonMarkerOptions_citytree.radius = 2;
-            }
-
-            return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick)        
-        }*/
-
-/*
-
-        pointToLayer: function (feature, latlng) {
-
-            geojsonMarkerOptions.radius = ZoomToRadius(zoom, feature.properties.lastinsp_crowndiameter);
-
-            if (geojsonMarkerOptions.radius < 2) {
-                geojsonMarkerOptions.radius = 2;
-            }
-
-            {% if status %}
-                {% for statusItem in status %}
-                    if (feature.properties.lastinsp_status == "{{statusItem.id}}")
-                    {
-                        geojsonMarkerOptions.fillColor = "#{{statusItem.hexcolor}}";
-                        geojsonMarkerOptions.color = "#{{statusItem.hexcolor}}";
-                    }
-                {% endfor %}
-            {% endif %}
-
-            return L.circle(latlng, geojsonMarkerOptions).on('click', markerOnClick);
-
-        },
-
-*/
-
-
-
-    //}
-
-
-
-    //function onEachFeaturePoint(feature, layer) {
     function onEachFeaturePoint(feature: any, layer: L.Layer) {        
         //console.log('feature: ', feature);
         //console.log('layer: ', layer);
@@ -435,10 +323,6 @@ function Map ({
            }
         })
     }    
-
-
-
-
 
     function NewMarker({mapMarkerState}: any) {  
         const visible = mapMarkerState.visible;
@@ -542,31 +426,14 @@ function Map ({
                         dispatch(actMapMarkerState({visible: true, position: coord}))
                     }
                 }
+                setView_nTimes_gps = 0;
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
 
 
             },
             
             click(e) {
-                onClickMap(e)
-                /*
-                if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
-                    //setCheckButtonNewMarker(false)
-                    dispatch(actCheckButtonNewMarker(false));
-        
-                    let coord = { lat: '0', lng: '0' };
-                    coord.lat = e.latlng.lat.toFixed(5);
-                    coord.lng = e.latlng.lng.toFixed(5);
-        
-                    //setNewMarkerState({ visible: true, position: coord })
-                    dispatch(actNewMarkerState({ visible: true, position: coord }));
-        
-                    //setShowAccidentTab(true)
-                    dispatch(actShowAccidentTab(true));
-                    //setActiveTabKey("accident")
-                    dispatch(actActiveTabKey('accident'));
-                } 
-                */               
+                onClickMap(e)              
             }, 
 
             zoomend(e){                                
@@ -584,7 +451,7 @@ function Map ({
                     setView_nTimes_gps = setView_nTimes_gps - 1;
                 }
     
-                if (map.hasLayer(circle_geolocation)) {
+                if (circle_geolocation && map.hasLayer(circle_geolocation)) {
                     circle_geolocation.setLatLng(e.latlng);
                     circle_geolocation.setRadius(radius);
                 } else {

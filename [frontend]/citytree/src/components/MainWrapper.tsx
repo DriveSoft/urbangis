@@ -10,6 +10,7 @@ const MainWrapper = ({children, cityName}: MainWrapperProps) => {
     const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar);
 
     return (
+        //@ts-ignore
         <div className="main-wrapper">            
             {cityName ? (                
                 <div id="app">

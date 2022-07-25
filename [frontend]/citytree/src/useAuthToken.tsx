@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { getCookie } from "./utils/misc"
 
+interface userToken {
+    access: string; 
+    refresh: string; 
+    user?: {
+        id: number; 
+        name: string;
+        permissions?: {
+            is_superuser: boolean;
+        }
+    }    
+}
+
 
 export const useAuthToken = () => {
-    
-    const getUserInfoFromToken = (json: {access: string; refresh: string}) =>{
-        let token = json?.access; 
+        
+    const [authToken, setAuthToken] = useState(getToken());
 
-        if (token) {
-            const arToken = token.split('.');
-            if (arToken.length > 1) {
-                return {
-                    "name": JSON.parse(atob(arToken[1])).username,
-                    "id": JSON.parse(atob(arToken[1])).user_id
-                }    
-            }
-        }
-    }
-    
-    const getToken = () => {
+    function getToken() {
         let tokenString;
         const rememberme = localStorage.getItem('rememberme');
 
@@ -29,7 +29,7 @@ export const useAuthToken = () => {
         }
         
         if (tokenString) {
-            let json = JSON.parse(tokenString);
+            const json = JSON.parse(tokenString);
             const user = getUserInfoFromToken(json);
             if (user) {
                 json.user = user;
@@ -40,12 +40,8 @@ export const useAuthToken = () => {
         }
     };
 
-    const [authToken, setAuthToken] = useState(getToken());
-
-
-    const saveToken = (userToken: {access: string; refresh: string; user?: {id: number; name: string}} | null) => {
+    const saveToken = (userToken: userToken | null) => {
         if (userToken) {
-
             const rememberme = localStorage.getItem('rememberme');
 
             if (rememberme === 'true') {
@@ -55,22 +51,45 @@ export const useAuthToken = () => {
             }
                         
             const user = getUserInfoFromToken(userToken);
-            if (user) {
-                userToken.user = user;
+            if (user) {                
+                if (userToken?.user) {
+                    userToken.user = {...userToken.user, id: user.id, name: user.name}
+                } else {
+                    userToken.user = user;    
+                }
+                
             }            
         } else {
             localStorage.removeItem("token");
             localStorage.removeItem("rememberme"); 
             sessionStorage.removeItem("token");
         }           
+        console.log('saveToken', userToken);
         setAuthToken(userToken);
     };    
 
+    function getUserInfoFromToken(json: userToken): {id: number; name: string} | undefined {
+        let token = json?.access; 
 
-    return {
-        setAuthToken: saveToken,
-        authToken
+        if (token) {
+            const arToken = token.split('.');
+            if (arToken.length > 1) {
+                console.log('getUserInfoFromToken', JSON.parse(atob(arToken[1])));
+                return {                    
+                    "name": JSON.parse(atob(arToken[1])).username,
+                    "id": JSON.parse(atob(arToken[1])).user_id
+                }    
+            }
+        }
     }    
+
+
+    return [authToken, saveToken];
+
+    //return {
+    //    setAuthToken: saveToken,
+    //    authToken: authToken
+    //}    
 }
 
 

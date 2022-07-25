@@ -151,10 +151,10 @@ function TreePreviewModal({
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleEditTree}>
+                <Button variant="light" onClick={handleEditTree}>
                     {t<string>("TreePreviewModal.edit")}
                 </Button>
-                <Button variant="primary" style={{ minWidth: "180px" }} onClick={handleClose}>
+                <Button variant="primary" style={{ minWidth: "160px" }} onClick={handleClose}>
                     {t<string>("TreePreviewModal.close")}
                 </Button>
             </Modal.Footer>

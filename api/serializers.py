@@ -13,6 +13,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 import json
 import os
 from django.conf import settings as djangoSettings
+from django.contrib.auth.models import Permission
 #from django.core.files import File
 
 
@@ -24,9 +25,50 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token['username'] = user.username
-
+        token['username'] = user.username        
+        #user_id already added by default.
+    
         return token
+
+# perms: {
+# 	citytree: {
+# 		tree: [add_tree, change_tree],
+# 		inspection: [add_inspection, change_inspection, delete_inspection]
+# 	},
+	
+# 	roadaccident: {
+# 		accident: [add_accident]
+# 	}
+# }
+
+
+def getUserPermissions(user):
+    dictPerms = {}
+
+    print(user)
+    if user.is_superuser:
+        dictPerms['is_superuser'] = True
+        return dictPerms 
+        #return json.dumps({'is_superuser': True})            
+    #return user.user_permissions.all() | Permission.objects.filter(group__user=user)
+    #print(user.user_permissions.all() | Permission.objects.filter(group__user=user))
+    
+    
+    perms = Permission.objects.filter(group__user=user).values('content_type__app_label', 'content_type__model', 'codename')
+    for perm in perms:
+        if not perm['content_type__app_label'] in dictPerms:
+            dictPerms[perm['content_type__app_label']] = {}
+        
+        if not perm['content_type__model'] in dictPerms[perm['content_type__app_label']]:
+            dictPerms[perm['content_type__app_label']][perm['content_type__model']] = []
+        
+        dictPerms[perm['content_type__app_label']][perm['content_type__model']].append(perm['codename'])                        
+    
+    dictPerms['is_superuser'] = False
+    
+    print(dictPerms)
+    return dictPerms 
+
 
 
 

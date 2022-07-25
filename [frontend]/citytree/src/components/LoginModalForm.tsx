@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useSelector, useDispatch } from 'react-redux'
 import { actLoginModalShow, actRegisterModalShow } from '../actions'
 import { RootState } from '../reducers/index'
+import { URL_LOGIN } from '../constants/urlsAPI';
 
 
 
@@ -21,7 +22,7 @@ interface LoginModalFormProps {
 }
 
 
-const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
+const LoginModalForm = ({setAuthToken} : LoginModalFormProps) => {
 	const dispatch = useDispatch();
 	const rxLoginModalShow = useSelector((state: RootState) => state.uiReducer.loginModalShow)
 
@@ -49,7 +50,7 @@ const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 
 	async function loginUser(credentials: Credentials) {
 		console.log(credentials)
-		return fetch(`${process.env.REACT_APP_API_URL}token/`, {
+		return fetch(URL_LOGIN, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -58,7 +59,7 @@ const LoginModalForm = ({setAuthToken}:LoginModalFormProps) => {
 			body: JSON.stringify(credentials),
 		}).then((data) => {
 			if (data.status === 200) {
-				data.json().then((data) => {
+				data.json().then((data) => {		
 					//data.rememberme = credentials.rememberme
 					setAuthToken(data);
 					//console.log(data);

@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('users/', views.usersData, name='api-users'),
     path('users/<str:pk>/', views.userData, name='api-user-item'),
+    path('currentusers/permissions/', views.userPermissionsData, name='api-user-permissions'),
 
     #path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),    

@@ -55,6 +55,7 @@ import { fetchAllDictionariesData } from "./utils/fetchAllDictionariesData"
 import { 
 	URL_REFRESH_TOKEN, 
 	URL_VERIFY_TOKEN, 
+	URL_GET_PERMISSIONS,
 	URL_GET_DICT_STATUSES, 
 	URL_GENERATE_S3_URLKEY, 
 	urlTreesByCity, 
@@ -95,7 +96,8 @@ function App() {
 
 	const [currentZoomMap, setCurrentZoomMap] = useState(13);
 
-	const { authToken, setAuthToken } = useAuthToken();
+	//const {authToken, setAuthToken} = useAuthToken();
+	const [authToken, setAuthToken] = useAuthToken();
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	//const [isMobileDevice, setIsMobileDevice] = useState(false)
 	const isMobileView = screenWidth <= 768; // show or hide sidebar at startup
@@ -141,9 +143,6 @@ function App() {
         setScreenWidth(window.innerWidth);
     }
 
-
-
-
 	useEffect(() => {
 		fetchTreesAndStatuses();
 	}, [paramsRouter]); /* useEffect triggers when route has been changed too */
@@ -169,27 +168,49 @@ function App() {
         let periodUpdate = 240000 //4 min
         let interval = setInterval(() => {
             if (authToken) {    
-				refreshTokens();
+				refreshTokens().then((res)=> console.log('refreshTokens', res));
             }
         }, periodUpdate)
 
         return () => clearInterval(interval)
     }, [authToken]);
 
+
+    useEffect(() => {
+		if (authToken?.user?.id) {
+			getCurrentUserPermissions();
+		}	
+    }, [authToken?.user?.id]);
+
+
 	async function userAuthentication() {
 		if (authToken) {
 			const isTokenValid = await checkAuthToken(URL_VERIFY_TOKEN, authToken.access);
 			console.log('isTokenValid', isTokenValid);
+			
+			if (isTokenValid) return true;
+			
 			if (!isTokenValid) {
-				refreshTokens();
-			}
-
+				return await refreshTokens();							
+			}							
 		}
+		return false;
 	}	
 
 	async function refreshTokens() {
 		const accessRefreshToken = await getNewAccessRefreshAuthToken(URL_REFRESH_TOKEN, authToken.refresh);
-		setAuthToken(accessRefreshToken);		
+		setAuthToken(accessRefreshToken);
+		if (accessRefreshToken) return true;
+		return false;				
+	}
+
+	function getCurrentUserPermissions() {
+		fetchUrl(URL_GET_PERMISSIONS, "GET", undefined, (data) => {
+			if (data && authToken?.user) {						    
+				setAuthToken({...authToken, user: {...authToken.user, permissions: data}});				
+			}
+			console.log('URL_GET_PERMISSIONS', data);
+		});
 	}
 
 
@@ -451,6 +472,17 @@ function App() {
 		}		
 	}
 
+	const onClickCreateNewMarker = (state: boolean) => {
+		const treePerms = authToken?.user?.permissions?.citytree?.tree; 
+		console.log(authToken);
+		if (Array.isArray(treePerms)) {
+			if (treePerms.includes('add_tree')) {
+				//alert('Yes, you can.');
+			}
+			console.log('treePerms', treePerms);
+		}
+	}
+
 	const onZoomEnd = (e: any) => {
 		console.log('zoom', e.target._zoom);
 		setCurrentZoomMap(e.target._zoom);
@@ -526,9 +558,10 @@ function App() {
 
 
 
-	return (		
-		<MainWrapper cityName={paramsRouter.cityName}>
+	return (				
+		<MainWrapper cityName={paramsRouter.cityName}>			
 			<>									
+			{console.log(authToken)}
 				<Sidebar>
 					<Tabs
 						id="controlled-tab-example"
@@ -538,7 +571,7 @@ function App() {
 					>
 						<Tab
 							eventKey="filter"
-							title={t<string>("sidebar.filterTab.title")}
+							title={t<string>("sidebar.filterTab.title")}							
 						>
 							<div className="form-wrapper">
 								<FormFilter onSubmitFilter={onSubmitFilter}  
@@ -622,6 +655,7 @@ function App() {
 							//@ts-ignore
 							currentCity={paramsRouter.cityName}
 							onClickMap={onClickMap}
+							onClickCreateNewMarker={onClickCreateNewMarker}
 							onZoomEnd={onZoomEnd}
 							onEachLayer={onEachLayer}
 							//={onMarkerClick}
@@ -669,7 +703,7 @@ function App() {
 
 
 
-	function fetchUrl(url: string, method: string, bodyObject?: any, callBackSucceed?: () => void) {
+	function fetchUrl(url: string, method: string, bodyObject?: any, callBackSucceed?: (data: any) => void) {
 		let myHeaders = new Headers();
 		myHeaders.append("Content-type", "application/json");
 		
@@ -680,8 +714,8 @@ function App() {
 			myHeaders.append("Authorization", "Bearer " + authToken.access);
 		}
 
-
-		console.log('myHeaders',myHeaders.get('Authorization'));
+		//console.log(url, authToken?.access);
+		//console.log('myHeaders', myHeaders.get('Authorization'));
 
 		fetch(url, {
 			method: method,
@@ -701,7 +735,11 @@ function App() {
 			} else {
 				
 				if (callBackSucceed) {
-					callBackSucceed();
+
+					response.json().then((data) => {
+						callBackSucceed(data);
+					})
+					
 				}
 			}
 		});

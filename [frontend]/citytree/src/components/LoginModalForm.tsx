@@ -61,6 +61,7 @@ const LoginModalForm = ({setAuthToken} : LoginModalFormProps) => {
 			if (data.status === 200) {
 				data.json().then((data) => {		
 					//data.rememberme = credentials.rememberme
+					console.log('setAuthToken', data);
 					setAuthToken(data);
 					//console.log(data);
 					setShowWrongPassword(false);

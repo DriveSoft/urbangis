@@ -132,6 +132,28 @@
         "login": "Login"         
     },
 
+
+    "permsMessages": {
+        "tree": {
+            "view_tree": "You do not have access to tree information.",
+            "add_tree": "You do not have access to add new trees.",
+            "change_tree": "You do not have access to modify tree information.",
+            "can_change_not_own_tree_record": "You do not have access to modify tree information if the tree was added by another user.",
+            "delete_tree": "You do not have access to delete tree information.",
+            "can_delete_not_own_tree_record": "You do not have access to delete tree information if the tree was added by another user."            
+        },
+
+        "inspection": {
+            "view_inspection": "You do not have access to inspection information.",
+            "add_inspection": "You do not have access to add new inspections.",
+            "change_inspection": "You do not have access to modify inspections.",
+            "can_change_not_own_insp_record": "You do not have access to modify inspection information if the inspection was added by another user.",
+            "delete_inspection": "You do not have access to delete inspection information.",
+            "can_delete_not_own_insp_record": "You do not have access to delete inspection information if the inspection was added by another user."            
+        }
+    },
+
+
     "words": {
         "hello": "Hello",
         "requiredField": "Required field",

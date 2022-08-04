@@ -12,7 +12,8 @@ import UploadPhotos from "./UploadPhotos"
 
 interface FormTreeProps {
 	onSubmitTree: (data: {}) => void;
-	onDeleteTree: (id: number) => void;
+	//onDeleteTree: (id: number) => void;
+    onDeleteTree: (data: TreeItem | null) => void;
 	onCloseTree: () => void;
     
     onNewInsp:(idTree: number) => void;
@@ -51,14 +52,6 @@ const FormTree = ({
 	const rxDictIrrigationMethods = useSelector((state: RootState) => state.dataReducer.dictIrrigationMethods);
     const rxDictGroupSpecs = useSelector((state: RootState) => state.dataReducer.dictGroupSpec);
 
-
-	//const [uploadedPhoto1, setUploadedPhoto1] = useState(false);
-	//const [uploadedPhoto2, setUploadedPhoto2] = useState(false);
-	//const [uploadedPhoto3, setUploadedPhoto3] = useState(false); 
-    
-	//const photo1Ref = useRef(); // to be able to call method uploadFile
-	//const photo2Ref = useRef();
-	//const photo3Ref = useRef();
 
     const uploadPhotosRef = useRef();
 
@@ -101,20 +94,31 @@ const FormTree = ({
 		let species = dataTreeForm?.species_id;
 		if (species) {
 			let isFound = false; // to stop loop
-            optionsSpeciesesData.forEach((element:any) => { // loop for categories (The most common, The medium common and so on...)
-                if (element?.options && Array.isArray(element.options)) { // in every categories trying to find id of species 
+            optionsSpeciesesData.forEach((category:any) => { // loop for categories (The most common, The medium common and so on...)
+                if (category?.options && Array.isArray(category.options)) { // in every categories trying to find id of species 
                     
                     if (!isFound) {
-                        formData.species = element.options.find(                			
+                        formData.species = category.options.find(                			
                             (item: any) => {
                                 isFound = item.value === species; 
                                 return isFound;	}
                         );             
                     }       
-                }        
+                } else {  
+                    // if there are species at the same level with categories, like Unknown specify.                 
+                    if (category?.value && category.value === species) {                        
+                        formData.species = category;
+                        isFound = true;                        
+                    }
+
+                }      
             });
             
-		}        
+		} 
+
+        
+        
+        
         
         formData.speciescomment = dataTreeForm?.speciescomment;
         formData.comment = dataTreeForm?.comment;
@@ -147,59 +151,8 @@ const FormTree = ({
 
         reset(formData, { keepDefaultValues: true });
 
-        // const fetchInpections = async () => {
-		//     //@ts-ignore
-        //     let url = `${process.env.REACT_APP_API_URL}citytree/${city}/trees/${dataTreeForm.id}/inspections/`;
-    	// 	let res = await fetch(url);
-		//     let data = await res.json(); 
-            
-        //     // adding buttons
-        //     data = data.map((element: any) => {
-        //         element.buttons = [];
-        //         element.buttons.push({iconFA: 'fas fa-edit', iconFASize: '15pt', idButton: 'edit'});
-                
-        //         if (element?.photo1 || element?.photo2 || element?.photo3) {
-        //             element.buttons.push({iconFA: 'fa fa-camera', iconFASize: '15pt', idButton: 'photo'});                       
-                    
-        //         }
-        //         element.typeData = 'Inspection';
-        //         return element;
-                    
-        //     });
-            
-        //     console.log('inspections',data);
-        //     setInspections(data);       
-        // };
-
-        // if (dataTreeForm?.id) {
-        //     fetchInpections();    
-        // }
-
-
 	}, [dataTreeForm]);
 
-
-
-    // let optionsSpeciesesData: any = [];
-    // if (Array.isArray(rxDictSpecieses) && Array.isArray(rxDictGroupSpecs)) {
-
-    //     optionsSpeciesesData = rxDictGroupSpecs.map(itemGroup => {
-    //         return {
-    //             label: itemGroup.groupname,
-    //             options: rxDictSpecieses.map(spec => {
-    //                 if (itemGroup.id === spec.groupspec) {
-    //                     return {
-    //                         value: spec.id,
-    //                         label: spec.localname,
-    //                         speciesname: spec.speciesname,
-    //                         typespec: spec.typespec
-    //                         //color: '#FF8B00'
-    //                     }
-    //                 }
-    //             }).filter(e => e) // removes all undefined items in result array			 
-    //         }
-    //     })
-    // }
 
 	//let optionsSpeciesesFilter: {label: string; options: {value: number; label: string}[] | undefined}[] = [];
 	let optionsSpeciesesData: any = [];
@@ -325,7 +278,8 @@ const FormTree = ({
             recommendations: "",
             photo1: "",
             photo2: "",
-            photo3: ""
+            photo3: "",
+            useradded: 0
 		},
 	});
 
@@ -414,6 +368,8 @@ const FormTree = ({
         photo1: string | null; 
         photo2: string | null;
         photo3: string | null;
+
+        useradded: any;
     }) {
 		//let dataResult: any = {};
         //console.log('data', data);
@@ -473,6 +429,8 @@ const FormTree = ({
             data.species = data.species.value;
             data.placetype = data.placetype.value;
             data.irrigationmethod = data?.irrigationmethod?.value; 
+            if (dataTreeForm) data.useradded = dataTreeForm.useradded;
+            
             
             console.log('dataedit', data);
             onSubmitTree(data);
@@ -987,7 +945,8 @@ const FormTree = ({
 						variant="light"
 						onClick={() => {
 							setShowModalDelete(false);
-							onDeleteTree(parseInt(getValues("id").toString()));
+							//onDeleteTree(parseInt(getValues("id").toString()));
+                            onDeleteTree(dataTreeForm);
 						}}
 					>
 						{t<string>("words.delete")}

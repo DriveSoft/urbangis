@@ -58,9 +58,9 @@ def usersData(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def userPermissionsData(request):
+def userPermissionsData(request, appname):
     if request.method == 'GET':        
-        data = getUserPermissions(request.user)
+        data = getUserPermissions(request.user, appname)
         return Response(data) 
 
 

@@ -14,6 +14,7 @@ import json
 import os
 from django.conf import settings as djangoSettings
 from django.contrib.auth.models import Permission
+from django.db.models import Q
 #from django.core.files import File
 
 
@@ -26,8 +27,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username        
-        #user_id already added by default.
-    
+        #user_id already added by default.    
         return token
 
 # perms: {
@@ -42,20 +42,29 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 # }
 
 
-def getUserPermissions(user):
+def getUserPermissions(user, appname):
     dictPerms = {}
+    allPerms = {}
+    allJsonPerms = {}
 
     print(user)
     if user.is_superuser:
         dictPerms['is_superuser'] = True
         return dictPerms 
-        #return json.dumps({'is_superuser': True})            
+        #return json.dumps({'is_superuser': True})   
+        #          
     #return user.user_permissions.all() | Permission.objects.filter(group__user=user)
     #print(user.user_permissions.all() | Permission.objects.filter(group__user=user))
     
-    
-    perms = Permission.objects.filter(group__user=user).values('content_type__app_label', 'content_type__model', 'codename')
-    for perm in perms:
+    if appname:
+        #userPerms = user.user_permissions.filter(content_type__app_label=appname).values('content_type__app_label', 'content_type__model', 'codename')
+        userPerms = Permission.objects.filter(group__user=user, content_type__app_label=appname).values('content_type__app_label', 'content_type__model', 'codename') | user.user_permissions.filter(content_type__app_label=appname).values('content_type__app_label', 'content_type__model', 'codename')
+    else:        
+        userPerms = Permission.objects.filter(group__user=user).values('content_type__app_label', 'content_type__model', 'codename')
+
+    print(userPerms)
+
+    for perm in userPerms:
         if not perm['content_type__app_label'] in dictPerms:
             dictPerms[perm['content_type__app_label']] = {}
         
@@ -67,6 +76,8 @@ def getUserPermissions(user):
     dictPerms['is_superuser'] = False
     
     print(dictPerms)
+    
+
     return dictPerms 
 
 

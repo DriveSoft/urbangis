@@ -2,7 +2,7 @@ export const URL_LOGIN = `${process.env.REACT_APP_API_URL}token/`;
 export const URL_REFRESH_TOKEN = `${process.env.REACT_APP_API_URL}token/refresh/`;
 export const URL_VERIFY_TOKEN = `${process.env.REACT_APP_API_URL}token/verify/`;
 
-export const URL_GET_PERMISSIONS = `${process.env.REACT_APP_API_URL}currentusers/permissions/`;
+export const URL_GET_PERMISSIONS = `${process.env.REACT_APP_API_URL}currentusers/permissions/citytree`;
 
 export const URL_GENERATE_S3_URLKEY = `${process.env.REACT_APP_API_URL}citytree/s3/generate_signed_url/`
 

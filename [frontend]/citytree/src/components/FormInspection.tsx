@@ -213,7 +213,7 @@ const FormInspection = ({
             data.recommendations = recommendations;                                          
         }  		
 
-		onSubmitInsp(data);
+		onSubmitInsp({...data, user: dataInspForm?.user});
 
     };
 

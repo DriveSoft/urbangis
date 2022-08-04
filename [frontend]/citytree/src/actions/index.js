@@ -104,6 +104,13 @@ export const actIsMobileDevice = (value) => {
 
 
 // date actions ================================================
+export const actDataPermissions= (value) => {
+    return {
+        type: 'DATAPERMISSIONS',
+        payload: value
+    }
+}
+
 export const actDataTrees= (value) => {
     return {
         type: 'DATATREES',

@@ -29,6 +29,7 @@ import {
     //actActiveTabKey
 } from "../actions";
 import { RootState } from '../reducers/index';
+import { ScriptElementKindModifier } from 'typescript';
 
 // fix disapeared marker from map
 
@@ -94,7 +95,7 @@ interface MapProps {
     currentCity: string;
     onDragEndNewMarker: (LatLng: {lat: number; lng: number}) => void;
     onClickMap: (e: any) => void;
-    onClickCreateNewMarker?: (state: boolean) => void;
+    onClickCreateNewMarker?: (state: boolean) => boolean | void;
     onZoomEnd?: (e: any) => void;
     onEachLayer?: (layer: L.Layer, zoom: number) => void;
     //onMarkerClick: (data: any) => void;
@@ -140,8 +141,7 @@ function Map ({
 
     const [buttonNewMarker, setButtonNewMarker] = useState<any>(null);
     const [buttonHeatmap, setButtonHeatmap] = useState<any>(null);
-    const [buttonGPS, setButtonGPS] = useState<any>(null);
-
+    const [buttonGPS, setButtonGPS] = useState<any>(null);    
 
     let mapname_ = document.cookie
     .split('; ')
@@ -262,25 +262,30 @@ function Map ({
 
     
 
-	const onClickNewMarker = (state: boolean) => {        
-        if (onClickCreateNewMarker) onClickCreateNewMarker(state);
-        dispatch(actCheckButtonNewMarker(state));
-        
+	const onClickNewMarker = (state: boolean) => {                
+        // if (onClickCreateNewMarker) {
+        //     const preventDefault = onClickCreateNewMarker(state);            
+        //     if (preventDefault === false) {            
+        //         return
+        //     }                
+        // }
+                        
 		if (rxIsMobileDevice && state) {						
             dispatch(actMapMarkerState({ visible: true, position: {lat: 0, lng: 0} }));
             dispatch(actShowOkCancelMobileMarker(true));
 		}
+
+        dispatch(actCheckButtonNewMarker(state));
 	};
 
-	const onClickHeatmap = (state: boolean) => {		
-        console.log("onClickHeatmap", state);
-
-		if (state) {
+	const onClickHeatmap = (state: boolean) => {		        		
+        dispatch(actCheckButtonHeatmap(state));
+        if (state) {
             dispatch(actMapBaseLayerName('Dark'));
 		} else {
             dispatch(actMapBaseLayerName('Default'));
 		}
-        dispatch(actCheckButtonHeatmap(state));
+        
 	};
 
 
@@ -313,16 +318,6 @@ function Map ({
         dispatch(actCheckButtonGPS(state));
     }
 
-    function onEachFeaturePoint(feature: any, layer: L.Layer) {        
-        //console.log('feature: ', feature);
-        //console.log('layer: ', layer);
-        layer.on({
-          'click': function (e) {
-             console.log('e: ', e);
-             console.log('click');
-           }
-        })
-    }    
 
     function NewMarker({mapMarkerState}: any) {  
         const visible = mapMarkerState.visible;
@@ -484,28 +479,25 @@ function Map ({
         return null
     }
 
+    function onEachFeaturePoint(feature: any, layer: L.Layer) {               
+        //@ts-ignore
+        layer.myTag = "myGeoJSON"
+        // layer.on({
+        //   'click': function (e) {
+        //      console.log('e: ', e);
+        //      console.log('click');
+        //    }
+        // })
+    }  
 
-
-      function HeatmapFunction(){
+    function HeatmapFunction(){
         const map = useMap();
-        //useEffect(() => {
-          //const points = addressPoints
-          //? addressPoints.map((p) => {
-          //  return [p[0], p[1], p[2]]; // lat lng intensity
-          //  })
-          //: [];
-     
-            const points = [
-                [43.207650, 27.958490, 1.0]
-            ]
-
-
 
             if (heatMapLayer) { 
                 map.removeLayer(heatMapLayer)
             }
 
-            if (rxCheckButtonHeatmap) {                
+            if (rxCheckButtonHeatmap) {                      
                 if (dataHeatmapPoints) {
                     // @ts-ignore
                     heatMapLayer = L.heatLayer(dataHeatmapPoints, {
@@ -519,19 +511,10 @@ function Map ({
                     })//.addTo(map);
                     map.addLayer(heatMapLayer)                
                 }
-            }
-
-
-            //heatMap.addLatLng([43.207650, 27.998590])
-            //heatMap.setLatLngs([])
-
-            //L.heatLayer(points).redraw()
-            //L.heatLayer(points).addLatLng([43.207650, 27.998590])
-
-        //}, [dataHeatmapPoints]);
+            } 
 
         return null
-     }
+    }
 
 
 
@@ -594,13 +577,9 @@ function Map ({
                 </>}
 
 
-                {appname === 'citytree' && <>                     
-                    <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>  
+                {appname === 'citytree' && <>                                                         
+                    <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                                       
                 </>}
-
-
-
-
 
                 <NewMarker mapMarkerState={rxMapMarkerState} onDragEndNewMarker={onDragEndNewMarker}/>
                 

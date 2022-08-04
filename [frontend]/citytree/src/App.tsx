@@ -18,7 +18,7 @@ import FormInspection from './components/FormInspection';
 import ImageSlider from './components/ImageSlider';
 import TreePreviewModal from "./components/TreePreviewModal";
 
-import { useAuthToken, checkAuthToken, getNewAccessRefreshAuthToken } from "./useAuthToken";
+import { useAuthToken } from "./auth/useAuthToken";
 import LoginModalForm from "./components/LoginModalForm";
 import RegisterModalForm from "./components/RegisterModalForm";
 import { useTranslation } from "react-i18next";
@@ -46,22 +46,22 @@ import {
 	actDataTrees,
 	actDataFilters,
 	actShowInspTab,
+	actDataPermissions
 } from "./actions";
 import { TreeItem, InspItem } from "./interfaces";
 
 import { filterDataMap } from "./utils/filterDataMap"
-import { getCookie } from "./utils/misc"
+import { fetchUrl2 } from "./utils/misc"
 import { fetchAllDictionariesData } from "./utils/fetchAllDictionariesData"
 import { 
-	URL_REFRESH_TOKEN, 
-	URL_VERIFY_TOKEN, 
-	URL_GET_PERMISSIONS,
 	URL_GET_DICT_STATUSES, 
 	URL_GENERATE_S3_URLKEY, 
 	urlTreesByCity, 
 	urlTreeByCityAndID 
 } from './constants/urlsAPI';
 
+import { getCurrentUserPermissions, has_perm } from './auth/permissions'
+import { userAuthentication, refreshTokens } from './auth/useAuthToken';
 
 let geojsonMarkerOptions_citytree = {
     //renderer: myRenderer,
@@ -78,10 +78,11 @@ let geojsonMarkerOptions_citytree = {
 
 function App() {
 	const paramsRouter = useParams();
-	const csrftoken = getCookie("csrftoken");
+	//const csrftoken = getCookie("csrftoken");
 
 	// redux
 	const dispatch = useDispatch();
+	const rxDataPermissions = useSelector((state: RootState) => state.dataReducer.dataPermissions);
 	const rxDataTrees = useSelector((state: RootState) => state.dataReducer.dataTrees);
 	const rxShowOkCancelMobileMarker = useSelector((state: RootState) => state.uiReducer.showOkCancelMobileMarker);
 	const rxDataFilters = useSelector((state: RootState) => state.dataReducer.dataFilters);
@@ -106,23 +107,23 @@ function App() {
 	const [dataTreeForm, setDataTreeForm] = useState<TreeItem | null>(null);
 	const [dataInspForm, setDataInspForm] = useState<InspItem | {tree: number} | null>(null);
 	const [imageSlider, setImageSlider] = useState<{visible: boolean; images: string[]}> ({visible: false, images: []});
-	const [treePreview, setTreePreview] = useState<{visible: boolean; data: {}}>({visible: false, data:{}});
-	const { t } = useTranslation();
+	const [treePreview, setTreePreview] = useState<{visible: boolean; data: {}; idTree: number | null}>({visible: false, data:{}, idTree: null});
+	const { t, i18n } = useTranslation();
 
 	let dataHeatmapPoints: number[][] = []; // [[lat, lng, value],[lat, lng, value]...]	
 
 
-
 	useEffect(() => {
-		fetchAllDictionariesDataWrapper();
-		userAuthentication();
+		fetchAllDictionariesDataWrapper();		
+		userAuthentication(authToken, setAuthToken);
 		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)));
 		dispatch(actShowSidebar(!isMobileView));	
 		
 		window.addEventListener('resize', handleWindowSizeChange);
         return () => {
             window.removeEventListener('resize', handleWindowSizeChange);			
-        }		
+        }	
+				
 	}, []); /* useEffect triggers when route has been changed too */
 
 	const fetchAllDictionariesDataWrapper = () => {
@@ -165,100 +166,95 @@ function App() {
 
 
     useEffect(() => {
-        let periodUpdate = 240000 //4 min
+        let periodUpdate = 240000;//240000 //4 min
         let interval = setInterval(() => {
             if (authToken) {    
-				refreshTokens().then((res)=> console.log('refreshTokens', res));
+				refreshTokens(setAuthToken, authToken.refresh).then((res)=> console.log('refreshTokens', res));
             }
-        }, periodUpdate)
+        }, periodUpdate);
+
+	
+		// update permissions if permissions object still empty, it can happens when website is loading with expired access token
+		if (Object.keys(rxDataPermissions).length === 0 && authToken?.user?.id) {
+			getCurrentUserPermissions(authToken).then((permResult) => {
+				if (permResult) {
+					console.log('permResult useEffect authToken', permResult);
+					dispatch(actDataPermissions(permResult));
+				}	
+			});			
+		}		
 
         return () => clearInterval(interval)
     }, [authToken]);
-
+	
 
     useEffect(() => {
 		if (authToken?.user?.id) {
-			getCurrentUserPermissions();
+			getCurrentUserPermissions(authToken).then((permResult) => {				
+				if (permResult) dispatch(actDataPermissions(permResult));
+			});			
 		}	
     }, [authToken?.user?.id]);
 
 
-	async function userAuthentication() {
-		if (authToken) {
-			const isTokenValid = await checkAuthToken(URL_VERIFY_TOKEN, authToken.access);
-			console.log('isTokenValid', isTokenValid);
-			
-			if (isTokenValid) return true;
-			
-			if (!isTokenValid) {
-				return await refreshTokens();							
-			}							
+
+	useEffect(()=>{
+
+		if (authToken?.user?.id) {
+			getCurrentUserPermissions(authToken).then((permResult) => {				
+				if (permResult) dispatch(actDataPermissions(permResult));
+			});			
 		}
-		return false;
-	}	
+		
+		// const permsToTranslate = {...rxDataPermissions};
+		
+		// Object.entries(permsToTranslate).forEach(([keyModel, valueModel]) => {
+		// 	if (typeof valueModel === 'object') {
+		// 		//@ts-ignore
+		// 		Object.entries(valueModel).forEach(([keyPerm, valuePerm]) => {
+		// 			console.log(t(`permsMessages.${keyModel}.${keyPerm}`));
+		// 		});
+		// 	}			
+		// });				
+		// //dispatch(actDataPermissions(permsToTranslate));
 
-	async function refreshTokens() {
-		const accessRefreshToken = await getNewAccessRefreshAuthToken(URL_REFRESH_TOKEN, authToken.refresh);
-		setAuthToken(accessRefreshToken);
-		if (accessRefreshToken) return true;
-		return false;				
-	}
-
-	function getCurrentUserPermissions() {
-		fetchUrl(URL_GET_PERMISSIONS, "GET", undefined, (data) => {
-			if (data && authToken?.user) {						    
-				setAuthToken({...authToken, user: {...authToken.user, permissions: data}});				
-			}
-			console.log('URL_GET_PERMISSIONS', data);
-		});
-	}
-
-
+	}, [i18n.language])
 
 
 	function markerOnClick(e: any) {
-		// const fetchTreeData = async (idTree: number) => {
-		// 	if (paramsRouter.cityName) {					
-		// 		const url = urlTreeByCityAndID(paramsRouter.cityName, idTree);
-		// 		let res = await fetch(url);
-		// 		let data = await res.json();
-	
-		// 		console.log('markerOnClick',data);
-		// 		//setTreePreview({visible: true, data: data});
-
-		// 		setDataTreeForm(data);
-		// 		dispatch(actShowTreeTab(true));
-		// 		dispatch(actActiveTabKey('tree'));									
-		// 		dispatch(actShowSidebar(true));			
-		// 	}
-		// }
-
-
 		let marker: L.Marker = e.target;
 		let geojson = marker.toGeoJSON(); //: GeoJSON.FeatureCollection<any>
 
-		if (geojson?.properties?.id) {
-			//fetchTreeData(geojson?.properties?.id);			
+		if (geojson?.properties?.id) {					
 			showTreePreview(geojson?.properties?.id);
 		}   
-	}	
+	}
 
-	// async function fetchTreeData (idTree: number) {
-	// 	if (paramsRouter.cityName) {					
-	// 		const url = urlTreeByCityAndID(paramsRouter.cityName, idTree);
-	// 		let res = await fetch(url);
-	// 		let data = await res.json();
+	const showTreePreview = (idTree: number) => {
+		//if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) return; 
 
-	// 		console.log('markerOnClick',data);
-	// 		setTreePreview({visible: true, data: data});
+		setTreePreview({ visible: true, data: {}, idTree: idTree })
+		//fetchTreeData(idTree).then((data) =>
+		//	setTreePreview({ visible: true, data: data, idTree: null })
+		//);		
+	};
 
-	// 		//setDataTreeForm(data);
-	// 		//dispatch(actShowTreeTab(true));
-	// 		//dispatch(actActiveTabKey('tree'));									
-	// 		//dispatch(actShowSidebar(true));			
-	// 	}
-	// }
+	// when event comes from markerOnClick, it comes from L.Circle which is not React component, therefore there is something wrong, because in this event you can't see current values in States and Redux (to check permissions using rxDataPermissions), so I used redux event to broke that chain
+	useEffect(()=>{		
+		if (treePreview?.visible === true && treePreview?.idTree) {
+			if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) {
+				setTreePreview({ visible: false, data: {}, idTree: null })
+				return; 
+			}	
+
+			fetchTreeData(treePreview.idTree).then((data) =>
+				setTreePreview({ visible: true, data: data, idTree: null })
+			);			
+		}
+	}, [treePreview]);
+
 	
+
 	const onButtonEditTreeClick = (idTree: number) => {
 		editTree(idTree);
 	}
@@ -269,18 +265,18 @@ function App() {
 		dispatch(actActiveTabKey('tree'));									
 		dispatch(actShowSidebar(true));	
 	}
-
-	const showTreePreview = (idTree: number) => {
-		fetchTreeData(idTree).then((data) =>
-			setTreePreview({ visible: true, data: data })
-		);
-	};
 	
-	const onSubmitTree = (data: any) => {
+	const onSubmitTree = async (data: any) => {		
+		if (!has_perm(rxDataPermissions, 'tree', 'change_tree', authToken)) return;
+			
+		
+				
 		if (paramsRouter.cityName) {
 			let method;
 			let url;
 			if (data.id) {
+				console.log(data, authToken.user.id);
+				if (data.useradded !== authToken.user.id && !has_perm(rxDataPermissions, 'tree', 'can_change_not_own_tree_record', authToken) ) return; 
 				//url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${data.id}/`;
 				url = urlTreeByCityAndID(paramsRouter.cityName, data.id);
 				method = "PUT";
@@ -290,34 +286,51 @@ function App() {
 				method = "POST";
 			}
 
-			const succeedCallBack = () => {
+			// const succeedCallBack = () => {
+			// 	fetchTreesAndStatuses();
+			// 	dispatch(actMapMarkerState({ visible: false, position: {} }));
+			// 	dispatch(actNewTreeCreation(false));
+			// 	dispatch(actActiveTabKey('filter'));
+			// 	dispatch(actShowTreeTab(false));
+
+			// 	if (isMobileView) {
+			// 		dispatch(actShowSidebar(false))
+			// 	}			
+			// }		
+			
+			try {
+				await fetchUrl2(url, method, data, authToken.access);
 				fetchTreesAndStatuses();
 				dispatch(actMapMarkerState({ visible: false, position: {} }));
 				dispatch(actNewTreeCreation(false));
 				dispatch(actActiveTabKey('filter'));
 				dispatch(actShowTreeTab(false));
 
-				if (isMobileView) {
+				if (isMobileView) { 
 					dispatch(actShowSidebar(false))
-				}			
-			}		
-			fetchUrl(url, method, data, succeedCallBack);
+				}				
+			} catch(err) {
+				console.log('onSubmitTree', err);
+				//@ts-ignore
+				alert(err.detail);				
+			}
+			
 		}
 		
 	};
 
 
 
-	const onDeleteTree = (id: number) => {
-		const succeedCallBack = () => {					
+	//const onDeleteTree = async (id: number) => {
+	const onDeleteTree = async (data: TreeItem | null) => {
+		if (!has_perm(rxDataPermissions, 'tree', 'delete_tree', authToken)) return;		
+		if (!has_perm(rxDataPermissions, 'tree', 'can_delete_not_own_tree_record', authToken) && data?.useradded !== authToken.user.id) return;
+		
+		if (data?.id && paramsRouter.cityName) {
+			await fetchUrl2(urlTreeByCityAndID(paramsRouter.cityName, data.id), "DELETE", {}, authToken.access);
 			dispatch(actActiveTabKey('filter'));
 			dispatch(actShowTreeTab(false));						
-			fetchTreesAndStatuses();				
-		}
-
-		//fetchUrl(`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${id}`, "DELETE", {}, succeedCallBack);
-		if (paramsRouter.cityName) {
-			fetchUrl(urlTreeByCityAndID(paramsRouter.cityName, id), "DELETE", {}, succeedCallBack);
+			fetchTreesAndStatuses();			
 		}
 	};
 
@@ -329,73 +342,78 @@ function App() {
 		dispatch(actShowTreeTab(false));
 	};
 
-
-
-
-
 	const fetchTreeData = async (idTree: number) => {			
 		let url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${idTree}/`;
 		let res = await fetch(url);
 		let data = await res.json();
+		console.log(data)
 		return data;
 		//setDataTreeForm(data);		
 	}
 
-	const onSubmitInsp = (data: any) => {
+	const onSubmitInsp = async (data: any) => {
+
 		let method;
 		let url;
 		if (data.id) {
+
+			if (!has_perm(rxDataPermissions, 'inspection', 'change_inspection', authToken)) return;
+			if (data?.user !== authToken.user.id && !has_perm(rxDataPermissions, 'inspection', 'can_change_not_own_insp_record', authToken)) return;			
+
 			url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${data.treeId}/inspections/${data.id}/`;
 			method = "PUT";
-		} else {
+		} else {						
 			url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${data.treeId}/inspections/`;
 			method = "POST";
 		}
 
-		const succeedCallBack = () => {
-			fetchTreeData(data.treeId).then(data => setDataTreeForm(data));		
-			fetchTreesAndStatuses();
-			if (rxShowTreeTab === true) {
-				dispatch(actActiveTabKey('tree'));				
-			} else {
-				dispatch(actActiveTabKey('filter'));	
-			}
-			dispatch(actShowInspTab(false));
-			
-			updateInspectionListsWithSpecificTreeId(data.treeId);					
-		}
 
 		console.log('insp', data, url);
-		fetchUrl(url, method, data, succeedCallBack);
+		await fetchUrl2(url, method, data, authToken.access);
+		fetchTreeData(data.treeId).then(data => setDataTreeForm(data));		
+		fetchTreesAndStatuses();
+		if (rxShowTreeTab === true) {
+			dispatch(actActiveTabKey('tree'));				
+		} else {
+			dispatch(actActiveTabKey('filter'));	
+		}
+		dispatch(actShowInspTab(false));
+		
+		updateInspectionListsWithSpecificTreeId(data.treeId);		
 			
 	};
 
-	
-	function updateInspectionListsWithSpecificTreeId (id: number) {
-		dispatch(actDataLastEditedTreeId({treeId: id})); 
-	}
-
-	const onDeleteInsp = (data: InspItem | null) => {
-		const succeedCallBack = () => {
-			if (data) {
-				fetchTreeData(data.tree).then(data => setDataTreeForm(data));	;				
-				if (rxShowTreeTab === true) {
-					dispatch(actActiveTabKey('tree'));				
-				} else {
-					dispatch(actActiveTabKey('filter'));	
-				}				
-				dispatch(actShowInspTab(false));						
-				fetchTreesAndStatuses();
-				updateInspectionListsWithSpecificTreeId(data.tree);
-			}		
-		}
+	const onDeleteInsp = async (data: InspItem | null) => {
+		if (!has_perm(rxDataPermissions, 'inspection', 'delete_inspection', authToken)) return;		
+		if (data?.user !== authToken.user.id && !has_perm(rxDataPermissions, 'inspection', 'can_delete_not_own_insp_record', authToken)) return;		
 
 		if (data?.id) {
 			console.log('DELETE', data)
 			//path('citytree/<str:city>/trees/<str:treeid>/inspections/<str:inspid>/', views.citytreeInspectionItem, name="citytree-restapi-inspection-item"),
-			fetchUrl(`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/0/inspections/${data.id}`, "DELETE", {}, succeedCallBack);
+			await fetchUrl2(
+				`${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/0/inspections/${data.id}`, 
+				"DELETE", 
+				{}, 
+				authToken.access);
+
+				if (data) {
+					fetchTreeData(data.tree).then(data => setDataTreeForm(data));	;				
+					if (rxShowTreeTab === true) {
+						dispatch(actActiveTabKey('tree'));				
+					} else {
+						dispatch(actActiveTabKey('filter'));	
+					}				
+					dispatch(actShowInspTab(false));						
+					fetchTreesAndStatuses();
+					updateInspectionListsWithSpecificTreeId(data.tree);
+				}				
+
 		}	
 	};	
+
+	function updateInspectionListsWithSpecificTreeId (id: number) {
+		dispatch(actDataLastEditedTreeId({treeId: id})); 
+	}	
 
 	const onCloseInsp = () => {		
 		dispatch(actShowInspTab(false));
@@ -407,6 +425,8 @@ function App() {
 	};	
 
 	const onNewInsp = (idTree: number) => {
+		if (!has_perm(rxDataPermissions, 'inspection', 'add_inspection', authToken)) return; 
+
 		setDataInspForm({tree: idTree});
 		dispatch(actShowInspTab(true));
 		dispatch(actActiveTabKey('insp'));									
@@ -415,7 +435,8 @@ function App() {
 	}
 
 	const onClickInspEdit = (data: any) => {
-		console.log('onClickInspEdit', data);		
+		if (!has_perm(rxDataPermissions, 'inspection', 'view_inspection', authToken)) return; 
+
 		//setDataInspForm({...data}); //таким образом передается копия объекта, которая указывает на другой участок памяти, иначе useEffect не срабатывает у формы, а значит форма не перезаполняется, когда например чтото поменяли на форме, затем ее закрыли без сохранения и снова открыли, видим вместо актуальных данных, старые, которые не сохранялись
 		setDataInspForm(data);
 		dispatch(actShowInspTab(true));
@@ -472,16 +493,23 @@ function App() {
 		}		
 	}
 
-	const onClickCreateNewMarker = (state: boolean) => {
-		const treePerms = authToken?.user?.permissions?.citytree?.tree; 
-		console.log(authToken);
-		if (Array.isArray(treePerms)) {
-			if (treePerms.includes('add_tree')) {
-				//alert('Yes, you can.');
-			}
-			console.log('treePerms', treePerms);
-		}
+	const onClickCreateNewMarker = (state: boolean): boolean | void => {						
+		//console.log('test', test);
+		//console.log('rxDataPermissions', rxDataPermissions);
+		//if (!has_perm(rxDataPermissions, 'tree', 'add_tree', authToken)) return false;							
 	}
+	useEffect(()=>{
+		if (rxCheckButtonNewMarker) {
+			if (!has_perm(rxDataPermissions, 'tree', 'add_tree', authToken)) {
+				dispatch(actCheckButtonNewMarker(false));
+
+				if (rxIsMobileDevice) {						
+					dispatch(actMapMarkerState({ visible: false, position: {lat: 0, lng: 0} }));
+					dispatch(actShowOkCancelMobileMarker(false));
+				}				
+			}						
+		}	
+	}, [rxCheckButtonNewMarker]);
 
 	const onZoomEnd = (e: any) => {
 		console.log('zoom', e.target._zoom);
@@ -500,17 +528,20 @@ function App() {
 	
 
 	const onDragEndNewMarker = (LatLng: { lat: number; lng: number }) => {
-		//console.log('onDragEndNewMarker',LatLng);
-		//let coord = { lat: '0', lng: '0' };
-		//coord.lat = LatLng.lat.toFixed(5);
-		//coord.lng = LatLng.lng.toFixed(5);
-		//setNewMarkerState({ visible: true, position: coord });
 		dispatch(actMapMarkerState({ visible: true, position: LatLng }));
-
 	};
 
 	const filterMapCallback = (feature: any): boolean => {
-		return filterDataMap(feature, rxDataFilters, authToken);
+		const result = filterDataMap(feature, rxDataFilters, authToken);
+
+		if (result) {
+			let crowndiameter = feature?.properties?.lastinsp_crowndiameter;
+			if (!crowndiameter) crowndiameter = 1;			
+			const dot = [feature.properties.latitude, feature.properties.longitude, crowndiameter / 20];					
+			dataHeatmapPoints.push(dot);
+		}
+
+		return result;
 	};
 
 
@@ -529,7 +560,8 @@ function App() {
 
 
 	function pointToLayerTrees(feature: any, latlng: L.LatLng): any {   
-		if (!rxCheckButtonHeatmap) {
+		rxDataTrees.dateTimeGenerated = Date.now();		
+		if (!rxCheckButtonHeatmap) {			
 			// change color of point depends on them status
 			if (feature.properties.lastinsp_status) {
 				if (Array.isArray(rxDictStatuses)) {
@@ -541,12 +573,12 @@ function App() {
 					}	
 				});
 				}
-			}
-			 
-			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
+			}			 
+			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);			
 		}
-			return null;
-	};
+			
+		return null;
+	}
 
 	function ZoomToRadius (zoom: number, crowndiameter: number) {
 		// + 21...13 -
@@ -556,12 +588,11 @@ function App() {
 		return r; 		
 	}	
 
-
+ 
 
 	return (				
 		<MainWrapper cityName={paramsRouter.cityName}>			
-			<>									
-			{console.log(authToken)}
+			<>												
 				<Sidebar>
 					<Tabs
 						id="controlled-tab-example"
@@ -694,57 +725,6 @@ function App() {
 		</MainWrapper>
 
 	);
-
-
-
-
-
-
-
-
-
-	function fetchUrl(url: string, method: string, bodyObject?: any, callBackSucceed?: (data: any) => void) {
-		let myHeaders = new Headers();
-		myHeaders.append("Content-type", "application/json");
-		
-		if (csrftoken) {
-			myHeaders.append("X-CSRFToken", csrftoken);
-		}	
-		if (authToken?.access) {
-			myHeaders.append("Authorization", "Bearer " + authToken.access);
-		}
-
-		//console.log(url, authToken?.access);
-		//console.log('myHeaders', myHeaders.get('Authorization'));
-
-		fetch(url, {
-			method: method,
-			headers: myHeaders,
-			body: JSON.stringify(bodyObject),
-		}).then(function (response) {
-			if (response.status >= 400) {
-				response.json().then((data) => {
-					alert(
-						response.statusText +
-							" (" +
-							response.status +
-							")\n\n" +
-							data.detail
-					);
-				});
-			} else {
-				
-				if (callBackSucceed) {
-
-					response.json().then((data) => {
-						callBackSucceed(data);
-					})
-					
-				}
-			}
-		});
-	};
 }
-
 
 export default App;

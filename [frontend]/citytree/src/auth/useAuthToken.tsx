@@ -68,7 +68,7 @@ export const useAuthToken = () => {
         setAuthToken(userToken);
     };    
 
-    function getUserInfoFromToken(json: userTokenJson): {id: number; name: string} | undefined {
+    function getUserInfoFromToken(json: userTokenJson): {id: number; name: string} | undefined {        
         let token = json?.access; 
 
         if (token) {

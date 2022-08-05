@@ -242,10 +242,10 @@ function App() {
 	// when event comes from markerOnClick, it comes from L.Circle which is not React component, therefore there is something wrong, because in this event you can't see current values in States and Redux (to check permissions using rxDataPermissions), so I used redux event to broke that chain
 	useEffect(()=>{		
 		if (treePreview?.visible === true && treePreview?.idTree) {
-			if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) {
-				setTreePreview({ visible: false, data: {}, idTree: null })
-				return; 
-			}	
+			// if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) {
+			// 	setTreePreview({ visible: false, data: {}, idTree: null })
+			// 	return; 
+			// }	
 
 			fetchTreeData(treePreview.idTree).then((data) =>
 				setTreePreview({ visible: true, data: data, idTree: null })
@@ -512,55 +512,58 @@ function App() {
 	}, [rxCheckButtonNewMarker]);
 
 	const onZoomEnd = (e: any) => {
-		console.log('zoom', e.target._zoom);
+		//console.log('zoom', e.target._zoom);
 		setCurrentZoomMap(e.target._zoom);
 	}
-	
-	const onEachLayer = (layer: L.Layer, zoom: number) => {
-		//@ts-ignore
-		const crowndiameter = layer?.feature?.properties?.lastinsp_crowndiameter;
-		if (crowndiameter) {
-			//@ts-ignore
-		    layer.setRadius(ZoomToRadius(zoom, crowndiameter));                    
-			
-		} 		
-	}	
-	
+		
 
 	const onDragEndNewMarker = (LatLng: { lat: number; lng: number }) => {
 		dispatch(actMapMarkerState({ visible: true, position: LatLng }));
 	};
 
-	const filterMapCallback = (feature: any): boolean => {
-		const result = filterDataMap(feature, rxDataFilters, authToken);
-
-		if (result) {
-			let crowndiameter = feature?.properties?.lastinsp_crowndiameter;
-			if (!crowndiameter) crowndiameter = 1;			
-			const dot = [feature.properties.latitude, feature.properties.longitude, crowndiameter / 20];					
-			dataHeatmapPoints.push(dot);
-		}
-
-		return result;
-	};
 
 
-	const onSubmitFilter = (filter: {}) => {
-		console.log(filter);
+
+	const onSubmitFilter = (filter: {}) => {		
 		dataHeatmapPoints = [];
-		
+				
 		rxDataTrees.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed. <GeoJSON key={mainData.dateTimeGenerated}...
 		dispatch(actDataFilters(filter));	
 
 		if (isMobileView) {
 			dispatch(actShowSidebar(false))
 		}
+		
 	};
 
 
 
-	function pointToLayerTrees(feature: any, latlng: L.LatLng): any {   
-		rxDataTrees.dateTimeGenerated = Date.now();		
+	const filterMapCallback = (feature: any): boolean => {
+		
+		// const date = new Date;
+		// const ms = date.getMilliseconds();
+		// if (ms % 5 === 0) console.log('onEachLayer', `${date.getSeconds()}.${ms}`);	
+		
+		const result = filterDataMap(feature, rxDataFilters, authToken);
+
+		if (result && rxCheckButtonHeatmap) {
+			let crowndiameter = feature?.properties?.lastinsp_crowndiameter;
+			if (!crowndiameter) crowndiameter = 1;			
+			const dot = [feature.properties.latitude, feature.properties.longitude, crowndiameter / 20];					
+			dataHeatmapPoints.push(dot);
+			//console.log(dataHeatmapPoints.length)
+		}
+
+		return result;
+	};	
+	
+	
+	useEffect(()=>{
+		rxDataTrees.dateTimeGenerated = Date.now();	// you must change that key to force GEOJSON function to redraw point		
+	}, [rxCheckButtonHeatmap]);
+
+	function pointToLayerTrees(feature: any, latlng: L.LatLng): any { 
+						
 		if (!rxCheckButtonHeatmap) {			
 			// change color of point depends on them status
 			if (feature.properties.lastinsp_status) {
@@ -573,10 +576,11 @@ function App() {
 					}	
 				});
 				}
-			}			 
-			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);			
-		}
+			}	
 			
+			//return L.circleMarker(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);
+			return L.circle(latlng, geojsonMarkerOptions_citytree).on('click', markerOnClick);			
+		}			
 		return null;
 	}
 
@@ -587,6 +591,20 @@ function App() {
 		if (r < 2) r=2;
 		return r; 		
 	}	
+	
+	
+
+	const onEachLayer = (layer: L.Layer, zoom: number) => {
+		if (rxCheckButtonHeatmap) return;
+
+		//@ts-ignore
+		const crowndiameter = layer?.feature?.properties?.lastinsp_crowndiameter;
+		if (crowndiameter) {
+			//@ts-ignore
+		    layer.setRadius(ZoomToRadius(zoom, crowndiameter));                    			
+		} 		
+	}	
+
 
  
 

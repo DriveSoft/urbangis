@@ -19,6 +19,8 @@ const InspectionsList = (props: InspectionsListProps) => {
         let url = `${process.env.REACT_APP_API_URL}citytree/cityfoo/trees/${props.idTree}/inspections/`;
         let res = await fetch(url);
         let data = await res.json(); 
+
+
         
         // adding buttons
         data = data.map((element: any) => {
@@ -34,7 +36,6 @@ const InspectionsList = (props: InspectionsListProps) => {
                 
         });
         
-        //console.log('inspections', data);
         setInspectionsData(data);       
     };
 
@@ -58,40 +59,40 @@ const InspectionsList = (props: InspectionsListProps) => {
         if (idButton==='photo') props.onClickButtonPhotosInsp(rowData);                 
     }
 
-  return (
-    <TableList 
-        data={inspectionsData} 
-        OnClickButtons={OnClickInspButtons} 
-        sortField={"datetime"} 
-        sortAsc={false} 
-        size={"sm"}        
-        columns={
-            [
-                {
-                    field: "#",
-                    headerName: "",
-                },                            
-                {
-                    field: "datetime",
-                    headerName: "Дата",
-                    width: "40%",
-                    sortable: true,
-                    dateTimeOption: "onlyDate",
-                },
-                {
-                    field: "typeData",
-                    headerName: "Тип",
-                    width: "35%"
-                },    
-                {
-                    field: "buttons",
-                    headerName: "Actions",
-                    width: "25%"
-                },             
-            ]
-        }
-    />
-  )
+    return (
+        <TableList 
+            data={inspectionsData} 
+            OnClickButtons={OnClickInspButtons} 
+            sortField={"datetime"} 
+            sortAsc={false} 
+            size={"sm"}        
+            columns={
+                [
+                    {
+                        field: "#",
+                        headerName: "",
+                    },                            
+                    {
+                        field: "datetime",
+                        headerName: "Дата",
+                        width: "40%",
+                        sortable: true,
+                        dateTimeOption: "onlyDate",
+                    },
+                    {
+                        field: "typeData",
+                        headerName: "Тип",
+                        width: "35%"
+                    },    
+                    {
+                        field: "buttons",
+                        headerName: "Actions",
+                        width: "25%"
+                    },             
+                ]
+            }
+        />
+    )
 }
 
 

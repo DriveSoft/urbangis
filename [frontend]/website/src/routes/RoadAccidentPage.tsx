@@ -31,7 +31,7 @@ const RoadAccidentPage = ( { cities, setCities }: RoadAccidentPageProps ) => {
 					<h1>Градове</h1>
 				</div>				
 				<div className="container">										
-					<ListCities cities={cities}/>			
+					<ListCities cities={cities} app="roadaccident"/>			
 				</div>
 			</section>
 

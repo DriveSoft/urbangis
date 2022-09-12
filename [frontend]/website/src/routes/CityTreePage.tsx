@@ -36,7 +36,7 @@ const CityTreePage = ( { cities, setCities }: CityTreePageProps ) => {
 					<h1>Градове</h1>
 				</div>				
 				<div className="container">										
-					<ListCities cities={cities}/>			
+					<ListCities app="citytree" cities={cities}/>			
 				</div>
 			</section>
 

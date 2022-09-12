@@ -31,7 +31,7 @@ const UrbanObjectPage = ({ cities, setCities }: UrbanObjectPageProps) => {
 					<h1>Градове</h1>
 				</div>
 				<div className="container">
-					<ListCities cities={cities} />
+					<ListCities cities={cities} app="urbanobject" />
 				</div>
 			</section>
 

@@ -76,6 +76,25 @@ def citiesData(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+def citiesDataWithCountTrees(request):
+    cities = coreCity.objects.all().order_by('-population')
+    serializer = citySerializerWithCountTrees(cities, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def citiesDataWithCountAccidents(request):
+    cities = coreCity.objects.all().order_by('-population')
+    serializer = citySerializerWithCountAccidents(cities, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def citiesDataWithCountUrbanObjects(request):
+    cities = coreCity.objects.all().order_by('-population')
+    serializer = citySerializerWithCountUrbanObjects(cities, many=True)
+    return Response(serializer.data)        
+    
+
+@api_view(['GET'])
 def citiesDataItem(request, sysname):
     obj_city = get_object_or_404(coreCity, sysname__iexact=sysname)
     serializer = citySerializer(obj_city, many=False)

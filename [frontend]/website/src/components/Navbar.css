@@ -1,0 +1,130 @@
+.navbar {
+    background-color: #212529;
+}
+
+.navbar ul {
+    display: flex;
+    width: 100%;
+    align-items: center;    
+    color: white;
+}
+
+.navbar li {
+    list-style-type: none;
+    
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #aaaaaa;
+}
+
+.navbar-logo {
+    flex: 1;
+    font-size: 1.5rem;
+    user-select: none;
+    padding: 1rem 0rem;
+}
+
+.navbar-toggle {
+    display: none;
+}
+
+.navbar-links {
+    padding: 0.5rem 1rem; 
+    margin-right: 1rem;   
+}
+
+.navbar-links:hover a {
+    color: #eeeeee;
+}
+
+
+.login-link {    
+    border-radius: 20px;
+    background: rgb(23, 158, 113);    
+}
+
+.login-link a {
+    color: white;
+}
+
+.signup-link {
+    border: 1px solid rgb(0, 83, 0);
+    border-radius: 20px;
+}
+
+.signup-link a {
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .navbar ul {
+        flex-wrap: wrap;
+    }
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-links {
+        display: none;
+        width: 100%;
+        text-align: left
+    }
+    .navbar-links:hover {
+        background-color: #343a41;
+    }    
+    .activeMenuItem {
+        display: block;
+    } 
+
+    .navbar .container {
+        padding: 0px;    
+    }
+
+    .navbar-logo {
+        margin-left: 1.5rem;
+    }
+
+    .navbar-toggle {
+        margin-right: 1.5rem;    
+    }
+
+    .login-link {    
+        background: #212529;
+    }
+    
+    .signup-link {        
+        border: 1px solid #212529;;
+    }    
+}
+
+
+
+
+
+
+.dropdown-content a:hover {
+    background-color: #333a41;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #212529;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 5px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.selectedItem::before {
+    content: '●';
+    padding-right: 5px;
+}

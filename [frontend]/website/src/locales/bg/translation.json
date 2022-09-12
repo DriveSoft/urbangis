@@ -1,0 +1,52 @@
+{
+    "menu": {        
+        "home": "Начало",
+        "login": "Вход",
+        "logout": "Изход",
+        "signup": "Регистрация"
+    },
+
+    "header": {
+        "primaryTitle": "Градска информационна система",
+        "secondaryTitle": "За интелигентни и устойчиви градове"
+    },    
+
+    "homePage": {
+        "title": "Карти",
+        "buttonDetails": "Подробности",
+        "citytree": "Карта на градската дървесна растителност",
+        "roadaccident": "Карта за пътно транспортни произшествия",
+        "urbanobject": "Достъпността за социално важни обекти"        
+    },
+
+    "loginModalForm": {
+        "title": "Вход",
+        "username": "Потребителско име",
+        "password": "Парола",        
+        "rememberme": "Запомни ме",        
+        "words": {
+            "login": "Вход",
+            "wrongPassword": "Грешно потребителско име и/или парола",
+            "dontHaveAccount": "Нямате акаунт?",
+            "signup": "Регистрирай се"
+        }
+    },  
+    
+    "registerModalForm": {
+        "title": "Регистрация", 
+        "username": "Потребителско име",
+        "password": "Парола",
+        "confirmPassword": "Повтори парола",
+        "buttonRegister": "Регистрирай ме",
+        "firstname": "Име (незадължително)",
+        "lastname": "Фамилия (незадължително)",
+        "words": {
+            "alreadyHaveAccount": "Вече имате акаунт?",
+            "login": "Вход"
+        }        
+    },    
+
+    "words": {
+        "hello": "Здравей"
+    }
+}

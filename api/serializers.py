@@ -164,6 +164,25 @@ class citySerializer(serializers.ModelSerializer):
         fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population', 'zoom']
 
 
+class citySerializerWithCountTrees(serializers.ModelSerializer):
+    count_items = serializers.IntegerField(source='count_trees')    
+    class Meta:
+        model = coreCity
+        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population', 'zoom', 'count_items']        
+
+class citySerializerWithCountAccidents(serializers.ModelSerializer):
+    count_items = serializers.IntegerField(source='count_accidents')    
+    class Meta:
+        model = coreCity
+        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population', 'zoom', 'count_items'] 
+
+class citySerializerWithCountUrbanObjects(serializers.ModelSerializer):
+    count_items = serializers.IntegerField(source='count_urbanobjects')    
+    class Meta:
+        model = coreCity
+        fields = ['id', 'sysname', 'cityname', 'latitude', 'longitude', 'population', 'zoom', 'count_items'] 
+
+
 class dictionaryRoadaccidentManeuversSerializer(serializers.ModelSerializer):
     class Meta:
         model = Maneuver

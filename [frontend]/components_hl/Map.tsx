@@ -29,7 +29,7 @@ import {
     //actActiveTabKey
 } from "../actions";
 import { RootState } from '../reducers/index';
-import { ScriptElementKindModifier } from 'typescript';
+
 
 // fix disapeared marker from map
 
@@ -420,11 +420,8 @@ function Map ({
                         //setNewMarkerState({visible: true, position: coord})                        
                         dispatch(actMapMarkerState({visible: true, position: coord}))
                     }
-                }
-                setView_nTimes_gps = 0;
+                }                
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
-
-
             },
             
             click(e) {
@@ -481,7 +478,7 @@ function Map ({
 
     function onEachFeaturePoint(feature: any, layer: L.Layer) {               
         //@ts-ignore
-        layer.myTag = "myGeoJSON"
+        //layer.myTag = "myGeoJSON"
         // layer.on({
         //   'click': function (e) {
         //      console.log('e: ', e);
@@ -498,6 +495,7 @@ function Map ({
             }
 
             if (rxCheckButtonHeatmap) {                      
+
                 if (dataHeatmapPoints) {
                     // @ts-ignore
                     heatMapLayer = L.heatLayer(dataHeatmapPoints, {
@@ -509,7 +507,7 @@ function Map ({
                         maxZoom: 6
 
                     })//.addTo(map);
-                    map.addLayer(heatMapLayer)                
+                    map.addLayer(heatMapLayer);                
                 }
             } 
 
@@ -553,12 +551,12 @@ function Map ({
                     <MapTileLayers mapBaseLayerName={rxMapBaseLayerName} />                 
                 </LayersControl>    
 
-            
+                
                 {/* To change center of the map when current city will change */}
                 {/*<SetViewMap center={[parseFloat(currentCityInfo["latitude"]), parseFloat(currentCityInfo["longitude"])]} />*/} 
                 <SetPanToMap />
 
-
+                
 
                 {appname === 'roadaccident' && <> 
                     {currentZoom && currentZoom < 15 ? (
@@ -578,6 +576,7 @@ function Map ({
 
 
                 {appname === 'citytree' && <>                                                         
+                    {console.log('mainData.dateTimeGenerated', mainData.dateTimeGenerated)}
                     <GeoJSON key={mainData.dateTimeGenerated} data={mainData} pointToLayer={pointToLayerCallback} filter={filterMapCallback} onEachFeature={onEachFeaturePoint}/>                                       
                 </>}
 

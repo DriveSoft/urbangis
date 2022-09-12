@@ -1,0 +1,53 @@
+{    
+    "menu": {
+        "home": "Home",
+        "login": "Login",    
+        "logout": "Logout",
+        "signup": "Sign Up"
+    },
+
+    "header": {
+        "primaryTitle": "City information system",
+        "secondaryTitle": "For intelligent and sustainable city"
+    },
+
+    "homePage": {
+        "title": "Maps",
+        "buttonDetails": "More info...",
+        "citytree": "City Tree Map",
+        "roadaccident": "Road Accident Map",
+        "urbanobject": "Urban Objects Map"
+    },
+
+
+    "loginModalForm": {
+        "title": "Login",
+        "username": "Username",
+        "password": "password",        
+        "rememberme": "Remember me",        
+        "words": {
+            "login": "Login",
+            "wrongPassword": "Wrong login or password",
+            "dontHaveAccount": "Don't have account?",
+            "signup": "Sign up"
+        }
+    },
+
+    "registerModalForm": {
+        "title": "Sign Up", 
+        "username": "Username",
+        "password": "password",
+        "confirmPassword": "Confirm password",
+        "buttonRegister": "Register",
+        "firstname": "Firstname (optional)",
+        "lastname": "Lastname (optional)",
+        "words": {
+            "alreadyHaveAccount": "Already have an account?",
+            "login": "Login"
+        }        
+    },     
+
+    "words": {
+        "hello": "Hello"
+    }    
+}

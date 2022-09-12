@@ -1,0 +1,43 @@
+.boxes .container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.boxes h3 {
+    margin-bottom: 1rem;
+}
+
+.box {
+    flex: 1;
+    text-align: center;
+    background: #fff;
+    color: #000;
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #dddddd;
+    margin: 25px 15px;
+    /* box-shadow: 0 3px 5px rgba(0, 0, 0, 0.6); */
+    padding: 15px 20px;    
+}
+
+.box i {
+    margin-right: 10px;
+}
+
+.boxes .title h1 {
+    text-transform: uppercase;
+    padding-top: 3rem;
+    font-size: 2rem;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-weight: 500;
+}
+
+
+@media (max-width: 768px) {
+    .boxes .container {
+        /* alternative way to make a content vertically, just make it as block element */
+        display: block; 
+        text-align: center;
+    }
+}

@@ -20,6 +20,9 @@ urlpatterns = [
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('cities/', views.citiesData, name="api-cities"),
+    path('cities/with_count_trees/', views.citiesDataWithCountTrees, name="api-cities-with-count-trees"),    
+    path('cities/with_count_accidents/', views.citiesDataWithCountAccidents, name="api-cities-with-count-accidents"),
+    path('cities/with_count_urbanobjects/', views.citiesDataWithCountUrbanObjects, name="api-cities-with-count-urbanobjects"),
     path('cities/<str:sysname>/', views.citiesDataItem, name="api-cities-item"),
 
     path('dictionary/roadaccident/maneuvers/', views.dictionaryRoadaccidentManeuvers, name="api-dictionary-roadaccident-maneuvers"),

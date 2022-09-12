@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import TableList, {DataStructureTableList} from './TableList';
+
+//import TableList from './Table'
+//import { DataStructureTableList } from './Table/interfaces'
+import { BootstrapTable } from 'react-bootstrap-table-light'
+import { DataStructureTable } from 'react-bootstrap-table-light/src/interfaces';
+
 import { useSelector } from "react-redux";
 import { RootState } from "../reducers/index";
 
@@ -11,7 +16,7 @@ interface InspectionsListProps {
 
 const InspectionsList = (props: InspectionsListProps) => {
 
-    const [inspectionsData, setInspectionsData] = useState<DataStructureTableList[] | undefined>(undefined);
+    const [inspectionsData, setInspectionsData] = useState<DataStructureTable[] | undefined>(undefined);
     const rxDataLastEditetTreeId = useSelector((state: RootState) => state.dataReducer.dataLastEditedTreeId);
 
     const fetchInpections = async () => {
@@ -60,12 +65,13 @@ const InspectionsList = (props: InspectionsListProps) => {
     }
 
     return (
-        <TableList 
+        <BootstrapTable 
             data={inspectionsData} 
             OnClickButtons={OnClickInspButtons} 
             sortField={"datetime"} 
             sortAsc={false} 
-            size={"sm"}        
+            size={"sm"} 
+            noDataTitle='Няма'       
             columns={
                 [
                     {

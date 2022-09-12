@@ -22,6 +22,10 @@ class coreCity(models.Model):
         return self.tree_set.filter(is_deleted=False).count()
 
     @property
+    def count_accidents(self):
+        return self.accident_set.filter(is_deleted=False).count()        
+
+    @property
     def count_urbanobjects(self):
         return self.coreurbanobject_set.filter(is_deleted=False).count()
 

@@ -1,0 +1,38 @@
+.header {
+    background-color: #0151cc;
+    color: #fff;
+    min-height: 400px;
+    background: url('../images/biglogo_dark.jpg') no-repeat center; background-size: cover;
+}
+
+.header .container {
+    display: flex;
+    flex-direction: column;        
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.header h1 {
+    font-size: 2.5rem;;
+    font-weight: 300;
+    line-height: 1.2;      
+}
+
+.header p {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+/* .header img {
+    max-width: 400px;
+} */
+
+
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+        padding-top: 20px;
+        text-align: center;
+    }
+}

@@ -40,6 +40,7 @@ function MenuGlobal({
 }: MenuGlobalProps) {
 	const dispatch = useDispatch();
 	const rxShowSidebar = useSelector((state: RootState) => state.uiReducer.showSidebar)
+	const [expanded, setExpanded] = useState(false);
 	const [cities, setCities] = useState<IStateCities['cities']>([]);
 
 	const { t, i18n } = useTranslation();
@@ -61,7 +62,7 @@ function MenuGlobal({
 	}
 
 	return (
-		<Navbar bg="light" expand="lg">
+		<Navbar bg="light" expand="lg" expanded={expanded} collapseOnSelect >
 			<Container>
 				<Button
 					className="start-0"
@@ -72,7 +73,7 @@ function MenuGlobal({
 				>
 					{t<string>("menu.menu")}
 				</Button>{" "}
-				<Navbar.Toggle aria-controls="basic-navbar-nav" />
+				<Navbar.Toggle aria-controls="basic-navbar-nav" onClick={() => setExpanded(!expanded)} />
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="ms-auto">
 						<Nav.Link href="/">{t<string>("menu.home")}</Nav.Link>

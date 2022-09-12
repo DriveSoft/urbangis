@@ -29,7 +29,7 @@ import {
     //actActiveTabKey
 } from "../actions";
 import { RootState } from '../reducers/index';
-import { ScriptElementKindModifier } from 'typescript';
+
 
 // fix disapeared marker from map
 
@@ -420,11 +420,8 @@ function Map ({
                         //setNewMarkerState({visible: true, position: coord})                        
                         dispatch(actMapMarkerState({visible: true, position: coord}))
                     }
-                }
-                setView_nTimes_gps = 0;
+                }                
                 //setMapCurrentLatLng({lat: e.target.getCenter().lat, lng: e.target.getCenter().lng})
-
-
             },
             
             click(e) {
@@ -618,4 +615,5 @@ export default Map
 
 //https://newbedev.com/home-button-leaflet-map
 
-//пример 
+//пример без React-Leaflet
+//https://stackoverflow.com/questions/69697017/use-leaflet-map-object-outside-useeffect-in-react

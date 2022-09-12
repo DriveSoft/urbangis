@@ -59,14 +59,10 @@ const LoginModalForm = ({setAuthToken} : LoginModalFormProps) => {
 			body: JSON.stringify(credentials),
 		}).then((data) => {
 			if (data.status === 200) {
-				data.json().then((data) => {		
-					//data.rememberme = credentials.rememberme
+				data.json().then((data) => {							
 					console.log('setAuthToken', data);
-					setAuthToken(data);
-					//console.log(data);
-					setShowWrongPassword(false);
-
-					//setLoginModalShow(false)
+					setAuthToken(data);					
+					setShowWrongPassword(false);					
 					dispatch(actLoginModalShow(false));
 				});
 			} else if (data.status === 401) {

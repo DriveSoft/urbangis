@@ -51,45 +51,62 @@ function TableList({
 		setDataTable(data);
 	}, [data]);
 
-	const columnsHeader = columns.map((item, index) => (
-		<th
-			style={{
-				width: item.width ? item.width : "",
-				cursor: item.sortable ? "pointer" : "default",
-			}}
-			key={index}
-			onClick={() => {
-				if (item.sortable) {
-					setSortState({
-						sortField: item.field,
-						sortAsc:
-							sortState.sortField === item.field
-								? !sortState.sortAsc
-								: true,
-					}); // inverse sortAsc, only when sortField has not changed, otherwise sortAsc=true
+
+
+	interface ColumnsHeaderProps {
+		header: ColumnsStructureTableList[]	
+	}
+
+	function Header({header}: ColumnsHeaderProps) {
+
+		const columnsHeader = header.map((item, index) => (
+			<th
+				style={{
+					width: item.width ? item.width : "",
+					cursor: item.sortable ? "pointer" : "default",
+				}}
+				key={index}
+				onClick={() => {
+					if (item.sortable) {
+						setSortState({
+							sortField: item.field,
+							sortAsc:
+								sortState.sortField === item.field
+									? !sortState.sortAsc
+									: true,
+						}); // inverse sortAsc, only when sortField has not changed, otherwise sortAsc=true
+					}
+				}}
+			>
+				{
+					// for current sorted column draws icon
+					sortState?.sortField === item.field ? (
+						<>
+							<div style={{ float: "left", textAlign: "left" }}>
+								{item.headerName}
+							</div>
+							<div style={{ float: "right", textAlign: "right" }}>
+								<span style={{ fontSize: "8pt", color: "gray" }}>
+									{" "}
+									{sortState.sortAsc ? "▼" : "▲"}
+								</span>
+							</div>
+						</>
+					) : (
+						item.headerName
+					)
 				}
-			}}
-		>
-			{
-				// for current sorted column draws icon
-				sortState?.sortField === item.field ? (
-					<>
-						<div style={{ float: "left", textAlign: "left" }}>
-							{item.headerName}
-						</div>
-						<div style={{ float: "right", textAlign: "right" }}>
-							<span style={{ fontSize: "8pt", color: "gray" }}>
-								{" "}
-								{sortState.sortAsc ? "▼" : "▲"}
-							</span>
-						</div>
-					</>
-				) : (
-					item.headerName
-				)
-			}
-		</th>
-	));
+			</th>
+		));
+
+		return (<>{columnsHeader}</>);
+
+	}
+
+
+
+
+
 
 	function DataTable() {
 		function compare(a: {}, b: {}) {
@@ -281,7 +298,7 @@ function TableList({
 	return (
 		<Table striped bordered hover size={size} variant={variant}>
 			<thead>
-				<tr>{columnsHeader}</tr>
+				<tr><Header header={columns} /></tr>
 			</thead>
 			<tbody>
 				<DataTable />

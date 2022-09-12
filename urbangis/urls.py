@@ -21,9 +21,10 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from django.shortcuts import redirect
 
 urlpatterns = [
-    path('', include('website.urls')),
+    path('', lambda request: redirect('website/', permanent=False)),
 
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
@@ -31,11 +32,12 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('admin/', admin.site.urls),
+    path('website/', include('website.urls')),
     path('roadaccident/', include('roadaccident.urls')),
     path('citytree/', include('citytree.urls')),
     path('urbanobject/', include('urbanobject.urls')),
-
     path('api/', include('api.urls')),
+    
 
 ]
 

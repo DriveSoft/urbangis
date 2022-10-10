@@ -1,9 +1,13 @@
 {    
+    "title": "City information system",
     "menu": {
         "home": "Home",
         "login": "Login",    
         "logout": "Logout",
-        "signup": "Sign Up"
+        "signup": "Sign Up",
+        "words": {
+            "hello": "Hello"
+        }        
     },
 
     "header": {

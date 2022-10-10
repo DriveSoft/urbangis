@@ -14,9 +14,9 @@ urlpatterns = [
 
     # path('website/urbanobject/', views.urbanobject, name="website_urbanobject"),
 
-    # path('register/', views.registerPage, name="register"),
-    # path('login/', views.loginPage, name="login"),
-    # path('logout/', views.logoutUser, name="logout"),
-    # path('logout/', views.logoutUser, name="logout"),
+     path('register/', views.registerPage, name="register"),
+     path('login/', views.loginPage, name="login"),
+     path('logout/', views.logoutUser, name="logout"),
+     path('logout/', views.logoutUser, name="logout"),
 
 ]

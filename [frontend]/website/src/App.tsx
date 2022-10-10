@@ -29,7 +29,7 @@ const URL_GET_CITIES_WITH_COUNT_TREES = `${process.env.REACT_APP_API_URL}cities/
 function App() {
 	const [authToken, setAuthToken] = useAuthToken();
 
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 
 	const [citiesWithCountTrees, setCitiesWithCountTrees] = useState<CityItem[] | undefined>(undefined); 
 	const [citiesWithCountAccidents, setCitiesWithCountAccidents] = useState<CityItem[] | undefined>(undefined); 
@@ -37,6 +37,11 @@ function App() {
 
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+
+	useEffect(() => {
+		document.title = t('title');
+	}, [i18n.language]);	
 
 	return (
 		<>

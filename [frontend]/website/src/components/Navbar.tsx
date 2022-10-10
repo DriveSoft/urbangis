@@ -39,7 +39,7 @@ const Navbar = ( {setShowLoginModal, setShowRegisterModal, authToken, setAuthTok
 					
 					{ authToken ? (
 					<>
-					<li className={`navbar-links ${menuOpen ? 'activeMenuItem' : ''}`}><i className="fa-solid fa-user fa-xl" style={{marginRight:"10px"}}></i>Hello, {authToken.user.name}</li>   
+					<li className={`navbar-links ${menuOpen ? 'activeMenuItem' : ''}`}><i className="fa-solid fa-user fa-xl" style={{marginRight:"10px"}}></i>{t('menu.words.hello')}, {authToken.user.name}</li>   
 					<li className={`navbar-links signup-link ${menuOpen ? 'activeMenuItem' : ''}`}><a href="#" onClick={() => {setAuthToken(null); setMenuOpen(false);}}>{t('menu.logout')}</a></li> 
 					</>
 					) : (<>

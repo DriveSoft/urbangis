@@ -77,17 +77,7 @@ const CityTreePage = ( { cities, setCities }: CityTreePageProps ) => {
 				
 						<p>
 							Примери по света:<br />
-							<a href="https://maps.amsterdam.nl/bomen/" target="_blank">Amsterdam</a>,
-							<a href="https://fbinter.stadt-berlin.de/fb/index.jsp?loginkey=zoomStart&amp;center=389555,5820133&amp;width=1200&amp;height=800&amp;mapId=k_wfs_baumbestand@senstadt" target="_blank">Berlin</a>,
-							<a href="https://www.data.gv.at/katalog/dataset/stadt-wien_baumkatasterderstadtwien" target="_blank">Vienna</a>,
-							<a href="https://apps.london.gov.uk/street-trees" target="_blank">London</a>,
-							<a href="https://tree-map.nycgovparks.org/" target="_blank">New York</a>,
-							<a href="https://caseytrees.org/resources-list/d-c-street-trees-map/" target="_blank">Washington</a>,
-							<a href="http://melbourneurbanforestvisual.com.au/" target="_blank">Melbourn</a>,
-							<a href="http://www.stocktongov.com/discover/treemap.html" target="_blank">Stockton</a>,
-							<a href="https://www.nparks.gov.sg/treessg" target="_blank">Singapore</a>,
-							<a href="https://www.arcgis.com/apps/MapSeries/index.html?appid=a7072ffa326c4ef39a0f031961ebace6" target="_blank">Seattle</a>,
-							<a href="https://pg-cloud.com/Wisconsin/" target="_blank">Wisconsin</a>
+
 						</p>
 						
 					</div>

@@ -30,6 +30,7 @@
     "react-hook-form": "^7.22.5",
     "react-i18next": "^11.16.1",
     "react-image-file-resizer": "^0.4.8",
+    "react-image-upload-s3": "^1.0.8",
     "react-leaflet": "^3.2.2",
     "react-leaflet-bing-v2": "^5.2.3",
     "react-leaflet-markercluster": "^3.0.0-rc1",
@@ -42,8 +43,8 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

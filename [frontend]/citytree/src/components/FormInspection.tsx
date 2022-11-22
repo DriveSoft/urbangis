@@ -39,6 +39,7 @@ const FormInspection = ({
     const rxDictCareTypes = useSelector((state: RootState) => state.dataReducer.dictCareTypes);
 	const rxDictRemarks = useSelector((state: RootState) => state.dataReducer.dictRemarks);    
     const { t } = useTranslation();
+	const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true);
 
 
 	const uploadPhotosRef = useRef();
@@ -126,7 +127,7 @@ const FormInspection = ({
 		
         
         reset(formData, { keepDefaultValues: true });
-		console.log('dataInspForm');
+		console.log('dataInspForm', dataInspForm);
 
     }, [dataInspForm]);
 
@@ -173,7 +174,13 @@ const FormInspection = ({
 		if (result) {
 			//@ts-ignore
 			uploadPhotosRef.current.uploadPhotos(); // component uploadPhotos has a callback to start a submit of the form, when uploading has been finished.
+			setSubmitButtonEnabled(false);
 		}
+	}
+
+	const onCallbackDone = (isSuccessful: boolean) => {
+		setSubmitButtonEnabled(true);
+        isSuccessful && handleSubmit(prepareOnSubmitInsp)();			
 	}
 
 	function prepareOnSubmitInsp(data: {
@@ -222,11 +229,6 @@ const FormInspection = ({
 		console.log('onUploadError', e);
 	}
 
-
-	const onCallbackDone = () => {
-		console.log('DONE');
-		handleSubmit(prepareOnSubmitInsp)();	
-	}
 
 	return (
 		<div>
@@ -425,6 +427,7 @@ const FormInspection = ({
 						onClick={onSubmitBefore}
 						variant="primary"
 						style={{ minWidth: "110px" }}
+						disabled={!submitButtonEnabled}
 					>
 						{t<string>("sidebar.inspTab.save")}
 					</Button>

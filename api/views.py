@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from .serializers import *
 
 from roadaccident.models import Accident, Maneuver, TypeViolation, Violator
@@ -16,6 +16,8 @@ from citytree.models import Inspection, CareActivity, Species
 from django.views.decorators.gzip import gzip_page
 
 from django.apps import apps
+import random
+import string
 
 
 
@@ -899,7 +901,6 @@ def get_s3_connection():
 @api_view(['POST'])
 #@permission_classes([IsAuthenticatedOrReadOnly])
 def getS3SignedUrl(request): 
-#class GetS3SignedUrl(View):
     """
     Generate Signed url for s3
     """
@@ -907,23 +908,41 @@ def getS3SignedUrl(request):
     print(request.data)
     s3 = get_s3_connection()
     file_name = request.data["objectName"]
-    #file_name = request.data["filename"]
 
-    final_file_name = djangoSettings.AWS_LOCATION + '/' + user_directory_path(request, file_name)
+    if file_name == '':
+        raise ValidationError
 
+    # is_file_exists = False
+    # is_finished = False
+    # while not is_finished:
+    #     if is_file_exists: 
+    #         # file_name = request.data["objectName"]
+    #         # #file_name = str(random.randint(0,999999)) + file_name       
+    #         # splittedFilename = file_name.split('.', 1)s
+    #         # file_name = splittedFilename[0] +'_'+ get_random_string(5)
+    #         # if len(splittedFilename) > 1:
+    #         #     file_name = file_name +'.' + splittedFilename[1]
+    #         file_name = request.data["objectName"]
+    #         file_name = auto_rename_name(file_name)
+                
+    #     final_file_name = djangoSettings.AWS_LOCATION + '/' + user_directory_path(request, file_name)
+    #     print(final_file_name)
 
-    print(final_file_name)
+    #     #check if file exists in bucket
+    #     #is_file_exists = False
+    #     response = s3.list_objects_v2(Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME, Prefix=final_file_name)
+    #     is_file_exists = False
+    #     for obj in response.get('Contents', []):
+    #         print(obj['Key'])
+    #         if obj['Key'] == final_file_name:
+    #             is_file_exists = True
+    #             break
 
-    #check if file exists in bucket
-    is_file_exists = False
-    response = s3.list_objects_v2(Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME, Prefix=final_file_name)
-    for obj in response.get('Contents', []):
-        if obj['Key'] == final_file_name:
-            is_file_exists = True
-            break
+    #     is_finished = not is_file_exists
 
+    final_file_name = s3_renamefile_if_exists(request, s3, file_name)
 
-    url = s3.generate_presigned_post(
+    s3Response = s3.generate_presigned_post(
         Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME,
         Key=final_file_name,
         Fields={"acl": "public-read", "Content-Type": "image/jpeg"},
@@ -934,23 +953,63 @@ def getS3SignedUrl(request):
         ExpiresIn=3600
     )
 
-    print("--------")
-    print(url)
-    print("--------")
-    print(final_file_name)
+    # print("--------")
+    # print('s3Response', s3Response)
+    # print("--------")
+    # print(final_file_name)
     
-    js = url["fields"]
-    js['file'] = file_name
+    # #js = s3Response["fields"]
+    # #js['file'] = file_name
 
-    print("--------")
-    print(js)
-    print("--------")    
+    # print("--------")
+    # #print(js)
+    # print("--------")    
 
-    #return Response(json.dumps(js))
+    # #return Response(json.dumps(js))
+
+    # return Response(json.dumps({
+    #     'data': s3Response,
+    #     #'url': 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name),
+    #     'file_exists': False #is_file_exists
+    # }))
+
+    return Response(json.dumps(s3Response))
 
 
-    return Response(json.dumps({
-        'data': url,
-        #'url': 'https://%s.s3.amazonaws.com/%s' % (djangoSettings.AWS_STORAGE_BUCKET_NAME, final_file_name),
-        'file_exists': is_file_exists
-    }))
+
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))
+
+def auto_rename_name(filename):
+    splittedFilename = filename.split('.', 1)
+    newFilename = splittedFilename[0] +'_'+ get_random_string(5)
+    if len(splittedFilename) > 1:
+        newFilename = newFilename +'.' + splittedFilename[1]
+    return newFilename
+
+def s3_renamefile_if_exists(request, s3, filename):
+    validFilename = filename
+    is_file_exists = False
+    is_finished = False
+    while not is_finished:
+        if is_file_exists: 
+            validFilename = auto_rename_name(filename)
+                
+        final_file_name = djangoSettings.AWS_LOCATION + '/' + user_directory_path(request, validFilename)
+        print(final_file_name)
+
+        #check if file exists in bucket
+        response = s3.list_objects_v2(Bucket=djangoSettings.AWS_STORAGE_BUCKET_NAME, Prefix=final_file_name)
+        is_file_exists = False
+        for obj in response.get('Contents', []):
+            print(obj['Key'])
+            if obj['Key'] == final_file_name:
+                is_file_exists = True
+                break
+
+        is_finished = not is_file_exists
+
+    return final_file_name    
+

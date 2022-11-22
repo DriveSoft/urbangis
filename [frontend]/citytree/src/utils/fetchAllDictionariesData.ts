@@ -11,7 +11,6 @@ import {
 
 export const fetchAllDictionariesData = async() => {		
     
-
     const [
         speciesesResponse, 
         caretypesResponse, 

@@ -1,10 +1,7 @@
-// https://www.youtube.com/watch?v=XHQi5a0TmMc
-
-import React from 'react';
 import { useState, useEffect, forwardRef, useRef, useImperativeHandle } from 'react';
 import Resizer from "react-image-file-resizer";
+import deleteImage from "./delete2.svg";
 import "./style.css";
-import deleteImage from "./delete.svg";
 import noImage from "./noimage.svg";
 
 interface ImageS3UploadProps {
@@ -15,7 +12,6 @@ interface ImageS3UploadProps {
     emptyPhoto?: string; 
     serverPhoto?: string; 
     buttonCaption?: string;
-    showSize?: boolean;
     id?: string;
     name?: string;
 
@@ -24,23 +20,20 @@ interface ImageS3UploadProps {
         autoResize: boolean; // otherwise resizing will be preform before uploading
         maxWidth: number;
         maxHeight: number;
-        compressFormat: string; // Can be either JPEG, PNG or WEBP
-        quality: number; // A number between 0 and 100. Used for the JPEG compression.
-        rotation: number; // Degree of clockwise rotation to apply to the image. Rotation is limited to multiples of 90 degrees.(if no rotation is needed, just set it to 0) (0, 90, 180, 270, 360)
+        compressFormat: string;
+        quality: number;
+        rotation: number;
     };
 
-    onStart?: () => void;
     onUploaded?: () => void;
     onProgress?: (percent: number) => void;
-    onFinish?: (isSuccessful: boolean) => void;
-    onError?: (msg: string) => void;
+    onFinish?: () => void;
+    onError?: (status: number, filename: string) => void;
     onSignedUrl?: (data: any)  => void;
-    onResizeStart?: () => void;
-    onResizeFinish?: () => void;
 }
 
 interface RefObject {
-    uploadFile: () => Promise<boolean>
+    uploadFile: () => boolean
 }
 
 
@@ -73,18 +66,14 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     value,
     onChange,
     buttonCaption = 'Browse...',
-    showSize = true,
     id = '',
     name = '',
     resizer = defaultResizingOptions,
-    onStart,
     onUploaded,
     onProgress,
     onFinish,
     onError,
-    onSignedUrl,
-    onResizeStart,
-    onResizeFinish
+    onSignedUrl
 }, ref) => {
 
 
@@ -101,31 +90,24 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
 
     // to be able to call method uploadFile
     useImperativeHandle(ref, () => ({
-        uploadFile: async () => {             
+        uploadFile: () => { 
             if (status.state === stateComponent.finish || status.state === stateComponent.uploaded) {
                 setStatus({state: stateComponent.finish, msg: ''});
-                return true;
+                return false;
             } 
               
             //@ts-ignore
             if (inputFileEl?.current?.files && inputFileEl.current.files.length === 1) {                
-                if (status.state !== stateComponent.resizing) {                    
-                    !autoUpload && onStart && onStart();
-                    
+                if (status.state !== stateComponent.resizing) {
                     //@ts-ignore
-                    const p = await startUpload(inputFileEl?.current?.files[0].name, inputFileEl?.current?.files[0]);                                       
-                    if (p) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                    
+                    startUpload(inputFileEl?.current?.files[0].name);
+                    return true;
                 } 
                 setStatus({state: stateComponent.error, msg: ''});               
                 return false;
             }
             setStatus({state: stateComponent.finish, msg: ''});
-            return true;                         
+            return false;                         
         }
     }));    
 
@@ -135,25 +117,28 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
         }  
     }, []);
 
-    useEffect(()=>{        
+    useEffect(()=>{
+        //console.log('s3DataState', s3DataState); 
         if (s3DataState?.fields?.key) {
-            setNotLoad(true);            
+            setNotLoad(true);
+  
+            //onChange(s3DataState.fields.key);   
             fireOnChange(s3DataState.fields.key);
         } 
-    }, [s3DataState]);     
+    }, [s3DataState]); 
+    
     
     useEffect(()=>{                  
         if (status.state === stateComponent.none) {
             setButtonCaptionState(buttonCaption); 
-            setCompressedPhoto(undefined);
         }  
 
         if (status.state === stateComponent.resizing) {
-            setButtonCaptionState("Resizing...");            
+            setButtonCaptionState("Resizing...");
         }   
 
         if (status.state === stateComponent.resized) {
-            showSize ? setButtonCaptionState(`Resized (${status.msg})`) : setButtonCaptionState('Resized');            
+            setButtonCaptionState("Resized ");
         }   
 
         if (status.state === stateComponent.startingUpload) {
@@ -172,18 +157,16 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
             setButtonCaptionState('Done');
             setShowSpinner(false); 
             if (onUploaded) onUploaded();   
-            if (onFinish) onFinish(true);
+            if (onFinish) onFinish();
         }
 
         if (onFinish && status.state === stateComponent.finish) {
-             onFinish(true);
+            onFinish();
         }  
         
         if (status.state === stateComponent.error) {
             setButtonCaptionState("Error");
             setShowSpinner(false);
-            onError && onError(status.msg);
-            if (onFinish) onFinish(false);
         }          
         
     }, [status]);
@@ -209,6 +192,7 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
                 }
                                 
                 setImagePhoto(`${serverPhoto}${value}`);
+                //console.log('serverPhotoValue', `${serverPhoto}${value}`); 
             }
                     
           
@@ -221,6 +205,8 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
         
     }, [value]);   
     
+
+
     const fireOnChange = (value: string) => {
         const event = {
             persist: () => {},
@@ -234,6 +220,8 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
 
           onChange(event);         
     }
+
+
     const resizeFile = (file: any) =>
 		new Promise((resolve) => {
 			Resizer.imageFileResizer(
@@ -254,49 +242,59 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
     const onChangeFile = async (event: any) => {
         
         if (event.target.files && event.target.files.length > 0) {
-            autoUpload && onStart && onStart();
             setStatus({state: stateComponent.none, msg: ''});
             const file = event.target.files[0];
+            //onChange(file.name);
+            //setFilename(file.name);
             setImagePhoto(URL.createObjectURL(file)); 
             
-            if (resizer.enabled && resizer.autoResize) {                                
+            if (resizer.enabled && resizer.autoResize) {
                 try {                
-                    onResizeStart && onResizeStart();
-                    setStatus({state: stateComponent.resizing, msg: ''});                                        
+                    setStatus({state: stateComponent.resizing, msg: ''});
+                    //setButtonCaptionState("Resizing...")
                     const image = await resizeFile(file);
 
                     if (image instanceof Blob) {
                         setCompressedPhoto(image);
-                        setStatus({state: stateComponent.resized, msg: String(humanFileSize(image.size))});                        
+                        setStatus({state: stateComponent.resized, msg: ''});
+                        //setButtonCaptionState("Resized ");
     
                         if (autoUpload) {
-                            startUpload(file.name, image);     
+                            startUpload(file.name);     
                         }
+                        //console.log('image.size', humanFileSize(image.size));
                     } else {
-                        setStatus({state: stateComponent.error, msg: 'Resizing error.'});                          
-                    }                     
+                        setStatus({state: stateComponent.error, msg: 'Resizing error.'});
+                        //setButtonCaptionState("Error");    
+                    } 
+                    
+
 
                 } catch (error) {
                     console.log('ERROR', error);
                     let message
                     if (error instanceof Error) message = error.message
                     else message = String(error)
-                    setStatus({state: stateComponent.error, msg: message});                    
-                } finally {
-                    onResizeFinish && onResizeFinish();
+
+                    setStatus({state: stateComponent.error, msg: message});
+                    //setButtonCaptionState("Error")
                 }
             } else {
                 if (autoUpload) {
-                    startUpload(file.name, file);     
+                    startUpload(file.name);     
                 }                
             }            
 
         }                
     };
 
+
+
+
 	const fetchUrlSign = async (fileName: string) => {			
 		let myHeaders = new Headers();
 		myHeaders.append("Content-type", "application/json");  
+
         const bodyObject = {objectName: fileName};
         
         let res = await fetch(signingUrl, {
@@ -304,13 +302,9 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
             headers: myHeaders,
             body: JSON.stringify(bodyObject)
         });
-        
-        if (!res.ok) {
-            throw new Error(`${res.status} ${res.statusText}`);
-        }
 
-        const json = await res.json();
-        return JSON.parse(json);		
+		const json = await res.json();
+        return JSON.parse(json);				
 	}
 
     const updateProgress = (ev: any) => {
@@ -320,131 +314,138 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
         }
     } 
 
-    const uploadFile = (file: any, s3Data: any) => {
-        return new Promise((resolve, reject) => {
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", s3Data.url);
-            xhr.timeout = 30000;
-            xhr.upload.onprogress = updateProgress;
-    
-            let postData = new FormData();
-            for (let key in s3Data.fields) {			
-                if (key != 'file') { // in field "file" must be blob of file.
-                    postData.append(key, s3Data.fields[key]);
-                    //console.log('append', key, s3Data.fields[key]);
-                }                    
-            }
-            postData.append("file", file); // blob
-    
-            xhr.onload = () => {
-                // transaction completes successfully.
-                setStatus({state: stateComponent.uploaded, msg: ''});
-                resolve(xhr.status);
-            };  
-    
-            xhr.onerror = (e: any) => {
-                reject('error');
-                setShowSpinner(false);
-                setButtonCaptionState('Error');                        
-                setStatus({state: stateComponent.error, msg: String(e.target.status)});                                                                            
-                alert(`Error during file upload (status: ${e.target.statusText}): ${file.name}`);
-            };  
-    
-            xhr.ontimeout = () => {
-                reject('timeout');
-                setShowSpinner(false);
-                setButtonCaptionState('Error');                        
-                setStatus({state: stateComponent.error, msg: 'Time out'});                                                                            
-                alert(`Error during file upload (status: Time out): ${file.name}`);   
-            }
-                      
-            xhr.send(postData);
-        });
+    const uploadFile = async (file: any, s3Data: any) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", s3Data.url);
+        xhr.timeout = 30000;
+        xhr.upload.onprogress = updateProgress;
 
-
-    }
-
-
-
-    const resizerFunc = async (file: any = undefined): Promise<any> => {
-        if (resizer.enabled && resizer.autoResize) {
-            console.log('autoResize', compressedPhoto)
-                
-            if (compressedPhoto) { // if autoUpload = False, it's mean that resized photo in state
-                return compressedPhoto;
-            }
-
-            if (file) { // if autoUpload = True, it's mean that resized photo gona be in 'file' parametr
-                return file;                      
+        let postData = new FormData();
+		for (let key in s3Data.fields) {			
+            if (key != 'file') { // in field "file" must be blob of file.
+                postData.append(key, s3Data.fields[key]);
+                //console.log('append', key, s3Data.fields[key]);
             }                    
+		}
+		postData.append("file", file); // blob
 
-            setStatus({state: stateComponent.error, msg: ''});
-            return undefined;                
-        }
-
-
-        if (resizer.enabled && !resizer.autoResize) {
-            try {                
-                onResizeStart && onResizeStart();
-                setStatus({state: stateComponent.resizing, msg: ''});                            
-                const image = await resizeFile(file);
-
-                if (image instanceof Blob) {                            
-                    setStatus({state: stateComponent.resized, msg: String(humanFileSize(image.size))});  
-                    return image                          
+		xhr.onreadystatechange = () => {
+			if (xhr.readyState === 4) {
+				// done
+				if (xhr.status === 200 || xhr.status === 204) { //ok || 204 No Content
+                    //setShowSpinner(false);                    
+                    setStatus({state: stateComponent.uploaded, msg: ''});
+                    //setStatus({state: stateComponent.finish});
                 } else {
-                    setStatus({state: stateComponent.error, msg: 'Resizing error.'});
-                    return undefined;
-                }
-                          
-            } finally {
-                onResizeFinish && onResizeFinish();                    
-            } 
-                            
-        }
+
+                    if (onError) {
+                        setShowSpinner(false);
+                        setButtonCaptionState(`Error ${xhr.status}`);
+                        onError(xhr.status, file.name);
+                        setStatus({state: stateComponent.error, msg: String(xhr.status)});
+                    }                    
+                    
+                    alert(
+						"Error during file upload (status: " +
+							xhr.status +
+							"): " +
+							file.name
+					);
+				}
+			}  
+		};
 
 
-        if (!resizer.enabled) {
-            return file; 
-        }
+		xhr.onload = () => {
+			// transaction completes successfully.
+			//console.log("transaction completes successfully.");
+            //if (s3DataState?.data?.fields?.key) {
+            //    onChange(s3DataState.data.fields.key);
+            //}             
+		};  
+
+
+        xhr.onerror = () => {
+            //SetStateSaveButton('saveButton', true, 'Запази');
+            //SetStateSaveButton('saveInspButton', true, 'Запази');
+            //$('#'+idElement+'_loading').hide();
+            //$('#'+idElement+'_browse_button').html('Browse...');
+            alert('Error during file upload: ' + file.name);
+        };  
+          
+        
+        //console.log('postData', postData);
+        xhr.send(postData);  
+
+    
+    //    {"data": {"url": "https://urbangis.s3.amazonaws.com/", "fields": {"acl": "public-read", "Content-Type": "image/jpeg", "key": "media/citytree/images_tree/user_None/None", "x-amz-algorithm": "AWS4-HMAC-SHA256", "x-amz-credential": "***REMOVED***/20220524/eu-central-1/s3/aws4_request", "x-amz-date": "20220524T105522Z", "policy": "eyJleHBpcmF0aW9uIjogIjIwMjItMDUtMjRUMTE6NTU6MjJaIiwgImNvbmRpdGlvbnMiOiBbeyJhY2wiOiAicHVibGljLXJlYWQifSwgeyJDb250ZW50LVR5cGUiOiAiaW1hZ2UvanBlZyJ9LCB7ImJ1Y2tldCI6ICJ1cmJhbmdpcyJ9LCB7ImtleSI6ICJtZWRpYS9jaXR5dHJlZS9pbWFnZXNfdHJlZS91c2VyX05vbmUvTm9uZSJ9LCB7IngtYW16LWFsZ29yaXRobSI6ICJBV1M0LUhNQUMtU0hBMjU2In0sIHsieC1hbXotY3JlZGVudGlhbCI6ICJBS0lBMllTTzdGRTVKQllPWEU1Qy8yMDIyMDUyNC9ldS1jZW50cmFsLTEvczMvYXdzNF9yZXF1ZXN0In0sIHsieC1hbXotZGF0ZSI6ICIyMDIyMDUyNFQxMDU1MjJaIn1dfQ==", "x-amz-signature": "75a181348c86194678752f6c726582a833408925226259efc0ad6858060d56bb", "file": null}}, "url": "https://urbangis.s3.amazonaws.com/media/citytree/images_tree/user_None/None", "file_exists": false}
     }
 
 
-    const startUpload = async (filename: string, file: any = undefined) => {        
-        try {
-            filename = filename.replace(/\s/g, ''); // remove spaces, because there is some problem with restAPI, which return url filename with %20 instead space, after that when we savind data again, %20 will be convert to %2520 (% = %25)
 
-            setStatus({state: stateComponent.startingUpload, msg: ''});
-            setS3DataState(undefined);
 
-            //console.log('filename', filename);
-            const signedUrl = await fetchUrlSign(filename);            
-            setS3DataState(signedUrl);  
-            if (onSignedUrl) {
-                onSignedUrl(signedUrl);
-            }
-            
-            //console.log('signedUrl', signedUrl);
-            
+    const startUpload = async (filename: string) => {
+        filename = filename.replace(/\s/g, ''); // remove spaces, because there is some problem with restAPI, which return url filename with %20 instead space, after that when we savind data again, %20 will be convert to %2520 (% = %25)
 
-            const fileForUpload = await resizerFunc(file);
-            if (fileForUpload) {
+        setStatus({state: stateComponent.startingUpload, msg: ''});
+        setS3DataState(undefined);
+
+        console.log('filename', filename);
+        const signedUrl = await fetchUrlSign(filename);
+        setS3DataState(signedUrl);  
+        if (onSignedUrl) {
+            onSignedUrl(signedUrl);
+        }
+        
+        console.log('signedUrl', signedUrl);
+        
+
+        //if (signedUrl.file_exists === false) {
+            //@ts-ignore
+            if (inputFileEl?.current?.files && inputFileEl.current.files.length===1) {
                 //@ts-ignore
-                await uploadFile(file, signedUrl);  
-                return true; 
+                const file = inputFileEl.current.files[0];
+
+                if (resizer.enabled) {
+                   
+                    if (resizer.autoResize) { // photo already resized and stored in compressedPhoto
+                        if (compressedPhoto) {
+                            //@ts-ignore
+                            uploadFile(compressedPhoto, signedUrl);
+                        }
+                    } else {
+                        try {                
+                            setStatus({state: stateComponent.resizing, msg: ''});
+                            //setButtonCaptionState("Resizing...")
+                            const image = await resizeFile(file);
+                            setStatus({state: stateComponent.resized, msg: ''});
+                            //setButtonCaptionState("Resized");
+                            //@ts-ignore
+                            await uploadFile(image, signedUrl);                            
+                        } catch (error) {
+                            console.log('ERROR', error);
+                            
+                            let message;
+                            if (error instanceof Error) message = error.message;
+                            else message = String(error);
+                            
+                            setStatus({state: stateComponent.error, msg: message});
+                            //setButtonCaptionState("Error")
+                        }                        
+                    }
+                    
+                } else {
+                    //@ts-ignore
+                    uploadFile(file, signedUrl, callbackFinish);
+                }                
             }
-
-            return false;
-
-        } catch(error) {            
-            let message;
-            if (error instanceof Error) message = error.message;
-            else message = String(error);            
-            setStatus({state: stateComponent.error, msg: message});
-            return false;           
-        }
-
+        //} else {
+        //    let rndStr = makeRandomStr(5);
+        //    startUpload(rndStr + '_' + filename);            
+        //}
+    
     }
+
 
     const clearImage = () => {        
         fireOnChange('');
@@ -494,10 +495,22 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
 
 })
 
+
+
+function makeRandomStr(length: number) {
+    let result = '';
+    const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
 function humanFileSize(size: number) {
     const i = Math.floor( Math.log(size) / Math.log(1024) );
-    const sSize = ( size / Math.pow(1024, i) ).toFixed(0);
+    const sSize = ( size / Math.pow(1024, i) ).toFixed(2);
     return `${sSize} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;        
 };
 
-export default ImageS3Upload;
+export default ImageS3Upload

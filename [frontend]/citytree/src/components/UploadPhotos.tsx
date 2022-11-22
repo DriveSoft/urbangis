@@ -1,19 +1,26 @@
 import { Form, Button, Card, Row, Col, Modal} from 'react-bootstrap';
 import {useState, useEffect, forwardRef, useRef, useImperativeHandle} from 'react'
 import { Controller } from "react-hook-form";
-import ImageS3Upload from "./ImageS3Upload";
+//import ImageS3Upload from "./ImageS3Upload";
+import { ImageS3Upload } from "react-image-upload-s3";
 import noPhotoImage from "./images/no-photo.png";
 
 interface UploadPhotosProps {
     controlFromUseForm: any;
     signingS3Url: string;
-    serverPhoto?: string | undefined | null;
-    onCallbackDone: () => void;
+    serverPhoto?: string;
+    onCallbackDone: (isSuccessful: boolean) => void;
 } 
 
 interface RefObject {
     uploadPhotos: () => void
 }
+
+// enum StateUploader {
+//     none,
+//     ok,
+//     error
+// }
 
 const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
     controlFromUseForm,
@@ -25,21 +32,22 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
 	const photo1Ref = useRef(); // to be able to call method uploadFile
 	const photo2Ref = useRef();
 	const photo3Ref = useRef();   
-    
-	const [uploadedPhoto1, setUploadedPhoto1] = useState(false);
-	const [uploadedPhoto2, setUploadedPhoto2] = useState(false);
-	const [uploadedPhoto3, setUploadedPhoto3] = useState(false);   
+    //const [photosUploaded, setPhotosUploaded] = useState<{photo1: StateUploader, photo2: StateUploader, photo3: StateUploader}>({photo1: StateUploader.none, photo2: StateUploader.none, photo3: StateUploader.none});
+    const [submitData, setSubmitData] = useState({submit: false, success: false});
 
-	useEffect(() => {
-		if (uploadedPhoto1 && uploadedPhoto2 && uploadedPhoto3) {			
-			setUploadedPhoto1(false);
-			setUploadedPhoto2(false);
-			setUploadedPhoto3(false);
-						
-			onCallbackDone();
-		}
-	}, [uploadedPhoto1, uploadedPhoto2, uploadedPhoto3]);
+    useEffect(()=> {        
+        if (submitData.submit) {
+            onCallbackDone(submitData.success);    
+            setSubmitData({submit: false, success: false});
+        }                        
+    }, [submitData]);    
 
+	// useEffect(() => {
+	// 	if (photosUploaded.photo1 !== StateUploader.none && photosUploaded.photo2 !== StateUploader.none && photosUploaded.photo3 !== StateUploader.none) {			
+	// 		onCallbackDone(photosUploaded.photo1 === StateUploader.ok && photosUploaded.photo2 === StateUploader.ok && photosUploaded.photo3 === StateUploader.ok);
+    //         setPhotosUploaded({photo1: StateUploader.none, photo2: StateUploader.none, photo3: StateUploader.none});									
+	// 	}
+	// }, [photosUploaded]);    
 
 
     const autoUpload = false;
@@ -58,70 +66,45 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
     // to be able to call method uploadFile
     useImperativeHandle(ref, () => ({
         uploadPhotos: () => {
+            //setPhotosUploaded({photo1: StateUploader.none, photo2: StateUploader.none, photo3: StateUploader.none});            
+            //@ts-ignore
+            //photo1Ref?.current?.uploadFile();
+            //@ts-ignore
+            //photo2Ref?.current?.uploadFile();
+            //@ts-ignore
+            //photo3Ref?.current?.uploadFile();            
 
-            let p1 = false;
-            let p2 = false;
-            let p3 = false;
-            //@ts-ignore
-            if (photo1Ref?.current?.uploadFile) {
+            Promise.all([
                 //@ts-ignore
-                p1=photo1Ref.current.uploadFile();
-            }	
-    
-            //@ts-ignore
-            if (photo2Ref?.current?.uploadFile) {
+                photo1Ref.current.uploadFile(),	
                 //@ts-ignore
-                p2=photo2Ref.current.uploadFile();
-            }
-            
-            //@ts-ignore
-            if (photo3Ref?.current?.uploadFile) {
+                photo2Ref.current.uploadFile(),
                 //@ts-ignore
-                p3=photo3Ref.current.uploadFile();
-            }		
-    
-    
-            console.log('p', p1, p2, p3);
-            if (!p1 && !p2 && !p3) { // there is no photo to upload, so just submit form
-                onCallbackDone();
-            } else {
-                //e.preventDefault();
-                setUploadedPhoto1(!p1);
-                setUploadedPhoto2(!p2);
-                setUploadedPhoto3(!p3);
-                //console.log('cons', {photo1: !p1, photo2: !p2, photo3: !p3, data: data})
-                //setPhotosUploaded({photo1: !p1, photo2: !p2, photo3: !p3, data: data});
-            }	            
-
+                photo3Ref.current.uploadFile()	            
+            ]).then((values) => {          
+                console.log('result', values);
+                let result = true;
+                values.forEach((value) => {if (!value) result = false})
+                setSubmitData({submit: true, success: result});
+            });            
         }
     }));
 
 
-
-	const onFinishPhoto1 = () => {
-		console.log('onFinishPhoto1');
-		setUploadedPhoto1(true);
-		//setPhotosUploaded({...photosUploaded, photo1: true});	
-	}
-	const onFinishPhoto2 = () => {
-		console.log('onFinishPhoto2');
-		setUploadedPhoto2(true);
-	
-		//setPhotosUploaded({photo1: photosUploaded.photo1, photo2: true, photo3: photosUploaded.photo3, data: photosUploaded.data});
-		//setPhotosUploaded({...photosUploaded, photo2: true});
-	}
-	const onFinishPhoto3 = () => {
-		console.log('onFinishPhoto3');
-		//setPhotosUploaded({...photosUploaded, photo3: true});
-		setUploadedPhoto3(true);
-	}
-
-
+	// const onFinishPhoto1 = (isSuccessful: boolean) => {		
+    //     setPhotosUploaded(prev => ({...prev, photo1: isSuccessful ? StateUploader.ok : StateUploader.error }));
+	// }
+	// const onFinishPhoto2 = (isSuccessful: boolean) => {		
+    //     //isSuccessful && setPhotosUploaded(prev => ({...prev, photo2: true}));
+    //     setPhotosUploaded(prev => ({...prev, photo2: isSuccessful ? StateUploader.ok : StateUploader.error }));
+	// }
+	// const onFinishPhoto3 = (isSuccessful: boolean) => {		
+    //     //isSuccessful && setPhotosUploaded(prev => ({...prev, photo3: true}));
+    //     setPhotosUploaded(prev => ({...prev, photo3: isSuccessful ? StateUploader.ok : StateUploader.error }));
+	// }
 
 
     return (
-
-
         <Row className="mt-3" xs={3}>
             <Form.Group as={Col} controlId="formIdInsp1" className="mt-3 align-self-end">
                 <Controller
@@ -131,11 +114,10 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
 
                         <ImageS3Upload  
                             signingUrl={signingS3Url}
-                            autoUpload={autoUpload}
-                            //startUploadState={photo1StateUpload.start}
+                            autoUpload={autoUpload}                            
                             emptyPhoto={noPhotoImage}
                             serverPhoto={serverPhoto}	
-                            onFinish={onFinishPhoto1}
+                            //onFinish={onFinishPhoto1}
                             resizer={resizerOptions}																	
                             {...field}
                             ref={photo1Ref}
@@ -156,7 +138,7 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
                             autoUpload={autoUpload}	
                             emptyPhoto={noPhotoImage}
                             serverPhoto={serverPhoto}
-                            onFinish={onFinishPhoto2}
+                            //onFinish={onFinishPhoto2}
                             resizer={resizerOptions}
                             {...field}
                             ref={photo2Ref}
@@ -177,7 +159,7 @@ const UploadPhotos = forwardRef<RefObject | undefined, UploadPhotosProps>(({
                             autoUpload={autoUpload}
                             emptyPhoto={noPhotoImage}
                             serverPhoto={serverPhoto}
-                            onFinish={onFinishPhoto3}
+                            //onFinish={onFinishPhoto3}
                             resizer={resizerOptions}
                             {...field}
                             ref={photo3Ref}

@@ -1,10 +1,7 @@
-// https://www.youtube.com/watch?v=XHQi5a0TmMc
-
-import React from 'react';
 import { useState, useEffect, forwardRef, useRef, useImperativeHandle } from 'react';
 import Resizer from "react-image-file-resizer";
+import deleteImage from "./delete2.svg";
 import "./style.css";
-import deleteImage from "./delete.svg";
 import noImage from "./noimage.svg";
 
 interface ImageS3UploadProps {
@@ -366,76 +363,74 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
 
 
 
-    const resizerFunc = async (file: any = undefined): Promise<any> => {
-        if (resizer.enabled && resizer.autoResize) {
-            console.log('autoResize', compressedPhoto)
-                
-            if (compressedPhoto) { // if autoUpload = False, it's mean that resized photo in state
-                return compressedPhoto;
-            }
 
-            if (file) { // if autoUpload = True, it's mean that resized photo gona be in 'file' parametr
-                return file;                      
-            }                    
-
-            setStatus({state: stateComponent.error, msg: ''});
-            return undefined;                
-        }
-
-
-        if (resizer.enabled && !resizer.autoResize) {
-            try {                
-                onResizeStart && onResizeStart();
-                setStatus({state: stateComponent.resizing, msg: ''});                            
-                const image = await resizeFile(file);
-
-                if (image instanceof Blob) {                            
-                    setStatus({state: stateComponent.resized, msg: String(humanFileSize(image.size))});  
-                    return image                          
-                } else {
-                    setStatus({state: stateComponent.error, msg: 'Resizing error.'});
-                    return undefined;
-                }
-                          
-            } finally {
-                onResizeFinish && onResizeFinish();                    
-            } 
-                            
-        }
-
-
-        if (!resizer.enabled) {
-            return file; 
-        }
-    }
-
-
-    const startUpload = async (filename: string, file: any = undefined) => {        
+    const startUpload = async (filename: string, file: any = undefined) => {
         try {
             filename = filename.replace(/\s/g, ''); // remove spaces, because there is some problem with restAPI, which return url filename with %20 instead space, after that when we savind data again, %20 will be convert to %2520 (% = %25)
 
             setStatus({state: stateComponent.startingUpload, msg: ''});
             setS3DataState(undefined);
 
-            //console.log('filename', filename);
+            console.log('filename', filename);
             const signedUrl = await fetchUrlSign(filename);            
             setS3DataState(signedUrl);  
             if (onSignedUrl) {
                 onSignedUrl(signedUrl);
             }
             
-            //console.log('signedUrl', signedUrl);
+            console.log('signedUrl', signedUrl);
             
+            if (resizer.enabled) {
+                
+                if (resizer.autoResize) {
+                    console.log('autoResize', compressedPhoto)
+                    
+                    if (compressedPhoto) { // if autoUpload = False, it's mean that resized photo in state
+                        //@ts-ignore
+                        await uploadFile(compressedPhoto, signedUrl);
+                        return true;
+                    }
 
-            const fileForUpload = await resizerFunc(file);
-            if (fileForUpload) {
+                    if (file) { // if autoUpload = True, it's mean that resized photo gona be in 'file' parametr
+                        //@ts-ignore
+                        await uploadFile(file, signedUrl);  
+                        return true;                      
+                    }                    
+
+                    setStatus({state: stateComponent.error, msg: ''}); 
+                } else {
+                    try {                
+                        onResizeStart && onResizeStart();
+                        setStatus({state: stateComponent.resizing, msg: ''});                            
+                        const image = await resizeFile(file);
+
+                        if (image instanceof Blob) {                            
+                            setStatus({state: stateComponent.resized, msg: String(humanFileSize(image.size))}); 
+                            //@ts-ignore
+                            await uploadFile(image, signedUrl); 
+                            return true;                          
+                        } else {
+                            setStatus({state: stateComponent.error, msg: 'Resizing error.'});
+                        }
+                          
+                    } catch (error) {
+                        console.log('ERROR', error);
+                        
+                        let message;
+                        if (error instanceof Error) message = error.message;
+                        else message = String(error);
+                        
+                        setStatus({state: stateComponent.error, msg: message});                            
+                    } finally {
+                        onResizeFinish && onResizeFinish();
+                    }                      
+                }
+                
+            } else {
                 //@ts-ignore
-                await uploadFile(file, signedUrl);  
+                await uploadFile(file, signedUrl);
                 return true; 
-            }
-
-            return false;
-
+            } 
         } catch(error) {            
             let message;
             if (error instanceof Error) message = error.message;
@@ -443,8 +438,8 @@ const ImageS3Upload = forwardRef<RefObject | undefined, ImageS3UploadProps>(({
             setStatus({state: stateComponent.error, msg: message});
             return false;           
         }
-
     }
+
 
     const clearImage = () => {        
         fireOnChange('');
@@ -500,4 +495,4 @@ function humanFileSize(size: number) {
     return `${sSize} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;        
 };
 
-export default ImageS3Upload;
+export default ImageS3Upload

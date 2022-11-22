@@ -43,6 +43,7 @@ const FormTree = ({
     const rxMapMarkerState = useSelector((state: RootState) => state.uiReducer.mapMarkerState);
     const rxNewTreeCreation = useSelector((state: RootState) => state.uiReducer.newTreeCreation);
     const [showModalDelete, setShowModalDelete] = useState(false);
+    const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true);
 
     const rxDictSpecieses = useSelector((state: RootState) => state.dataReducer.dictSpecieses);
     const rxDictStatuses = useSelector((state: RootState) => state.dataReducer.dictStatuses);
@@ -294,54 +295,13 @@ const FormTree = ({
         if (result) {
             //@ts-ignore
             uploadPhotosRef.current.uploadPhotos(); // component uploadPhotos has a callback to start a submit of the form, when uploading has been finished.
+            setSubmitButtonEnabled(false);
         }
-
-
-
-        /*
-        //setPhoto1StateUpload({...photo1StateUpload, start: true})
-
-		let p1 = false;
-		let p2 = false;
-		let p3 = false;
-		//@ts-ignore
-		if (photo1Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p1=photo1Ref.current.uploadFile();
-		}	
-
-		//@ts-ignore
-		if (photo2Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p2=photo2Ref.current.uploadFile();
-		}
-		
-		//@ts-ignore
-		if (photo3Ref?.current?.uploadFile) {
-			//@ts-ignore
-			p3=photo3Ref.current.uploadFile();
-		}		
-
-
-		console.log('p', p1, p2, p3);
-		if (!p1 && !p2 && !p3) { // there is no photo to upload, so just submit form
-			//handleSubmit(prepareOnSubmitInsp)()
-		} else {
-			e.preventDefault();
-			setUploadedPhoto1(!p1);
-			setUploadedPhoto2(!p2);
-			setUploadedPhoto3(!p3);
-			//console.log('cons', {photo1: !p1, photo2: !p2, photo3: !p3, data: data})
-			//setPhotosUploaded({photo1: !p1, photo2: !p2, photo3: !p3, data: data});
-		}		
-		
-		//handleSubmit(prepareOnSubmitInsp)()
-        */
 	}
 
-	const onCallbackDone = () => {
-		console.log('DONE');
-		handleSubmit(prepareOnSubmitTree)();	
+	const onCallbackDone = (isSuccessful: boolean) => {		
+		setSubmitButtonEnabled(true);
+        isSuccessful && handleSubmit(prepareOnSubmitTree)();	        
 	}    
 
 
@@ -926,6 +886,7 @@ const FormTree = ({
                         onClick={ rxNewTreeCreation ? onSubmitBefore : undefined }
 						variant="primary"
 						style={{ minWidth: "110px" }}
+                        disabled={!submitButtonEnabled}
 					>
 						{t<string>("sidebar.treeTab.save")}
 					</Button>

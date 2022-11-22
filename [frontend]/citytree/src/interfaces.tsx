@@ -48,7 +48,7 @@ export interface InspItem {
     "photo1"?: string | null;
     "photo2"?: string | null;
     "photo3"?: string | null;
-    "photoServer"?: string | null;
+    "photoServer"?: string;
 }
 
 

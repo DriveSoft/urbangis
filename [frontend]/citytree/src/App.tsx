@@ -97,12 +97,9 @@ function App() {
 
 	const [currentZoomMap, setCurrentZoomMap] = useState(13);
 
-	//const {authToken, setAuthToken} = useAuthToken();
 	const [authToken, setAuthToken] = useAuthToken();
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-	//const [isMobileDevice, setIsMobileDevice] = useState(false)
 	const isMobileView = screenWidth <= 768; // show or hide sidebar at startup
-
 
 	const [dataTreeForm, setDataTreeForm] = useState<TreeItem | null>(null);
 	const [dataInspForm, setDataInspForm] = useState<InspItem | {tree: number} | null>(null);
@@ -199,26 +196,12 @@ function App() {
 
 
 	useEffect(()=>{
-
 		if (authToken?.user?.id) {
 			getCurrentUserPermissions(authToken).then((permResult) => {				
 				if (permResult) dispatch(actDataPermissions(permResult));
 			});			
-		}
-		
-		// const permsToTranslate = {...rxDataPermissions};
-		
-		// Object.entries(permsToTranslate).forEach(([keyModel, valueModel]) => {
-		// 	if (typeof valueModel === 'object') {
-		// 		//@ts-ignore
-		// 		Object.entries(valueModel).forEach(([keyPerm, valuePerm]) => {
-		// 			console.log(t(`permsMessages.${keyModel}.${keyPerm}`));
-		// 		});
-		// 	}			
-		// });				
-		// //dispatch(actDataPermissions(permsToTranslate));
-
-	}, [i18n.language])
+		}	
+	}, [i18n.language]);
 
 
 	function markerOnClick(e: any) {
@@ -230,30 +213,18 @@ function App() {
 		}   
 	}
 
-	const showTreePreview = (idTree: number) => {
-		//if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) return; 
-
-		setTreePreview({ visible: true, data: {}, idTree: idTree })
-		//fetchTreeData(idTree).then((data) =>
-		//	setTreePreview({ visible: true, data: data, idTree: null })
-		//);		
+	const showTreePreview = (idTree: number) => {		
+		setTreePreview({ visible: true, data: {}, idTree: idTree })		
 	};
 
 	// when event comes from markerOnClick, it comes from L.Circle which is not React component, therefore there is something wrong, because in this event you can't see current values in States and Redux (to check permissions using rxDataPermissions), so I used redux event to broke that chain
 	useEffect(()=>{		
 		if (treePreview?.visible === true && treePreview?.idTree) {
-			// if (!has_perm(rxDataPermissions, 'tree', 'view_tree', authToken)) {
-			// 	setTreePreview({ visible: false, data: {}, idTree: null })
-			// 	return; 
-			// }	
-
 			fetchTreeData(treePreview.idTree).then((data) =>
 				setTreePreview({ visible: true, data: data, idTree: null })
 			);			
 		}
 	}, [treePreview]);
-
-	
 
 	const onButtonEditTreeClick = (idTree: number) => {
 		editTree(idTree);
@@ -268,9 +239,7 @@ function App() {
 	
 	const onSubmitTree = async (data: any) => {		
 		if (!has_perm(rxDataPermissions, 'tree', 'change_tree', authToken)) return;
-			
-		
-				
+							
 		if (paramsRouter.cityName) {
 			let method;
 			let url;
@@ -285,19 +254,7 @@ function App() {
 				url = urlTreesByCity(paramsRouter.cityName);
 				method = "POST";
 			}
-
-			// const succeedCallBack = () => {
-			// 	fetchTreesAndStatuses();
-			// 	dispatch(actMapMarkerState({ visible: false, position: {} }));
-			// 	dispatch(actNewTreeCreation(false));
-			// 	dispatch(actActiveTabKey('filter'));
-			// 	dispatch(actShowTreeTab(false));
-
-			// 	if (isMobileView) {
-			// 		dispatch(actShowSidebar(false))
-			// 	}			
-			// }		
-			
+					
 			try {
 				await fetchUrl2(url, method, data, authToken.access);
 				fetchTreesAndStatuses();
@@ -319,9 +276,6 @@ function App() {
 		
 	};
 
-
-
-	//const onDeleteTree = async (id: number) => {
 	const onDeleteTree = async (data: TreeItem | null) => {
 		if (!has_perm(rxDataPermissions, 'tree', 'delete_tree', authToken)) return;		
 		if (!has_perm(rxDataPermissions, 'tree', 'can_delete_not_own_tree_record', authToken) && data?.useradded !== authToken.user.id) return;
@@ -334,7 +288,6 @@ function App() {
 		}
 	};
 
-
 	const onCloseTree = () => {	
 		dispatch(actMapMarkerState({ visible: false, position: {} }));
 		dispatch(actNewTreeCreation(false));
@@ -346,7 +299,7 @@ function App() {
 		let url = `${process.env.REACT_APP_API_URL}citytree/${paramsRouter.cityName}/trees/${idTree}/`;
 		let res = await fetch(url);
 		let data = await res.json();
-		console.log(data)
+		console.log('fetchTreeData', data)
 		return data;
 		//setDataTreeForm(data);		
 	}
@@ -463,8 +416,7 @@ function App() {
 		}					
 	}		
 
-	const onClickEditCoords = (coord: {lat: string; lng: string}) => {	
-		
+	const onClickEditCoords = (coord: {lat: string; lng: string}) => {			
 		if (rxIsMobileDevice) {	
 			dispatch(actShowSidebar(false));					            
             dispatch(actShowOkCancelMobileMarker(true));
@@ -473,8 +425,6 @@ function App() {
 		dispatch(actMapMarkerState({ visible: true, position: coord }));						
 	}
 		
-
-
 	const onClickMap = (e: any) => {
 		if (rxCheckButtonNewMarker && !rxIsMobileDevice) {
 			dispatch(actNewTreeCreation(true));
@@ -498,6 +448,7 @@ function App() {
 		//console.log('rxDataPermissions', rxDataPermissions);
 		//if (!has_perm(rxDataPermissions, 'tree', 'add_tree', authToken)) return false;							
 	}
+
 	useEffect(()=>{
 		if (rxCheckButtonNewMarker) {
 			if (!has_perm(rxDataPermissions, 'tree', 'add_tree', authToken)) {
@@ -516,13 +467,9 @@ function App() {
 		setCurrentZoomMap(e.target._zoom);
 	}
 		
-
 	const onDragEndNewMarker = (LatLng: { lat: number; lng: number }) => {
 		dispatch(actMapMarkerState({ visible: true, position: LatLng }));
 	};
-
-
-
 
 	const onSubmitFilter = (filter: {}) => {		
 		dataHeatmapPoints = [];
@@ -536,14 +483,7 @@ function App() {
 		
 	};
 
-
-
 	const filterMapCallback = (feature: any): boolean => {
-		
-		// const date = new Date;
-		// const ms = date.getMilliseconds();
-		// if (ms % 5 === 0) console.log('onEachLayer', `${date.getSeconds()}.${ms}`);	
-		
 		const result = filterDataMap(feature, rxDataFilters, authToken);
 
 		if (result && rxCheckButtonHeatmap) {
@@ -562,8 +502,7 @@ function App() {
 		rxDataTrees.dateTimeGenerated = Date.now();	// you must change that key to force GEOJSON function to redraw point		
 	}, [rxCheckButtonHeatmap]);
 
-	function pointToLayerTrees(feature: any, latlng: L.LatLng): any { 
-						
+	function pointToLayerTrees(feature: any, latlng: L.LatLng): any { 						
 		if (!rxCheckButtonHeatmap) {			
 			// change color of point depends on them status
 			if (feature.properties.lastinsp_status) {
@@ -592,8 +531,6 @@ function App() {
 		return r; 		
 	}	
 	
-	
-
 	const onEachLayer = (layer: L.Layer, zoom: number) => {
 		if (rxCheckButtonHeatmap) return;
 
@@ -607,7 +544,6 @@ function App() {
 
 
  
-
 	return (				
 		<MainWrapper cityName={paramsRouter.cityName}>			
 			<>												

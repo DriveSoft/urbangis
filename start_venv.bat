@@ -1,3 +1,3 @@
-cmd.exe /k "C:\[Files]\[PROGRAMMER]\[PROJECTS]\UrbanGis\[project]\venv\Scripts\activate.bat"
+cmd.exe /k "C:\_Work\_PROJECTS\UrbanGis\_project\venv\Scripts\activate.bat"
 
  

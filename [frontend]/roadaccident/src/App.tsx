@@ -213,8 +213,10 @@ function App() {
 
 
 	const onSubmitFilter = (filter: {}) => {
-		console.log(filter)
 		dataHeatmapPoints = [];
+
+		rxDataAccidents.dateTimeGenerated = Date.now(); // dateTimeGenerated is used like key parameter to update data on map, when it changed. <GeoJSON key={mainData.dateTimeGenerated}...
+
 		dispatch(actDataFilters(filter))
 
 		if (isMobileView) {
@@ -282,7 +284,7 @@ function App() {
     }
 
 
-	const filterMapCallback = (feature: any): boolean => {
+	const filterMapCallback = (feature: any): boolean => {		
 		let dateFrom_Filter = true;
 		let dateTo_Filter = true;
 
@@ -493,7 +495,9 @@ function App() {
 
 
 
-
+	const onZoomEnd = (e: any) => {
+		dataHeatmapPoints = [];
+	}
 
 
 
@@ -559,6 +563,7 @@ function App() {
 								onClickMap={onClickMap}
 								pointToLayerCallback={pointToLayerRoadaccident}
 								filterMapCallback={filterMapCallback}
+								onZoomEnd={onZoomEnd}
 							/>
 
 							{rxShowOkCancelMobileMarker && <> 

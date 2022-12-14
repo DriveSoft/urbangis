@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '***REMOVED***'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # develop
@@ -219,9 +219,11 @@ LOGIN_URL = reverse_lazy('login')
 USE_S3 = True
 
 if USE_S3:
-    # aws settings
-    AWS_ACCESS_KEY_ID = '***REMOVED***'
-    AWS_SECRET_ACCESS_KEY = '***REMOVED***'
+    # aws settings    
+    #AWS_ACCESS_KEY_ID = '***REMOVED***'
+    #AWS_SECRET_ACCESS_KEY = '***REMOVED***'
+    AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+    AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     AWS_STORAGE_BUCKET_NAME = 'urbangis'
 
     AWS_S3_SIGNATURE_VERSION = 's3v4'
@@ -282,10 +284,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://192.168.1.25:3000",
     "https://smartcitykey.com",
-    "https://www.smartcitykey.com",
-    "https://bgurban.com",
-    "https://www.bgurban.com"
-    
+    "https://www.smartcitykey.com"    
 ]
 
 

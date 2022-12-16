@@ -55,13 +55,6 @@ let redIcon = L.icon({
     shadowSize: [41, 41]
   });
 
-
-
-
-
-
-
-
 //let buttonNewMarker = null
 //let buttonHeatmap = null
 //let buttonGPS = null
@@ -73,10 +66,6 @@ let markersLayer
 
 let setView_nTimes_gps: number;
 let circle_geolocation: L.Circle<any>;
-
-
-
-
 
 interface IStateCurrentCity {
     id: number
@@ -217,6 +206,7 @@ function Map ({
 
       useEffect(() => {        
         if (buttonHeatmap) {
+            mainData.dateTimeGenerated = Date.now(); // to redraw data in GeoJSON
             if (rxCheckButtonHeatmap) {
                 buttonHeatmap.state('on');
                 buttonHeatmap.button.style.backgroundColor = 'red';
@@ -225,7 +215,8 @@ function Map ({
                 buttonHeatmap.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [rxCheckButtonHeatmap])
+      }, [rxCheckButtonHeatmap]);
+
       useEffect(() => {        
         if (buttonGPS) {
             if (rxCheckButtonGPS) {
@@ -236,8 +227,7 @@ function Map ({
                 buttonGPS.button.style.backgroundColor = 'white';            
             }  
         }
-      }, [rxCheckButtonGPS])      
-
+      }, [rxCheckButtonGPS]);     
 
     
     useEffect(()=>{
@@ -525,7 +515,7 @@ function Map ({
         // figure out how many digits long the number is
         //var digits = (count + '').length;
         let digits;
-        if (count == 2) { digits = '1'; }
+        if (count === 2) { digits = '1'; }
         if (count >= 3 && count <=5) { digits = '2'; }
         if (count >= 6 && count <=9) { digits = '3'; }
         if (count >= 10 && count <=14) { digits = '4'; }

@@ -6,7 +6,7 @@ distlib==0.3.1
 dj-database-url==0.5.0
 Django==3.1.7
 django-cors-headers==3.10.1
-django-dotenv=1.4.2
+django-dotenv==1.4.2
 django-geojson==3.1.0
 django-heroku==0.3.1
 django-storages==1.11.1

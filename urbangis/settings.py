@@ -220,8 +220,6 @@ USE_S3 = True
 
 if USE_S3:
     # aws settings    
-    #AWS_ACCESS_KEY_ID = '***REMOVED***'
-    #AWS_SECRET_ACCESS_KEY = '***REMOVED***'
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
     AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     AWS_STORAGE_BUCKET_NAME = 'urbangis'

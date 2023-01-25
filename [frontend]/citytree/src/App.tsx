@@ -2,6 +2,8 @@ import "./App.css";
 import L from 'leaflet'
 
 import { useParams } from "react-router-dom";
+import { useNavigate } from  'react-router-dom';
+//import { redirect } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import MenuGlobal from "./components_hl/MenuGlobal";
@@ -78,6 +80,7 @@ let geojsonMarkerOptions_citytree = {
 
 function App() {
 	const paramsRouter = useParams();
+	const navigate = useNavigate();
 	//const csrftoken = getCookie("csrftoken");
 
 	// redux
@@ -116,10 +119,12 @@ function App() {
 		dispatch(actIsMobileDevice(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)));
 		dispatch(actShowSidebar(!isMobileView));	
 		
+		if (paramsRouter?.treeId) showTreePreview(parseInt(paramsRouter.treeId));
+
 		window.addEventListener('resize', handleWindowSizeChange);
         return () => {
             window.removeEventListener('resize', handleWindowSizeChange);			
-        }	
+        }			
 				
 	}, []); /* useEffect triggers when route has been changed too */
 
@@ -142,7 +147,7 @@ function App() {
     }
 
 	useEffect(() => {
-		fetchTreesAndStatuses();
+		fetchTreesAndStatuses();				
 	}, [paramsRouter]); /* useEffect triggers when route has been changed too */
 
 	const fetchTreesAndStatuses = async () => {
@@ -213,17 +218,21 @@ function App() {
 		}   
 	}
 
-	const showTreePreview = (idTree: number) => {		
-		setTreePreview({ visible: true, data: {}, idTree: idTree })		
+	const showTreePreview = (idTree: number) => {				
+		setTreePreview({ visible: true, data: {}, idTree: idTree });	
 	};
 
 	// when event comes from markerOnClick, it comes from L.Circle which is not React component, therefore there is something wrong, because in this event you can't see current values in States and Redux (to check permissions using rxDataPermissions), so I used redux event to broke that chain
 	useEffect(()=>{		
 		if (treePreview?.visible === true && treePreview?.idTree) {
+			navigate(`${paramsRouter.cityName}/${treePreview.idTree.toString()}`);
 			fetchTreeData(treePreview.idTree).then((data) =>
 				setTreePreview({ visible: true, data: data, idTree: null })
 			);			
+		} else if (treePreview?.visible === false) {
+			navigate(`${paramsRouter.cityName}`);
 		}
+
 	}, [treePreview]);
 
 	const onButtonEditTreeClick = (idTree: number) => {
